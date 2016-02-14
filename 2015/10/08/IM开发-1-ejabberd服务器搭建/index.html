@@ -1,0 +1,307 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>IM开发(1)-ejabberd服务器搭建 | 树下的老男孩</title>
+  <meta name="author" content="树下的老男孩">
+  
+  <meta name="description" content="最近项目中需要集成IM功能，市面上有很多的第三方提供im服务，比如环信、融云等，但都有使用限制的地方，如果不使用第三方可以自己去实现一套IM系统，不过一个IM系统涉及到的东西比较多，开发难度较高。另一种选择是使用xmpp，xmpp的优点是有很多的开源实现，比如服务端的ejabberd、Openfire，iOS以及安卓端都很优秀的开源库可以使用，而且传输安全以及扩展性强等(环信也是基于xmpp)；同时也有一些缺点，比如不能传输二进制数据以及费流量等，有些地方需要去改进。   下面记录如何使用XMPP来简单实现IM功能，在这之前需要先搭建本地服务器用于测试。">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="IM开发(1)-ejabberd服务器搭建"/>
+  <meta property="og:site_name" content="树下的老男孩"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="树下的老男孩" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  <script src="/js/jquery.min.js"></script>
+  
+<script type="text/javascript">
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-45019001-1', 'topdna.org');
+  ga('send', 'pageview');
+
+</script>
+
+
+</head>
+
+
+<body>
+  <!--[if lte IE 8]> <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'> <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode"><img src="http://storage.ie6countdown.com/assets/100/images/banners/warning_bar_0027_Simplified Chinese.jpg" border="0" height="42" width="820" alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today." style='margin-left:auto;margin-right:auto;display: block;'/></a></div> <![endif]-->
+  <header id="header" class="inner"><div class="alignleft">
+  <h1><a href="/">树下的老男孩</a></h1>
+  <h2><a href="/">工匠之行，在行动中体悟修行的乐趣</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">首页</a></li>
+    
+      <li><a href="/categories/tech/">技术</a></li>
+    
+      <li><a href="/categories/others/">其它</a></li>
+    
+      <li><a href="/archives">归档</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div></header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+    <div class="gallery">
+  <div class="photoset">
+    
+      <img src="">
+    
+  </div>
+  <div class="control">
+    <div class="prev"></div>
+    <div class="next"></div>
+  </div>
+</div>
+  
+  <div class="post-content">
+    <header>
+      
+        <time datetime="2015-10-08T10:12:50.000Z"><a href="/2015/10/08/IM开发-1-ejabberd服务器搭建/">2015-10-08</a></time>
+      
+      
+  
+    <h1 class="title">IM开发(1)-ejabberd服务器搭建</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>最近项目中需要集成IM功能，市面上有很多的第三方提供im服务，比如环信、融云等，但都有使用限制的地方，如果不使用第三方可以自己去实现一套IM系统，不过一个IM系统涉及到的东西比较多，开发难度较高。另一种选择是使用xmpp，xmpp的优点是有很多的开源实现，比如服务端的ejabberd、Openfire，iOS以及安卓端都很优秀的开源库可以使用，而且传输安全以及扩展性强等(环信也是基于xmpp)；同时也有一些缺点，比如不能传输二进制数据以及费流量等，有些地方需要去改进。<br>   下面记录如何使用XMPP来简单实现IM功能，在这之前需要先搭建本地服务器用于测试。</p>
+<a id="more"></a>
+<h3 id="ejabberd服务器搭建"><a href="#ejabberd服务器搭建" class="headerlink" title="ejabberd服务器搭建"></a>ejabberd服务器搭建</h3><p>为了实现IM聊天，需要先搭建一个XMPP服务器，这里我们采用ejabberd来作为服务器，ejabbered采用Erlang语言编写，由于语言的特性天生适合高并发的情景。</p>
+<ul>
+<li>安装Erlang<br>在安装ejabbered之前需要先安装Erlang，在控制台输入命令<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">brew install erlang</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>等待安装完成即可。</p>
+<ul>
+<li>安装ejabbered<br>ejabbered服务器的安装非常简单，下载<a href="https://www.process-one.net/en/ejabberd/downloads" target="_blank" rel="external">ejabberd</a>安装包直接安装即可。<br><img src="http://upload-images.jianshu.io/upload_images/458529-3312b408ef4ec319.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="ejabbered安装包.png"><br>安装完之后可以在Applications目录先找到：<br><img src="http://upload-images.jianshu.io/upload_images/458529-3ad8f667b1b59ab6.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/400" alt="目录结构.png"><br>由于我们的服务器只是测试用的，比较重要的是bin目录下的start和stop命令，这两个分别用于开启和关闭xmpp服务，设置这两个命令为可执行：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chmod 755 stop&#10;chmod 755 start</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>现在输入命令 ./start可以看到如下的页面</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/458529-dc69d6906aa62f8c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/400" alt="启动页面.png"></p>
+<ul>
+<li>添加用户<br>现在我们的服务器只有administrators，我们需要增加几个用户，也方便后面测试，可以输入<a href="http://localhost:5280/admin/" target="_blank" rel="external">http://localhost:5280/admin/</a> 到ejabberd的后台管理页面：</li>
+</ul>
+<p><img src="http://upload-images.jianshu.io/upload_images/458529-4c464f5390f2730b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/400" alt="管理页面.png"><br>点击虚拟主机，选择用户菜单可以看到添加用户的页面如下，我们添加了user1@lujiangbin.local和user2@lujiangbin.local两个用户：</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/458529-f3eedf26de72469b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/600" alt="添加用户.png"></p>
+<ul>
+<li>测试服务器<br>现在可以来测试服务器是否能正常运行了。要测试的话我们需要两个支持xmpp协议的客户端，可以使用Mac OSX自带的iMessage(登陆user1)和Adium(登陆user2) ，其中支持xmpp协议的客户端有：<br><a href="http://xmpp.org/xmpp-software/clients/" target="_blank" rel="external">http://xmpp.org/xmpp-software/clients/</a></li>
+</ul>
+<p>打开iMessage添加用户<br><img src="http://upload-images.jianshu.io/upload_images/458529-66fd15defeaf0b68.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/600" alt="添加用户user1.png"></p>
+<p>iMessage可能会提示服务器的证书需要验证，点击继续即可：</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/458529-64db0d560901b4ac.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/600" alt="屏幕快照 2015-10-08 下午3.34.55.png"><br>可以看到user1已经登陆成功了。<br><img src="http://upload-images.jianshu.io/upload_images/458529-c3990e6ab3919234.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/400" alt="登陆成功"></p>
+<p>接着打开Adium添加user2@lujiangbin.local用户，添加过程跟iMessage类似：<br><img src="http://upload-images.jianshu.io/upload_images/458529-256fe01abf4fd9ce.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/400" alt="添加用户1.png"><br>设置连接服务器为localhost:<br><img src="http://upload-images.jianshu.io/upload_images/458529-8ddb578e478946bb.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/400" alt="添加用户2.png"></p>
+<p>由于现在user1和user2还不是好友关系，因此没法进行聊天，点击iMessage添加好友user2@lujiangbin.local：</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/458529-afa67bf587ef57fc.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="添加好友"><br>在Adium会收到验证请求，点击接受双方互加好友，接着就可以进行im聊天了：</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/458529-82e0c47aba24c9b7.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/500" alt="好友添加.png"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/458529-a669fcbe8eff3c23.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="聊天.png"><br>这样我们确认本地的xmpp服务器是可用的，接下来就可以着手客户端的开发了，可以查看<a href="http://www.jianshu.com/p/eb273cb8ac94" target="_blank" rel="external">IM开发(2)-iOS客户端</a></p>
+
+      
+    </div>
+    <footer>
+      
+
+        
+          <div class="alignleft post-nav">
+            <em>上一篇: </em><a href="/2015/10/20/IM开发-2-XMPP-iOS开发/">IM开发(2)-XMPP iOS开发</a>
+          </div>
+        
+        
+          <div class="alignright post-nav">
+            <em>下一篇: </em><a href="/2015/09/09/iOS-app性能优化的那些事-二/">iOS app性能优化的那些事(二)</a>
+          </div>
+          <div class="clearfix"></div>
+        
+
+        
+          <div class="copyright">
+            
+              <span class="claim">版权声明：自由转载-非商用-保持署名  树下的老男孩</span>
+            
+            
+              <span class="from-link">
+                <em>本文链接地址:</em>
+                <a href="/2015/10/08/IM开发-1-ejabberd服务器搭建/">
+                  http://freemind-lj.github.io/2015/10/08/IM开发-1-ejabberd服务器搭建/
+                </a>
+              </span>
+            
+          </div>
+        
+        
+  
+  <div class="categories">
+    <a href="/categories/tech/">tech</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/IM/">IM</a>, <a href="/tags/XMPP/">XMPP</a>, <a href="/tags/iOS开发/">iOS开发</a>
+  </div>
+
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+<!-- Duoshuo Comment BEGIN -->
+<div class="ds-thread"></div>
+<script type="text/javascript">
+  var duoshuoQuery = {short_name: 'treeboy' };
+  (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';
+      ds.async = true;
+      ds.src = 'http://static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0] 
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script>
+<!-- Duoshuo Comment END -->
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="text" name="q" results="0" placeholder="搜尋">
+    <i class="icon-search"></i>
+    <input type="hidden" name="q" value="site:freemind-lj.github.io">
+  </form>
+</div>
+
+  
+<div class="widget tag">
+  <h3 class="title">標籤</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/GCD/">GCD</a><small>2</small></li>
+  
+    <li><a href="/tags/IM/">IM</a><small>2</small></li>
+  
+    <li><a href="/tags/SDWebimage/">SDWebimage</a><small>2</small></li>
+  
+    <li><a href="/tags/XMPP/">XMPP</a><small>2</small></li>
+  
+    <li><a href="/tags/iOS开发/">iOS开发</a><small>8</small></li>
+  
+    <li><a href="/tags/代码整洁之道/">代码整洁之道</a><small>2</small></li>
+  
+    <li><a href="/tags/性能优化/">性能优化</a><small>2</small></li>
+  
+    <li><a href="/tags/源码剖析/">源码剖析</a><small>1</small></li>
+  
+    <li><a href="/tags/源码解析/">源码解析</a><small>2</small></li>
+  
+    <li><a href="/tags/面向对象设计/">面向对象设计</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">最新文章</h3>
+  <ul class="entry">
+    
+      <li>
+        <a href="/2016/02/02/iOS应用程序间共享数据/">iOS应用程序间共享数据</a>
+      </li>
+    
+      <li>
+        <a href="/2016/01/07/细说-synchronized和dispatch-once/">细说@synchronized和dispatch_once</a>
+      </li>
+    
+      <li>
+        <a href="/2015/12/23/谈谈面向对象设计-OOD-原则/">谈谈面向对象设计(OOD)原则</a>
+      </li>
+    
+      <li>
+        <a href="/2015/12/16/有意义的命名/">有意义的命名</a>
+      </li>
+    
+      <li>
+        <a href="/2015/12/14/整洁代码/">整洁代码</a>
+      </li>
+    
+      <li>
+        <a href="/2015/11/24/开源许可证的一些区别/">开源许可证的一些区别</a>
+      </li>
+    
+      <li>
+        <a href="/2015/11/20/关于GCD开发的一些事儿/">关于GCD开发的一些事儿</a>
+      </li>
+    
+      <li>
+        <a href="/2015/11/02/NSOperation和NSOperationQueue的一些事儿/">NSOperation和NSOperationQueue的一些事儿</a>
+      </li>
+    
+      <li>
+        <a href="/2015/10/20/IM开发-2-XMPP-iOS开发/">IM开发(2)-XMPP iOS开发</a>
+      </li>
+    
+      <li>
+        <a href="/2015/10/08/IM开发-1-ejabberd服务器搭建/">IM开发(1)-ejabberd服务器搭建</a>
+      </li>
+    
+      <li>
+        <a href="/2015/09/09/iOS-app性能优化的那些事-二/">iOS app性能优化的那些事(二)</a>
+      </li>
+    
+      <li>
+        <a href="/2015/09/05/iOS-app性能优化的那些事/">iOS app性能优化的那些事</a>
+      </li>
+    
+  </ul>
+</div>
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <div id="go-pg-top"><i class="icon-arrow-up"></i></div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2016 树下的老男孩
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript" charset="utf-8" src="/js/page.js"></script>
+
+</body>
+
+</html>

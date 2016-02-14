@@ -598,6 +598,259 @@
   </entry>
   
   <entry>
+    <title>IM开发(2)-XMPP iOS开发</title>
+    <link href="http://freemind-lj.github.io/2015/10/20/IM%E5%BC%80%E5%8F%91-2-XMPP-iOS%E5%BC%80%E5%8F%91/"/>
+    <id>http://freemind-lj.github.io/2015/10/20/IM开发-2-XMPP-iOS开发/</id>
+    <published>2015-10-20T04:30:46.000Z</published>
+    <updated>2016-02-14T10:12:24.000Z</updated>
+    
+    <content type="html">&lt;p&gt;搭建完&lt;a href=&quot;http://www.jianshu.com/p/f801229de016&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;本地服务器&lt;/a&gt;之后，我们便可以着手客户端的工作，这里我们使用&lt;a href=&quot;https://github.com/robbiehanson/XMPPFramework&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;XMPPFramework&lt;/a&gt;这个开源库，安卓平台可以使用&lt;a href=&quot;https://github.com/igniterealtime/Smack&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Smack&lt;/a&gt;(最好使用4.1以及之后的版本，支持流管理)，为了简单起见这里只实现登陆、获取好友列表以及聊天等功能，页面如下所示：&lt;/p&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;p&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-3a92c360085c0662.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240&quot; alt=&quot;user2的好友列表.png&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-3f877ab69e122186.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240&quot; alt=&quot;聊天.png&quot;&gt;
+  &lt;/p&gt;
+&lt;h4 id=&quot;xmpp初始化&quot;&gt;&lt;a href=&quot;#xmpp初始化&quot; class=&quot;headerlink&quot; title=&quot;xmpp初始化&quot;&gt;&lt;/a&gt;xmpp初始化&lt;/h4&gt;&lt;p&gt;  在开始使用xmpp进行IM聊天之前，我们需要初始化xmpp流，接入我们需要的模块：&lt;br&gt;&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;#define JBXMPP_HOST @&amp;#34;lujiangbin.local&amp;#34;&amp;#10;#define JBXMPP_PORT 5222&amp;#10;- (void)setupStream&amp;#10;&amp;#123;&amp;#10;&amp;#160; &amp;#160; if (!_xmppStream) &amp;#123;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; _xmppStream = [[XMPPStream alloc] init];&amp;#10;&amp;#160;&amp;#160; &amp;#160; &amp;#160; &amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; [self.xmppStream setHostName:JBXMPP_HOST]; //&amp;#35774;&amp;#32622;xmpp&amp;#26381;&amp;#21153;&amp;#22120;&amp;#22320;&amp;#22336;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; [self.xmppStream setHostPort:JBXMPP_PORT]; //&amp;#35774;&amp;#32622;xmpp&amp;#31471;&amp;#21475;&amp;#65292;&amp;#40664;&amp;#35748;5222&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; [self.xmppStream addDelegate:self delegateQueue:dispatch_get_main_queue()];&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; [self.xmppStream setKeepAliveInterval:30]; //&amp;#24515;&amp;#36339;&amp;#21253;&amp;#26102;&amp;#38388;&amp;#10;&amp;#10;        //&amp;#20801;&amp;#35768;xmpp&amp;#22312;&amp;#21518;&amp;#21488;&amp;#36816;&amp;#34892;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; self.xmppStream.enableBackgroundingOnSocket=YES;&amp;#10;&amp;#160;&amp;#160; &amp;#160; &amp;#160; &amp;#160;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; //&amp;#25509;&amp;#20837;&amp;#26029;&amp;#32447;&amp;#37325;&amp;#36830;&amp;#27169;&amp;#22359;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; _xmppReconnect = [[XMPPReconnect alloc] init];&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; [_xmppReconnect setAutoReconnect:YES];&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; [_xmppReconnect activate:self.xmppStream];&amp;#10;&amp;#160;&amp;#160; &amp;#160; &amp;#160; &amp;#160;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; //&amp;#25509;&amp;#20837;&amp;#27969;&amp;#31649;&amp;#29702;&amp;#27169;&amp;#22359;&amp;#65292;&amp;#29992;&amp;#20110;&amp;#27969;&amp;#24674;&amp;#22797;&amp;#36319;&amp;#28040;&amp;#24687;&amp;#30830;&amp;#35748;&amp;#65292;&amp;#22312;&amp;#31227;&amp;#21160;&amp;#31471;&amp;#24456;&amp;#37325;&amp;#35201;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; _storage = [XMPPStreamManagementMemoryStorage new];&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; _xmppStreamManagement = [[XMPPStreamManagement alloc] initWithStorage:_storage];&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; _xmppStreamManagement.autoResume = YES;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; [_xmppStreamManagement addDelegate:self delegateQueue:dispatch_get_main_queue()];&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; [_xmppStreamManagement activate:self.xmppStream];&amp;#10;&amp;#160;&amp;#160; &amp;#160; &amp;#160; &amp;#160;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; //&amp;#25509;&amp;#20837;&amp;#22909;&amp;#21451;&amp;#27169;&amp;#22359;&amp;#65292;&amp;#21487;&amp;#20197;&amp;#33719;&amp;#21462;&amp;#22909;&amp;#21451;&amp;#21015;&amp;#34920;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; _xmppRosterMemoryStorage = [[XMPPRosterMemoryStorage alloc] init];&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; _xmppRoster = [[XMPPRoster alloc] initWithRosterStorage:_xmppRosterMemoryStorage];&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; [_xmppRoster activate:self.xmppStream];&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; [_xmppRoster addDelegate:self delegateQueue:dispatch_get_main_queue()];&amp;#10;&amp;#160;&amp;#160; &amp;#160; &amp;#160; &amp;#160;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; //&amp;#25509;&amp;#20837;&amp;#28040;&amp;#24687;&amp;#27169;&amp;#22359;&amp;#65292;&amp;#23558;&amp;#28040;&amp;#24687;&amp;#23384;&amp;#20648;&amp;#21040;&amp;#26412;&amp;#22320;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; _xmppMessageArchivingCoreDataStorage = [XMPPMessageArchivingCoreDataStorage sharedInstance];&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; _xmppMessageArchiving = [[XMPPMessageArchiving alloc] initWithMessageArchivingStorage:_xmppMessageArchivingCoreDataStorage dispatchQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 9)];&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; [_xmppMessageArchiving activate:self.xmppStream];&amp;#10;&amp;#160; &amp;#160; &amp;#125;&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
+&lt;h4 id=&quot;登陆&quot;&gt;&lt;a href=&quot;#登陆&quot; class=&quot;headerlink&quot; title=&quot;登陆&quot;&gt;&lt;/a&gt;登陆&lt;/h4&gt;&lt;p&gt;xmpp的登陆过程比较繁琐，登陆过程包括初始化流、TLS握手和SASL验证等，想要了解各个阶段服务端跟客户端之间交互的内容可以查看&lt;a href=&quot;https://github.com/winterSleep/XMPPBlog/blob/master/1-%E5%BB%BA%E7%AB%8Bsocket%E5%88%B0%E7%99%BB%E5%BD%95%E6%88%90%E5%8A%9F.md&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;这里&lt;/a&gt;，就不在详细介绍。XMPPFramework将整个复杂的登陆过程都封装起来了，客户端调用connectWithTimeout:(NSTimeInterval)timeout error:(NSError **)errPtr连接服务器，然后在xmppStreamDidConnect代理方法输入密码验证登陆，这里我们使用在搭建服务器时创建的两个用户，user1和user2。&lt;br&gt; &lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;#define JBXMPP_DOMAIN @&amp;#34;lujiangbin.local&amp;#34;&amp;#10;-(void)loginWithName:(NSString *)userName andPassword:(NSString *)password&amp;#10;&amp;#123;&amp;#10;&amp;#160; &amp;#160; _myJID = [XMPPJID jidWithUser:userName domain:JBXMPP_DOMAIN resource:@&amp;#34;iOS&amp;#34;];&amp;#10;&amp;#160; &amp;#160; self.myPassword = password;&amp;#10;&amp;#160; &amp;#160; [self.xmppStream setMyJID:_myJID];&amp;#10;&amp;#160; &amp;#160; NSError *error = nil;&amp;#10;&amp;#160; &amp;#160; [_xmppStream connectWithTimeout:XMPPStreamTimeoutNone error:&amp;#38;error]&amp;#65307;&amp;#10;&amp;#125;&amp;#10;&amp;#10;#pragma mark -- connect delegate&amp;#10;//&amp;#36755;&amp;#20837;&amp;#23494;&amp;#30721;&amp;#39564;&amp;#35777;&amp;#30331;&amp;#38470;&amp;#10;- (void)xmppStreamDidConnect:(XMPPStream *)sender&amp;#10;&amp;#123;&amp;#10;&amp;#160; &amp;#160; NSError *error = nil;&amp;#10;&amp;#160; &amp;#160;[[self xmppStream] authenticateWithPassword:_myPassword error:&amp;#38;error]&amp;#65307;&amp;#10;&amp;#125;&amp;#10;&amp;#10;//&amp;#30331;&amp;#38470;&amp;#25104;&amp;#21151;&amp;#10;- (void)xmppStreamDidAuthenticate:(XMPPStream *)sender&amp;#10;&amp;#123;&amp;#10;&amp;#160; &amp;#160; NSLog(@&amp;#34;%s&amp;#34;,__func__);&amp;#10;    //&amp;#21457;&amp;#36865;&amp;#22312;&amp;#32447;&amp;#36890;&amp;#30693;&amp;#32473;&amp;#26381;&amp;#21153;&amp;#22120;&amp;#65292;&amp;#26381;&amp;#21153;&amp;#22120;&amp;#25165;&amp;#20250;&amp;#23558;&amp;#31163;&amp;#32447;&amp;#28040;&amp;#24687;&amp;#25512;&amp;#36865;&amp;#36807;&amp;#26469;&amp;#10;    XMPPPresence *presence = [XMPPPresence presence]; // &amp;#40664;&amp;#35748;&amp;#34;available&amp;#34; &amp;#10;&amp;#160; &amp;#160; [[self xmppStream] sendElement:presence];&amp;#10;&amp;#160; &amp;#160; //&amp;#21551;&amp;#29992;&amp;#27969;&amp;#31649;&amp;#29702;&amp;#10;&amp;#160; &amp;#160; [_xmppStreamManagement enableStreamManagementWithResumption:YES maxTimeout:0];&amp;#10;&amp;#125;&amp;#10;//&amp;#30331;&amp;#38470;&amp;#22833;&amp;#36133;&amp;#10;- (void)xmppStream:(XMPPStream *)sender didNotAuthenticate:(NSXMLElement *)error&amp;#10;&amp;#123;&amp;#10;&amp;#160; &amp;#160; NSLog(@&amp;#34;%s&amp;#34;,__func__);&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
+&lt;h4 id=&quot;获取好友列表&quot;&gt;&lt;a href=&quot;#获取好友列表&quot; class=&quot;headerlink&quot; title=&quot;获取好友列表&quot;&gt;&lt;/a&gt;获取好友列表&lt;/h4&gt;&lt;p&gt;登陆成功之后，我们可以通过XMPPRoster去获取好友列表，在示例中我们为了简单起见使用&lt;br&gt;XMPPRosterMemoryStorage将好友存储在内存中，在实际场景你可以将好友存储在&lt;br&gt;XMPPRosterCoreDataStorage，xmppframework使用coredata将好友保存到本地，可以在初始化xmpp流的时候设置。为了获取好友列表，只需调用fetchRoster方法:&lt;br&gt;&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;//&amp;#33719;&amp;#21462;&amp;#26381;&amp;#21153;&amp;#22120;&amp;#22909;&amp;#21451;&amp;#21015;&amp;#34920;&amp;#10;&amp;#160; &amp;#160; [[[JBXMPPManager sharedInstance] xmppRoster] fetchRoster];&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
+&lt;h4 id=&quot;消息&quot;&gt;&lt;a href=&quot;#消息&quot; class=&quot;headerlink&quot; title=&quot;消息&quot;&gt;&lt;/a&gt;消息&lt;/h4&gt;&lt;ul&gt;
+&lt;li&gt;消息发送&lt;br&gt;只需要调用xmpp的sendElement:方法，由于xmpp只支持文本，所以假如你想发送二进制的文件，比如语音图片等，可以先压缩然后用base64编码，接收方收到再做解码工作，比如语音可以压缩成amr格式，amr格式安卓可以直接播放，iOS需要在解压成wav格式，可以参考&lt;a href=&quot;https://github.com/FreeMind-LJ/IMChatDemo&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;demo&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;- (void)sendMessage:(NSString *)message to:(XMPPJID *)jid&amp;#10;&amp;#123;&amp;#10;&amp;#160; &amp;#160; XMPPMessage* newMessage = [[XMPPMessage alloc] initWithType:@&amp;#34;chat&amp;#34; to:jid];&amp;#10;&amp;#160; &amp;#160; [newMessage addBody:message]; //&amp;#28040;&amp;#24687;&amp;#20869;&amp;#23481;&amp;#10;&amp;#160; &amp;#160; [_xmppStream sendElement:newMessage];&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;ul&gt;
+&lt;li&gt;消息接收&lt;br&gt;当收到消息的时候，xmppframework会调用didReceiveMessage：代理方法，由于我们在初始化流的时候将消息设置存储到本地，可以看到XMPPMessageArchiving在didReceiveMessage收到消息的时候将消息存储起来。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;// XMPPMessageArchiving.m&amp;#10;- (void)xmppStream:(XMPPStream *)sender didSendMessage:(XMPPMessage *)message&amp;#10;&amp;#123;&amp;#10;     if ([self shouldArchiveMessage:message outgoing:YES xmppStream:sender])&amp;#10;     &amp;#123;&amp;#10;         [xmppMessageArchivingStorage archiveMessage:message outgoing:YES     xmppStream:sender];&amp;#10;     &amp;#125;&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;ul&gt;
+&lt;li&gt;消息确认&lt;br&gt;为了防止发出去的消息丢失了，可以接入消息回执模块(XEP-184)，这样对方每收到一条消息的时候都会返回一条确认的消息，如果没收到该条确认消息可以认为发送失败，确认消息的格式如下：&lt;/li&gt;
+&lt;/ul&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt; &amp;#160;&amp;#10;&amp;#60;message to=&amp;#34;user2@lujiangbin.local&amp;#34;&amp;#62;&amp;#10;&amp;#160; &amp;#60;received xmlns=&amp;#34;urn:xmpp:receipts&amp;#34; id=&amp;#34;&amp;#28040;&amp;#24687;ID&amp;#34;/&amp;#62;&amp;#10;&amp;#60;/message&amp;#62;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;不过这种方法也有些弊端，比如每次收到一条消息都必须回复，一定程度上会浪费流量以及影响服务器的性能，所以一般采用流管理来实现消息确认。&lt;/p&gt;
+&lt;p&gt;####流关闭&lt;br&gt;当退出程序的时候，最好能给服务器发送关闭流的通知，也就是发送结束流，服务器收到之后开始将后续发给该对象的消息收集到离线仓库中，当客户端重新上线的时候，服务端会主动将离线消息推送过来，这样不会丢失消息。由于客户端的操作经常是切到后台然后直接关掉程序，因此可以监听UIApplicationWillTerminateNotification消息，然后手动关闭流。&lt;/p&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationWillTerminate) name:UIApplicationWillTerminateNotification object:nil];&amp;#10;&amp;#10;#pragma mark -- terminate&amp;#10;/**&amp;#10;&amp;#160;*&amp;#160; &amp;#30003;&amp;#35831;&amp;#21518;&amp;#21488;&amp;#26356;&amp;#22810;&amp;#30340;&amp;#26102;&amp;#38388;&amp;#26469;&amp;#23436;&amp;#25104;&amp;#20851;&amp;#38381;&amp;#27969;&amp;#30340;&amp;#20219;&amp;#21153;&amp;#10;&amp;#160;*/&amp;#10;-(void)applicationWillTerminate&amp;#10;&amp;#123;&amp;#10;&amp;#160; &amp;#160; UIApplication *app=[UIApplication sharedApplication];&amp;#10;&amp;#160; &amp;#160; UIBackgroundTaskIdentifier taskId;&amp;#10;&amp;#160; &amp;#160; taskId=[app beginBackgroundTaskWithExpirationHandler:^(void)&amp;#123;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; [app endBackgroundTask:taskId];&amp;#10;&amp;#160; &amp;#160; &amp;#125;];&amp;#10;&amp;#160; &amp;#160; if(taskId==UIBackgroundTaskInvalid)&amp;#123;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; return;&amp;#10;&amp;#160; &amp;#160; &amp;#125;&amp;#10;&amp;#160; &amp;#160; [_xmppStream disconnectAfterSendingEndStream];&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;h4 id=&quot;流管理&quot;&gt;&lt;a href=&quot;#流管理&quot; class=&quot;headerlink&quot; title=&quot;流管理&quot;&gt;&lt;/a&gt;流管理&lt;/h4&gt;&lt;p&gt;&lt;a href=&quot;http://xmpp.org/extensions/xep-0198.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Stream Management&lt;/a&gt;是为了流恢复跟节确认而增加的。理想情况下，客户端发送关闭流的通知给服务器，服务器将后续的消息存储到离线仓库，等客户端再登陆上线的时候推送过来，但是在移动端网络可能随时断掉，这时候服务器并不会马上察觉(只能依靠TCP超时或者服务器自己的心跳包)，它会认为对方还在线，将后续的消息发送过去，这样到服务器知道对方掉线的这段时间，期间的消息就丢失了，所以需要流管理来处理。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;节确认(stanza acknowledgement)&lt;br&gt;用来确认一段时间内节(包括&lt;iq&gt;,&lt;message&gt;,&lt;presence&gt;,不是&lt;iq&gt;&lt;br&gt;,&lt;message&gt;,或&lt;presence&gt;这样的stanzas不会在流管理中被确认跟计数的)是否被对方接收，客户端跟服务端都各自有有两个h值用来维护这些信息。从客户端来看，其中一个h值用于记录收到的节，比如当收到服务推送的消息时，会将该h值加1；另一个h值用于记录发出去的节，当发出一条消息时该h值也加1，所以为了确认消息是否被收到其实都是在比较双方的两个h值。&lt;br&gt;为了查询这些h值，xmpp定义了&lt;a&gt;和&lt;r&gt;两个元素，&lt;r&gt;用户请求节的确认消息，&lt;a&gt;用于回答节的确认消息，必须携带自己已处理的h值。&lt;/a&gt;&lt;/r&gt;&lt;/r&gt;&lt;/a&gt;&lt;/presence&gt;&lt;/message&gt;&lt;/iq&gt;&lt;/presence&gt;&lt;/message&gt;&lt;/iq&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&amp;#26381;&amp;#21153;&amp;#31471;: &amp;#60;r xmlns=&amp;#39;urn:xmpp:sm:3&amp;#39;/&amp;#62;&amp;#10;&amp;#23458;&amp;#25143;&amp;#31471;: &amp;#60;a xmlns=&amp;#39;urn:xmpp:sm:3&amp;#39; h=&amp;#39;3&amp;#39;/&amp;#62;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;比如服务端发送&lt;r&gt;请求，客户端返回自己接受收到的h值（3），然后服务端会根据这个h值跟它自己记录发出去的节的h值做比较，假如小的话会重新发送剩下的节，来防止节丢失。&lt;/r&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;流恢复&lt;br&gt;由于移动网络可能随时down掉，所以在我们重连上来的时候需要的是快速恢复上一次的流，而不是重新新建一个流，roster的检索以及状态的广播，流管理可以通过上一次的流id（当启用流管理的时候，服务端会生成一个id来表示一个流）以及双方的h值来完成流的快速恢复以及这期间的节确认，发送未被确认的节。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;开启流管理&lt;br&gt;要想启用流管理，客户端发送&lt;enable&gt;元素给服务端，服务端返回&lt;enabled&gt;元素表示该流已经被管理了，同时有一个id值来标示这个流，xmppframework开启流管理只需要调用&lt;br&gt;enableStreamManagementWithResumption: maxTimeout:接口：&lt;/enabled&gt;&lt;/enable&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&amp;#23458;&amp;#25143;&amp;#31471;: &amp;#60;enable xmlns=&amp;#39;urn:xmpp:sm:3&amp;#39; resume=&amp;#39;true&amp;#39;/&amp;#62;&amp;#10;&amp;#26381;&amp;#21153;&amp;#31471;: &amp;#60;enabled xmlns=&amp;#39;urn:xmpp:sm:3&amp;#39; id=&amp;#39;&amp;#27969;id&amp;#39; resume=&amp;#39;true&amp;#39;/&amp;#62;&amp;#10;&amp;#10;- (void)xmppStreamDidAuthenticate:(XMPPStream *)sender&amp;#10;&amp;#123;&amp;#10;&amp;#160; &amp;#160; //&amp;#30331;&amp;#38470;&amp;#23436;&amp;#25104;&amp;#21518;&amp;#65292;&amp;#21551;&amp;#29992;&amp;#27969;&amp;#31649;&amp;#29702;&amp;#10;&amp;#160; &amp;#160; [_xmppStreamManagement enableStreamManagementWithResumption:YES maxTimeout:0];&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;ul&gt;
+&lt;li&gt;请求流恢复&lt;br&gt;当客户端想要恢复一个流的时候，需要发送&lt;resume&gt;元素以及一个previd值，也就是想要恢复的上一次的流id，当流可以恢复的时候，服务端会返回&lt;resumed&gt;元素，双方都会携带一个h值用于节确认。&lt;/resumed&gt;&lt;/resume&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&amp;#23458;&amp;#25143;&amp;#31471;: &amp;#60;resume xmlns=&amp;#39;urn:xmpp:sm:3&amp;#39; h=&amp;#39;&amp;#23458;&amp;#25143;&amp;#31471;&amp;#25509;&amp;#25910;&amp;#30340;h&amp;#20540;&amp;#39; previd=&amp;#39;&amp;#27969;id&amp;#39;/&amp;#62;&amp;#10;&amp;#26381;&amp;#21153;&amp;#31471;: &amp;#60;resumed xmlns=&amp;#39;urn:xmpp:sm:3&amp;#39; h=&amp;#39;&amp;#26381;&amp;#21153;&amp;#31471;&amp;#25509;&amp;#25910;&amp;#30340;h&amp;#20540;&amp;#39; previd=&amp;#39;&amp;#27969;id&amp;#39;/&amp;#62;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;xmppframework将这部分逻辑封装在内部，不过这些h跟流id的值是存储在内存中，当程序退出的时候这些值就没了，也就无法恢复流。所以实际应用的时候需要将这些值保存到本地，比如&lt;a href=&quot;https://github.com/FreeMind-LJ/IMChatDemo&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;demo&lt;/a&gt;里的XMPPStreamManagementPersistentStorage。&lt;/p&gt;
+&lt;h4 id=&quot;xmpp注意点&quot;&gt;&lt;a href=&quot;#xmpp注意点&quot; class=&quot;headerlink&quot; title=&quot;xmpp注意点&quot;&gt;&lt;/a&gt;xmpp注意点&lt;/h4&gt;&lt;ul&gt;
+&lt;li&gt;文件http上传&lt;br&gt;由于xmpp只支持文本，所以类似音频这种二进制文件需要用base64转成文本形式，但更好的方式是采用http上传文件，消息体保存的是文件对应的URL。&lt;/li&gt;
+&lt;li&gt;登陆改进&lt;br&gt;xmpp的登陆涉及到始化流、TLS握手和SASL验证等，步骤比较繁琐，可以根据情况简化流程。&lt;/li&gt;
+&lt;li&gt;TLS加密&lt;br&gt;假如我们的im需要加密，可以开启TLS，不过iOS的TLS&lt;a href=&quot;https://dev.ssllabs.com/ssltest/viewClient.html?name=Apple%20ATS&amp;amp;version=9&amp;amp;platform=iOS%209&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;不支持压缩&lt;/a&gt;。&lt;br&gt;GCDAsyncSocket内部已经帮我们封装协商的过程，不过我们可能会收到错误：kCFStreamErrorDomainSSL Code=-9807，这是由于服务器证书并不是正式的证书，所以需要手动去认证：&lt;/li&gt;
+&lt;/ul&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;//&amp;#35774;&amp;#32622;&amp;#25163;&amp;#21160;&amp;#35748;&amp;#35777;&amp;#35777;&amp;#20070;&amp;#10;NSMutableDictionary *settings = [NSMutableDictionary dictionary];&amp;#10;[settings setObject:@YES forKey:GCDAsyncSocketManuallyEvaluateTrust];&amp;#10;[asyncSocket startTLS:settings];&amp;#10;&amp;#10;- (void)socketDidSecure:(GCDAsyncSocket *)sock&amp;#10;&amp;#123;&amp;#10;     // &amp;#24320;&amp;#22987;&amp;#25509;&amp;#25910;&amp;#25968;&amp;#25454;&amp;#10;     [sock readDataWithTimeout:TIMEOUT_XMPP_READ_STREAM tag:TAG_XMPP_READ_STREAM];&amp;#10;&amp;#125;&amp;#10;&amp;#10;//&amp;#22312;delegate&amp;#26041;&amp;#27861;&amp;#20013;&amp;#65292;&amp;#25163;&amp;#21160;&amp;#20449;&amp;#20219;&amp;#10;-(void)xmppStream:(XMPPStream *)sender didReceiveTrust:(SecTrustRef)trust completionHandler:(void (^)(BOOL))completionHandler&amp;#10;&amp;#123;&amp;#10;&amp;#160; &amp;#160; if (completionHandler)&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; completionHandler(YES);&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;一个简单的demo工程可以在&lt;a href=&quot;https://github.com/FreeMind-LJ/IMChatDemo&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;这里&lt;/a&gt;找到。&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;搭建完&lt;a href=&quot;http://www.jianshu.com/p/f801229de016&quot;&gt;本地服务器&lt;/a&gt;之后，我们便可以着手客户端的工作，这里我们使用&lt;a href=&quot;https://github.com/robbiehanson/XMPPFramework&quot;&gt;XMPPFramework&lt;/a&gt;这个开源库，安卓平台可以使用&lt;a href=&quot;https://github.com/igniterealtime/Smack&quot;&gt;Smack&lt;/a&gt;(最好使用4.1以及之后的版本，支持流管理)，为了简单起见这里只实现登陆、获取好友列表以及聊天等功能，页面如下所示：&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="tech" scheme="http://freemind-lj.github.io/categories/tech/"/>
+    
+    
+      <category term="IM" scheme="http://freemind-lj.github.io/tags/IM/"/>
+    
+      <category term="XMPP" scheme="http://freemind-lj.github.io/tags/XMPP/"/>
+    
+      <category term="iOS开发" scheme="http://freemind-lj.github.io/tags/iOS%E5%BC%80%E5%8F%91/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>IM开发(1)-ejabberd服务器搭建</title>
+    <link href="http://freemind-lj.github.io/2015/10/08/IM%E5%BC%80%E5%8F%91-1-ejabberd%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/"/>
+    <id>http://freemind-lj.github.io/2015/10/08/IM开发-1-ejabberd服务器搭建/</id>
+    <published>2015-10-08T10:12:50.000Z</published>
+    <updated>2016-02-14T10:15:08.000Z</updated>
+    
+    <content type="html">&lt;p&gt;最近项目中需要集成IM功能，市面上有很多的第三方提供im服务，比如环信、融云等，但都有使用限制的地方，如果不使用第三方可以自己去实现一套IM系统，不过一个IM系统涉及到的东西比较多，开发难度较高。另一种选择是使用xmpp，xmpp的优点是有很多的开源实现，比如服务端的ejabberd、Openfire，iOS以及安卓端都很优秀的开源库可以使用，而且传输安全以及扩展性强等(环信也是基于xmpp)；同时也有一些缺点，比如不能传输二进制数据以及费流量等，有些地方需要去改进。&lt;br&gt;   下面记录如何使用XMPP来简单实现IM功能，在这之前需要先搭建本地服务器用于测试。&lt;/p&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;h3 id=&quot;ejabberd服务器搭建&quot;&gt;&lt;a href=&quot;#ejabberd服务器搭建&quot; class=&quot;headerlink&quot; title=&quot;ejabberd服务器搭建&quot;&gt;&lt;/a&gt;ejabberd服务器搭建&lt;/h3&gt;&lt;p&gt;为了实现IM聊天，需要先搭建一个XMPP服务器，这里我们采用ejabberd来作为服务器，ejabbered采用Erlang语言编写，由于语言的特性天生适合高并发的情景。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;安装Erlang&lt;br&gt;在安装ejabbered之前需要先安装Erlang，在控制台输入命令&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;brew install erlang&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;等待安装完成即可。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;安装ejabbered&lt;br&gt;ejabbered服务器的安装非常简单，下载&lt;a href=&quot;https://www.process-one.net/en/ejabberd/downloads&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;ejabberd&lt;/a&gt;安装包直接安装即可。&lt;br&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-3312b408ef4ec319.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240&quot; alt=&quot;ejabbered安装包.png&quot;&gt;&lt;br&gt;安装完之后可以在Applications目录先找到：&lt;br&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-3ad8f667b1b59ab6.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/400&quot; alt=&quot;目录结构.png&quot;&gt;&lt;br&gt;由于我们的服务器只是测试用的，比较重要的是bin目录下的start和stop命令，这两个分别用于开启和关闭xmpp服务，设置这两个命令为可执行：&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;chmod 755 stop&amp;#10;chmod 755 start&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;现在输入命令 ./start可以看到如下的页面&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-dc69d6906aa62f8c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/400&quot; alt=&quot;启动页面.png&quot;&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;添加用户&lt;br&gt;现在我们的服务器只有administrators，我们需要增加几个用户，也方便后面测试，可以输入&lt;a href=&quot;http://localhost:5280/admin/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://localhost:5280/admin/&lt;/a&gt; 到ejabberd的后台管理页面：&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-4c464f5390f2730b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/400&quot; alt=&quot;管理页面.png&quot;&gt;&lt;br&gt;点击虚拟主机，选择用户菜单可以看到添加用户的页面如下，我们添加了user1@lujiangbin.local和user2@lujiangbin.local两个用户：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-f3eedf26de72469b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/600&quot; alt=&quot;添加用户.png&quot;&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;测试服务器&lt;br&gt;现在可以来测试服务器是否能正常运行了。要测试的话我们需要两个支持xmpp协议的客户端，可以使用Mac OSX自带的iMessage(登陆user1)和Adium(登陆user2) ，其中支持xmpp协议的客户端有：&lt;br&gt;&lt;a href=&quot;http://xmpp.org/xmpp-software/clients/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://xmpp.org/xmpp-software/clients/&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;打开iMessage添加用户&lt;br&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-66fd15defeaf0b68.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/600&quot; alt=&quot;添加用户user1.png&quot;&gt;&lt;/p&gt;
+&lt;p&gt;iMessage可能会提示服务器的证书需要验证，点击继续即可：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-64db0d560901b4ac.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/600&quot; alt=&quot;屏幕快照 2015-10-08 下午3.34.55.png&quot;&gt;&lt;br&gt;可以看到user1已经登陆成功了。&lt;br&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-c3990e6ab3919234.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/400&quot; alt=&quot;登陆成功&quot;&gt;&lt;/p&gt;
+&lt;p&gt;接着打开Adium添加user2@lujiangbin.local用户，添加过程跟iMessage类似：&lt;br&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-256fe01abf4fd9ce.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/400&quot; alt=&quot;添加用户1.png&quot;&gt;&lt;br&gt;设置连接服务器为localhost:&lt;br&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-8ddb578e478946bb.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/400&quot; alt=&quot;添加用户2.png&quot;&gt;&lt;/p&gt;
+&lt;p&gt;由于现在user1和user2还不是好友关系，因此没法进行聊天，点击iMessage添加好友user2@lujiangbin.local：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-afa67bf587ef57fc.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240&quot; alt=&quot;添加好友&quot;&gt;&lt;br&gt;在Adium会收到验证请求，点击接受双方互加好友，接着就可以进行im聊天了：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-82e0c47aba24c9b7.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/500&quot; alt=&quot;好友添加.png&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-a669fcbe8eff3c23.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240&quot; alt=&quot;聊天.png&quot;&gt;&lt;br&gt;这样我们确认本地的xmpp服务器是可用的，接下来就可以着手客户端的开发了，可以查看&lt;a href=&quot;http://www.jianshu.com/p/eb273cb8ac94&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;IM开发(2)-iOS客户端&lt;/a&gt;&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;最近项目中需要集成IM功能，市面上有很多的第三方提供im服务，比如环信、融云等，但都有使用限制的地方，如果不使用第三方可以自己去实现一套IM系统，不过一个IM系统涉及到的东西比较多，开发难度较高。另一种选择是使用xmpp，xmpp的优点是有很多的开源实现，比如服务端的ejabberd、Openfire，iOS以及安卓端都很优秀的开源库可以使用，而且传输安全以及扩展性强等(环信也是基于xmpp)；同时也有一些缺点，比如不能传输二进制数据以及费流量等，有些地方需要去改进。&lt;br&gt;   下面记录如何使用XMPP来简单实现IM功能，在这之前需要先搭建本地服务器用于测试。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="tech" scheme="http://freemind-lj.github.io/categories/tech/"/>
+    
+    
+      <category term="IM" scheme="http://freemind-lj.github.io/tags/IM/"/>
+    
+      <category term="XMPP" scheme="http://freemind-lj.github.io/tags/XMPP/"/>
+    
+      <category term="iOS开发" scheme="http://freemind-lj.github.io/tags/iOS%E5%BC%80%E5%8F%91/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>iOS app性能优化的那些事(二)</title>
+    <link href="http://freemind-lj.github.io/2015/09/09/iOS-app%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E7%9A%84%E9%82%A3%E4%BA%9B%E4%BA%8B-%E4%BA%8C/"/>
+    <id>http://freemind-lj.github.io/2015/09/09/iOS-app性能优化的那些事-二/</id>
+    <published>2015-09-09T07:16:28.000Z</published>
+    <updated>2016-02-14T10:18:13.000Z</updated>
+    
+    <content type="html">&lt;p&gt;  这次我们来说说iOS app中滑动的那些事。iOS为了提高滑动的流畅感，特意在滑动的时候将runloop模式切换到UITrackingRunLoopMode，在这个过程中专心做跟滑动相关的工作，这也就是在滑动过程中为什么nstimer无法工作的原因，因为两个没在同一mode下面。但我们可能经常会遇到滑动不怎么流畅的情况，比如在项目中碰到在滑动tableview的时候不怎么顺畅，感觉有点不爽，即便是在测试中表现最好的5s(touch之类的感受更直观)。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-a0302ed8a146efb8.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240&quot; alt=&quot;tableview 滑动不流畅&quot;&gt;&lt;/p&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;p&gt;  那碰到这种情况该怎么处理，分析图像动画性能主要用的是Core Animation这个组件，先简单介绍一下里面一些经常用到的选项：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Color Blended layers&lt;br&gt;标示混合的图层会为红色,不透明的图层为绿色，通常我们希望绿色的区域越多越好。&lt;/li&gt;
+&lt;li&gt;Color Hits Green and Misses Red&lt;br&gt;假如我们设置viewlayer的shouldRasterize为YES，那些成功被缓存的layer会标注为绿色，反之为红色，下面会有详细介绍。&lt;/li&gt;
+&lt;li&gt;Color copied images&lt;br&gt;标示那些被Core Animation拷贝的图片。这主要是因为该图片的色彩格式不能被GPU直接处理，需要在CPU这边做转换，假如在主线层做这个操作对性能会有一定的影响。&lt;/li&gt;
+&lt;li&gt;Color misaligned images&lt;br&gt;被缩放的图片会被标记为黄色,像素不对齐则会标注为紫色。&lt;/li&gt;
+&lt;li&gt;Color offscreen-rendered yellow&lt;br&gt;标示哪些layer需要做离屏渲染(offscreen-render)。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;p&gt;简单介绍完Core Animation的一些东西之后我们回过头来看看哪些问题会影响到图形的性能，下面这张图摘自WWDC2014(&lt;a href=&quot;https://developer.apple.com/videos/wwdc/2014/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Advanced Graphics and Animations for iOS Apps&lt;/a&gt;，这上面的一些分享非常有技术性)&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-58b359235a6d6b1e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240&quot; alt=&quot;performance investigation mindset.png&quot;&gt;&lt;br&gt;当你碰到性能问题的时候，你可以思考一下：&lt;br&gt;&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&amp;#26159;&amp;#21542;&amp;#21463;&amp;#21040;CPU&amp;#25110;&amp;#32773;GPU&amp;#30340;&amp;#38480;&amp;#21046;&amp;#65311;&amp;#10;&amp;#26159;&amp;#21542;&amp;#26377;&amp;#19981;&amp;#24517;&amp;#35201;&amp;#30340;CPU&amp;#28210;&amp;#26579;&amp;#65311;&amp;#10;&amp;#26159;&amp;#21542;&amp;#26377;&amp;#22826;&amp;#22810;&amp;#30340;&amp;#31163;&amp;#23631;&amp;#28210;&amp;#26579;&amp;#25805;&amp;#20316;&amp;#65311;&amp;#10;&amp;#26159;&amp;#21542;&amp;#26377;&amp;#22826;&amp;#22810;&amp;#30340;&amp;#22270;&amp;#23618;&amp;#28151;&amp;#21512;&amp;#25805;&amp;#20316;&amp;#65311;&amp;#10;&amp;#26159;&amp;#21542;&amp;#26377;&amp;#22855;&amp;#24618;&amp;#30340;&amp;#22270;&amp;#29255;&amp;#26684;&amp;#24335;&amp;#25110;&amp;#32773;&amp;#23610;&amp;#23544;&amp;#65311;&amp;#10;&amp;#26159;&amp;#21542;&amp;#28041;&amp;#21450;&amp;#21040;&amp;#26114;&amp;#36149;&amp;#30340;view&amp;#25110;&amp;#32773;&amp;#25928;&amp;#26524;&amp;#65311;&amp;#10;view&amp;#30340;&amp;#23618;&amp;#27425;&amp;#32467;&amp;#26500;&amp;#26159;&amp;#21542;&amp;#21512;&amp;#29702;&amp;#65311;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;那么哪些是你最该开始考虑的方向呢？通常发生图形性能问题的时候，比如列表滑动不顺畅、动画卡顿等，大部分都是由于Offscreen Rendering(离屏渲染)或者blending导致的，因为这在动画的每一帧都会涉及到。&lt;/p&gt;
+&lt;h3 id=&quot;offscreen-render&quot;&gt;&lt;a href=&quot;#offscreen-render&quot; class=&quot;headerlink&quot; title=&quot;offscreen-render&quot;&gt;&lt;/a&gt;offscreen-render&lt;/h3&gt;&lt;p&gt;什么是offscreen-render？offscreen-render涉及的内容比较多，有offscreen-render那就有onscreen render，onscreen render指的是GPU在当前用于显示的屏幕缓冲区进行渲染，相反offscreen-render就是不在当前的屏幕缓存区，而在另外的缓冲区进行渲染，offscreen-render有两种形式：&lt;/p&gt;
+&lt;h5 id=&quot;CPU的offscreen-render&quot;&gt;&lt;a href=&quot;#CPU的offscreen-render&quot; class=&quot;headerlink&quot; title=&quot;CPU的offscreen-render&quot;&gt;&lt;/a&gt;CPU的offscreen-render&lt;/h5&gt;&lt;p&gt;使用CPU来完成渲染操纵，通常在你使用：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;drawRect (如果没有自定义绘制的任务就不要在子类中写一个空的drawRect方法，因为只要实现了该方法，就会为视图分配一个寄宿图，这个寄宿图的像素尺寸等于视图大小乘以 contentsScale的值，造成资源浪费)&lt;/li&gt;
+&lt;li&gt;使用Core Graphics&lt;br&gt;上面的两种情况使用的就是CPU离屏渲染，首先分配一块内存，然后进行渲染操作生成一份bitmap位图，整个渲染过程会在你的应用中同步的进行，接着再将位图打包发送到iOS里一个单独的进程–render server，理想情况下，render server将内容交给GPU直接显示到屏幕上。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h5 id=&quot;GPU的offscreen-render&quot;&gt;&lt;a href=&quot;#GPU的offscreen-render&quot; class=&quot;headerlink&quot; title=&quot;GPU的offscreen-render&quot;&gt;&lt;/a&gt;GPU的offscreen-render&lt;/h5&gt;&lt;p&gt;使用GPU在当前屏幕缓冲区以外开辟一个新的缓冲区进行绘制，通常发生的情况有：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;设置cornerRadius, masks, shadows,edge antialiasing等&lt;/li&gt;
+&lt;li&gt;设置layer.shouldRasterize ＝ YES&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-001968c478e446d4.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240&quot; alt=&quot;渲染流程&quot;&gt;&lt;br&gt;offscreen-render对性能到底有什么影响？通常大家说的离屏渲染指的是GPU这块(当然CPU这块也会有影响，也需要消耗一定的资源)，比如修改了layer的阴影或者圆角，GPU需要做额外的渲染操作。通常GPU在做渲染的时候是很快的，但是涉及到offscreen-render的时候情况就可能有些不同，因为需要额外开辟一个新的缓冲区进行渲染，然后绘制到当前屏幕的过程需要做onscreen跟offscreen上下文之间的切换，这个过程的消耗会比较昂贵，涉及到OpenGL的pipeline跟barrier，而且offscreen-render在每一帧都会涉及到，因此处理不当肯定会对性能产生一定的影响，所以可以的话尽量减少offscreen-render的图层，查看哪些图层需要离屏渲染可以用Instruments的Core Animation工具进行检测，Color Offscreen-Rendered Yellow选项会将对应的图层标记为黄色。&lt;/p&gt;
+&lt;h3 id=&quot;Blending&quot;&gt;&lt;a href=&quot;#Blending&quot; class=&quot;headerlink&quot; title=&quot;Blending&quot;&gt;&lt;/a&gt;Blending&lt;/h3&gt;&lt;p&gt;假如最上层的view是不透明的，那直接使用这个view的对应颜色之就可以，但如果view是透明的，在计算像素的颜色值时就需要计算它下面图层，透明的视图越多，计算量就越大，因此也会对图形的性能产生一定的影响，所以可以的话也尽量减少透明图层的数目。&lt;/p&gt;
+&lt;h2 id=&quot;Demo&quot;&gt;&lt;a href=&quot;#Demo&quot; class=&quot;headerlink&quot; title=&quot;Demo&quot;&gt;&lt;/a&gt;Demo&lt;/h2&gt;&lt;p&gt;下面给出一个简单&lt;a href=&quot;https://github.com/FreeMind-LJ/OptimiseDemo&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;demo&lt;/a&gt;的优化过程，这个demo里面涉及到的问题是在实际项目中所碰到的，也就是最上面那张图里列表滑动不流畅情况—由阴影以及圆角导致的offscreen-render。&lt;br&gt;整个页面就是一个简单的tableview，其中头像为圆角，一个label有阴影效果，滑动的时候在iPod上帧率只有可怜的28FPS。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-6e77bc984a1ade8a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/150&quot; alt=&quot;Color Offscreen-Rendered Yellow&quot;&gt;&lt;br&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-9523185e90a69c93.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1000&quot; alt=&quot;28FPS.png&quot;&gt;&lt;br&gt;其中黄色的区域就是离屏渲染的地方，也就是含有圆角跟阴影的layer。&lt;/p&gt;
+&lt;h5 id=&quot;shadowPath&quot;&gt;&lt;a href=&quot;#shadowPath&quot; class=&quot;headerlink&quot; title=&quot;shadowPath&quot;&gt;&lt;/a&gt;shadowPath&lt;/h5&gt;&lt;p&gt;设置label的阴影效果可以通过：&lt;br&gt;&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;cell.sign.layer.shadowOffset = CGSizeMake(0, 2);&amp;#10;&amp;#160; &amp;#160; cell.sign.layer.shadowOpacity = 0.5;&amp;#10;&amp;#160; &amp;#160; cell.sign.layer.shadowColor = [UIColor blackColor].CGColor;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;但是你可以发现这会导致离屏渲染，一个简单的不需要离屏渲染的方法就是制定阴影的路径，也就是设置layer的shadowPath属性，通过instruments发现阴影的地方没有黄色了，帧率也提高到了40FPS：&lt;/p&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;cell.sign.layer.shadowPath = [UIBezierPath&amp;#160; bezierPathWithRect:cell.sign.bounds].CGPath;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-03ad463233e11e7f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/150&quot; alt=&quot;设置shadowPath消除离屏渲染.png&quot;&gt;&lt;/p&gt;
+&lt;h5 id=&quot;rasterize&quot;&gt;&lt;a href=&quot;#rasterize&quot; class=&quot;headerlink&quot; title=&quot;rasterize&quot;&gt;&lt;/a&gt;rasterize&lt;/h5&gt;&lt;p&gt;对于圆角这种类似导致的性能问题，最简单的就是在列表中不要使用圆角，假如要使用圆角的话，一种最快提升性能的方式就是设置layer的shouldRasterize为YES：&lt;br&gt; &lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&amp;#160; &amp;#160; cell.layer.shouldRasterize = YES;&amp;#10;&amp;#160; &amp;#160; cell.layer.rasterizationScale = [UIScreen mainScreen].scale;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;虽然被Rasterize的图层也会引起离屏渲染，如下图所示，整个cell都被标示为黄色：&lt;br&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-4bcc28216254d415.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/150&quot; alt=&quot;shouldRasterize.png&quot;&gt;&lt;/p&gt;
+&lt;p&gt;layer设置shouldRasterize＝YES之后，会把被光栅化的图层保存成位图并缓存起来，其中圆角或者阴影之类的效果也是直接保存到位图当中，当需要渲染到屏幕上的时候只需要到缓存中去取对应的位图进行显示就行了，加快了整个渲染过程。可以通过勾选instruments core animation中的Color Hits Green and Misses Red选项来查看图层是否被缓存了，如果图层显示为绿色则表示已经被缓存起来了，也就是这个缓冲区的内容被复用了，不用在去重新创建缓冲区，反之则是用红色标示。如下图可以看到设置shouldRasterize之后，cell都被标示为绿色了，如果滑动过程中发现都是红色的证明就有问题了：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-5fb556d65e7cbffc.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/150&quot; alt=&quot;cached.png&quot;&gt;&lt;br&gt;再看看现在滑动的帧率：&lt;br&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-ec49371b6a8f4662.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240&quot; alt=&quot;优化后.png&quot;&gt;&lt;br&gt;可以发现现在滚动的性能大大提高了，光栅化对于那些有很多子view嵌套在一起、view的层级复杂或者有很复杂特效效果的图层有很明显的提升，因为这些内容都被缓存到位图当中了。但是使用光栅化需要注意一些内容：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;适用于内容基本不变的图层&lt;br&gt;假如图层的内容经常变化，比如cell里面有涉及到动画之类的，那么缓存的内容就无效了，GPU需要重新创建缓存区，导致离屏渲染，这又涉及到OpenGL的上下文环境切换，反而降低性能。&lt;/li&gt;
+&lt;li&gt;不要过度使用&lt;br&gt;缓存区的大小被设置为屏幕大小的2.5倍，假如过分使用同样会导致大量的离屏渲染。&lt;/li&gt;
+&lt;li&gt;如果缓存的内容超过100ms没有被使用则会被回收。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h3 id=&quot;tips&quot;&gt;&lt;a href=&quot;#tips&quot; class=&quot;headerlink&quot; title=&quot;tips&quot;&gt;&lt;/a&gt;tips&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;对于圆角可以使用一张中间圆形透明的图覆盖在上面，虽然这会引入blending操作，但是大部分情况下性能会比离屏渲染好。&lt;/li&gt;
+&lt;li&gt;让你的view层次结构平坦一些，因为OpenGL在渲染layer的时候，在碰到有子层级layer的时候可能需要停下来把两者合成到一个buffer里再接着渲染。（When the OpenGL renderer goes to draw each layer, it may have to stop for some subhierarchies and composite them into a single buffer）.&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;延迟加载图片&lt;br&gt;有时候在边滚动边设置图片的时候可能会有一定的影响，因此可以在滚动的时候imageview不执行setimage的操作，滚动停止的时候才加载图片，由于滚动的时候NSRunloop是处于UITrackingRunLoopMode模式下，可以采用如下的方式，将设置图片放到NSDefaultRunLoopMode模式下才进行：&lt;/p&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;UIImage *downloadedImage = ...;&amp;#10;&amp;#160; &amp;#160; [self.avatarImageView performSelector:@selector(setImage:)&amp;#10;&amp;#160;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; withObject:downloadedImage&amp;#10;&amp;#160;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; afterDelay:0&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; inModes:@[NSDefaultRunLoopMode]];&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;图片加载的极限优化方式：&lt;a href=&quot;https://github.com/path/FastImageCache&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;FastImageCache&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;p&gt;图形性能这块有什么好的想法也可提出来交流一下～～&lt;/p&gt;
+&lt;h5 id=&quot;参考：&quot;&gt;&lt;a href=&quot;#参考：&quot; class=&quot;headerlink&quot; title=&quot;参考：&quot;&gt;&lt;/a&gt;参考：&lt;/h5&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https://lobste.rs/s/ckm4uw/a_performance-minded_take_on_ios_design/comments/itdkfh&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;https://lobste.rs/s/ckm4uw/a_performance-minded_take_on_ios_design/comments/itdkfh&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://developer.apple.com/videos/wwdc/2014/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Advanced Graphics and Animations for iOS Apps&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;http://iosinjordan.tumblr.com/post/56778173518/help-my-tables-dont-scroll-smoothly&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://iosinjordan.tumblr.com/post/56778173518/help-my-tables-dont-scroll-smoothly&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;  这次我们来说说iOS app中滑动的那些事。iOS为了提高滑动的流畅感，特意在滑动的时候将runloop模式切换到UITrackingRunLoopMode，在这个过程中专心做跟滑动相关的工作，这也就是在滑动过程中为什么nstimer无法工作的原因，因为两个没在同一mode下面。但我们可能经常会遇到滑动不怎么流畅的情况，比如在项目中碰到在滑动tableview的时候不怎么顺畅，感觉有点不爽，即便是在测试中表现最好的5s(touch之类的感受更直观)。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-a0302ed8a146efb8.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240&quot; alt=&quot;tableview 滑动不流畅&quot;&gt;&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="tech" scheme="http://freemind-lj.github.io/categories/tech/"/>
+    
+    
+      <category term="iOS开发" scheme="http://freemind-lj.github.io/tags/iOS%E5%BC%80%E5%8F%91/"/>
+    
+      <category term="性能优化" scheme="http://freemind-lj.github.io/tags/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>iOS app性能优化的那些事</title>
+    <link href="http://freemind-lj.github.io/2015/09/05/iOS-app%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E7%9A%84%E9%82%A3%E4%BA%9B%E4%BA%8B/"/>
+    <id>http://freemind-lj.github.io/2015/09/05/iOS-app性能优化的那些事/</id>
+    <published>2015-09-05T09:18:33.000Z</published>
+    <updated>2016-02-14T10:19:48.000Z</updated>
+    
+    <content type="html">&lt;p&gt;  iPhone上面的应用一直都是以流畅的操作体验而著称，但是由于之前开发人员把注意力更多的放在开发功能上面，比较少去考虑性能的问题，可能这其中涉及到objective－c,c++跟lua，优化起来相对复杂一些，导致应用在比如touch等较低端的产品上，光从启动到进入页面就花了将近一分钟的时间，页面之间的切换没有那种很流畅的感觉，内存也居高不下，比较影响应用的用户体验，所以很有必要进行一些优化，下面记录一下我在优化的过程中的一些心得：&lt;/p&gt;
+&lt;h3 id=&quot;1-instruments&quot;&gt;&lt;a href=&quot;#1-instruments&quot; class=&quot;headerlink&quot; title=&quot;1 instruments&quot;&gt;&lt;/a&gt;1 instruments&lt;/h3&gt;&lt;p&gt;  在iOS上进行性能分析的时候，首先考虑借助instruments这个利器分析出问题出在哪，不要凭空想象，不然你可能把精力花在了1%的问题上，最后发现其实啥都没优化，比如要查看程序哪些部分最耗时，可以使用Time Profiler，要查看内存是否泄漏了，可以使用Leaks等。关于instruments网上有很多资料，作为一个合格iOS开发者，熟悉这个工具还是很有必要的。&lt;/p&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;h3 id=&quot;2-不要阻塞主线程&quot;&gt;&lt;a href=&quot;#2-不要阻塞主线程&quot; class=&quot;headerlink&quot; title=&quot;2 不要阻塞主线程&quot;&gt;&lt;/a&gt;2 不要阻塞主线程&lt;/h3&gt;&lt;p&gt;  在iOS里关于UIKit的操作都是放在主线程，因此如果主线程被阻塞住了，你的UI可能无法及时响应事件，给人一种卡顿的感觉。大多数阻塞主线程的情况是在主线程做IO操作，比如文件的读写，包含数据库、图片、json文本或者log日志等，尽量将这些操作放放到子线程(如果数据库有一次有较多的操作，记得采用事务来处理，性能相差还是挺大的)，或者在后台建立对应的dispatch queue来做这些操作，比如一个低级别的serial queue来负责log文件的记录等等。程序中如果你的代码逻辑是按照同步的逻辑来写的，尽量修改逻辑代码吧。。。&lt;/p&gt;
+&lt;h3 id=&quot;3-使用cache&quot;&gt;&lt;a href=&quot;#3-使用cache&quot; class=&quot;headerlink&quot; title=&quot;3 使用cache&quot;&gt;&lt;/a&gt;3 使用cache&lt;/h3&gt;&lt;p&gt;  一般为了提升用户体验，都会在应用中使用缓存，比如对于图片资源可以使用SDWebImage这个开源库，里面就实现了一个图片缓存的功能。参考SDWebImage的代码自己也可以实现缓存功能:&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-fdf0dd0b4a6e4077.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240&quot; alt=&quot;cache简单示意图&quot;&gt;&lt;/p&gt;
+&lt;p&gt;业务层根据资源的url向resourcemanager获取对应的资源，resourcemanager首先会到memorycache这边去获取资源，memorycache可以利用NSCache实现，因为NSCache首先是线程安全的，而且在收到内存警告的时候会自己释放对应的内存；如果memorycache没有对应的资源再去disk查找，disk也没有的话再去internet获取，获取到的话会更新到memorycache和disk中，具体可以去参考一下SDWebimage的实现细节。&lt;/p&gt;
+&lt;h3 id=&quot;4-减少程序启动过程中的任务&quot;&gt;&lt;a href=&quot;#4-减少程序启动过程中的任务&quot; class=&quot;headerlink&quot; title=&quot;4 减少程序启动过程中的任务&quot;&gt;&lt;/a&gt;4 减少程序启动过程中的任务&lt;/h3&gt;&lt;p&gt;当用户点击app的图标之后，程序应该尽可能快的进入到主页面，尽可能减少用户的等待时间，比如我们的应用程序在启动的时候会去做3d模型的渲染操作，完成之后在进入首页面展示，但其实我们可以先进入到主页面，将渲染3d的任务放到子线程去完成，缩短用户需要等待的时间。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-e3db5218134ab8dd.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240&quot; alt=&quot;3d&quot;&gt;&lt;/p&gt;
+&lt;h3 id=&quot;5-使用合适的数据结构&quot;&gt;&lt;a href=&quot;#5-使用合适的数据结构&quot; class=&quot;headerlink&quot; title=&quot;5 使用合适的数据结构&quot;&gt;&lt;/a&gt;5 使用合适的数据结构&lt;/h3&gt;&lt;p&gt;根据不同的业务场景来选择合适的数据结构，可能在数据量比较少的时候看不出什么区别，但是假如你存储的数据量比较大且数据结构比较复杂的话，这有可能会影响到你的程序性能。一般用的比较多的数据结构就是array，但我们知道它的查找复杂度是O(n)，因此假如需要快速的查找某个元素，可以使用map。可以参考下&lt;a href=&quot;https://developer.apple.com/library/ios/documentation/Cocoa/Conceptual/Collections/Collections.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt; &lt;a href=&quot;https://developer.apple.com/library/ios/#documentation/cocoa/conceptual/collections/Collections.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Apple Collections Programming Topics&lt;/a&gt; &lt;/a&gt;。&lt;/p&gt;
+&lt;h3 id=&quot;6-内存&quot;&gt;&lt;a href=&quot;#6-内存&quot; class=&quot;headerlink&quot; title=&quot;6 内存&quot;&gt;&lt;/a&gt;6 内存&lt;/h3&gt;&lt;p&gt;一般开发都使用的ARC，不太需要开发者去关注内存的创建和释放这块，但假如你使用的是MRC，并且跟其它语言混杂在一起(比如c++和lua)等的时候，如何确保内存正确释放就是你需要考虑的问题了。有时候一些内存泄漏instruments可能无法准确的分析出来，那么就需要自己去排查了，可以使用&lt;a href=&quot;http://www.jianshu.com/p/be1ddd8c699f&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;method swizzling&lt;/a&gt;方法来辅助我们排查内存泄漏的问题，确保程序的正确运行。&lt;/p&gt;
+&lt;h3 id=&quot;7-懒加载view&quot;&gt;&lt;a href=&quot;#7-懒加载view&quot; class=&quot;headerlink&quot; title=&quot;7 懒加载view&quot;&gt;&lt;/a&gt;7 懒加载view&lt;/h3&gt;&lt;p&gt;不要在cell里面嵌套太多的view，这会很影响滑动的流畅感，而且更多的view也需要花费更多的CPU跟内存。假如由于view太多而导致了滑动不流畅，那就不要在一次就把所有的view都创建出来，把部分view放到需要显示cell的时候再去创建。&lt;/p&gt;
+&lt;h3 id=&quot;8-lua优化&quot;&gt;&lt;a href=&quot;#8-lua优化&quot; class=&quot;headerlink&quot; title=&quot;8 lua优化&quot;&gt;&lt;/a&gt;8 lua优化&lt;/h3&gt;&lt;p&gt;由于项目的业务是以及部分框架是用lua语言实现的，因此也顺便说一下lua这块遇到的问题。lua号称是最快的脚本语言，一般性能上不会有什么问题，如果lua代码要优化的话，网上也有很多这块优化的&lt;a href=&quot;http://www.cnblogs.com/gdev/archive/2012/08/22/lua-performance-tips-1.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;注意点&lt;/a&gt;，这次我主要说个可能影响性能的点—lua的垃圾回收。垃圾回收是一个比较耗时的操作，假如垃圾回收的操作太过于频繁势必会影响到这个程序的运行，比如在iPod在利用lua_cjson解析一份4.7M的json文件是花了3.43s的时间，后来发现跟垃圾回收这块有关。一般内存的使用量适中的话，可以不用去理他，让lua的incremental模式自己去处理，正常情况这个会工作的比较好；假如想要自己去控制gc的运行，可以设置gc的参数，这些参数可能会跟项目有一定的关系，可以自己多试验取最优值。&lt;br&gt;&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;//gc &amp;#30340;&amp;#21442;&amp;#25968;&amp;#35774;&amp;#32622;&amp;#65292;&amp;#26681;&amp;#25454;&amp;#24773;&amp;#20917;&amp;#21462;&amp;#26368;&amp;#20248;&amp;#20540;&amp;#10;collectgarbage(&amp;#34;setpause&amp;#34;, 150)&amp;#10;collectgarbage(&amp;#34;setstepmul&amp;#34;, 200)&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;  iPhone上面的应用一直都是以流畅的操作体验而著称，但是由于之前开发人员把注意力更多的放在开发功能上面，比较少去考虑性能的问题，可能这其中涉及到objective－c,c++跟lua，优化起来相对复杂一些，导致应用在比如touch等较低端的产品上，光从启动到进入页面就花了将近一分钟的时间，页面之间的切换没有那种很流畅的感觉，内存也居高不下，比较影响应用的用户体验，所以很有必要进行一些优化，下面记录一下我在优化的过程中的一些心得：&lt;/p&gt;
+&lt;h3 id=&quot;1-instruments&quot;&gt;&lt;a href=&quot;#1-instruments&quot; class=&quot;headerlink&quot; title=&quot;1 instruments&quot;&gt;&lt;/a&gt;1 instruments&lt;/h3&gt;&lt;p&gt;  在iOS上进行性能分析的时候，首先考虑借助instruments这个利器分析出问题出在哪，不要凭空想象，不然你可能把精力花在了1%的问题上，最后发现其实啥都没优化，比如要查看程序哪些部分最耗时，可以使用Time Profiler，要查看内存是否泄漏了，可以使用Leaks等。关于instruments网上有很多资料，作为一个合格iOS开发者，熟悉这个工具还是很有必要的。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="tech" scheme="http://freemind-lj.github.io/categories/tech/"/>
+    
+    
+      <category term="iOS开发" scheme="http://freemind-lj.github.io/tags/iOS%E5%BC%80%E5%8F%91/"/>
+    
+      <category term="性能优化" scheme="http://freemind-lj.github.io/tags/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/"/>
+    
+  </entry>
+  
+  <entry>
     <title>SDWebImage源码剖析（二）</title>
     <link href="http://freemind-lj.github.io/2015/05/10/SDWebImage%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90%EF%BC%88%E4%BA%8C%EF%BC%89/"/>
     <id>http://freemind-lj.github.io/2015/05/10/SDWebImage源码剖析（二）/</id>
