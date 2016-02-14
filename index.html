@@ -78,6 +78,158 @@
   <div class="post-content">
     <header>
       
+        <time datetime="2016-02-02T09:39:59.000Z"><a href="/2016/02/02/iOS应用程序间共享数据/">2016-02-02</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2016/02/02/iOS应用程序间共享数据/">iOS应用程序间共享数据</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>我们知道iOS由于沙盒的存在，应用程序不能越过自己的区域去访问别的存储空间的内容，不过可能有许多场景我们需要在应用程序之间共享数据，比如多个应用共用用户名密码进行登录等。虽然我们不能直接通过文件系统来分享数据，不过还是有些方法可以实现，为了方便说明，这里同时创建了两个工程Example1和Example2，实现这两个app之间的信息共享，Example1负责写数据，Example2负责读数据，具体的demo代码可以到<a href="https://github.com/FreeMind-LJ/SharedDataDemo">这里</a>获取</p>
+<h4 id="UIPasteboard"><a href="#UIPasteboard" class="headerlink" title="UIPasteboard"></a>UIPasteboard</h4><p>剪贴板是应用程序之间传递数据的简单方式，建议不要使用全局的粘贴板，而是自己根据名字创建一个新的粘贴板，防止其它地方全局拷贝的影响。然后把需要共享的内容复制到粘贴板，粘贴板的内容可以是文本、URL、图片和UIColor等，另一个app就可以根据粘贴板的名字去读取相关的信息。</p>
+      
+    </div>
+    <footer>
+      
+        
+          <div class="alignleft">
+            <a href="/2016/02/02/iOS应用程序间共享数据/#more" class="more-link">Read More</a>
+          </div>
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+  <article class="post">
+  
+    <div class="gallery">
+  <div class="photoset">
+    
+      <img src="">
+    
+  </div>
+  <div class="control">
+    <div class="prev"></div>
+    <div class="next"></div>
+  </div>
+</div>
+  
+  <div class="post-content">
+    <header>
+      
+        <time datetime="2016-01-07T09:43:12.000Z"><a href="/2016/01/07/细说-synchronized和dispatch-once/">2016-01-07</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2016/01/07/细说-synchronized和dispatch-once/">细说@synchronized和dispatch_once</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <blockquote>
+<p><em>工欲善其事</em>,<em>必先利其器</em>。</p>
+</blockquote>
+<p>  通常我们在实现单例时候都会使用synchronized或者dispatch_once方法，初始化往往是下面的样子：<br>使用synchronized方法实现：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">static id obj = nil;&#10;+(instancetype)shareInstance&#10;&#123;&#10;    @synchronized(self) &#123;&#10;        if (!obj) &#123;&#10;            obj = [[SingletonObj alloc] init];&#10;        &#125;&#10;    &#125;&#10;    return obj;&#10;&#125;</span><br></pre></td></tr></table></figure></p>
+<p>使用dispatch_once方法实现：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">static id obj = nil;&#10;+(instancetype)shareInstance&#10;&#123;&#10;    static dispatch_once_t onceToken;&#10;    dispatch_once(&#38;onceToken, ^&#123;&#10;        obj = [[SingletonObj alloc] init];&#10;    &#125;);&#10;    return obj;&#10;&#125;</span><br></pre></td></tr></table></figure></p>
+<h5 id="性能差异"><a href="#性能差异" class="headerlink" title="性能差异"></a>性能差异</h5><p>  上面的这些写法大家应该都很熟悉，既然两种方式都能实现，我们来看看两者的性能差异，这里简单写了个测试的<a href="https://github.com/FreeMind-LJ/SingletonTest">demo</a>，使用两个方法分单线程跟多线程(采用dispatch_apply方式，性能相对较高)去访问一个单例对象一百万次，对比这期间的耗时，从iPod跟5s测试得到如下的结果</p>
+      
+    </div>
+    <footer>
+      
+        
+          <div class="alignleft">
+            <a href="/2016/01/07/细说-synchronized和dispatch-once/#more" class="more-link">Read More</a>
+          </div>
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+  <article class="post">
+  
+    <div class="gallery">
+  <div class="photoset">
+    
+      <img src="">
+    
+  </div>
+  <div class="control">
+    <div class="prev"></div>
+    <div class="next"></div>
+  </div>
+</div>
+  
+  <div class="post-content">
+    <header>
+      
+        <time datetime="2015-12-23T09:46:39.000Z"><a href="/2015/12/23/谈谈面向对象设计-OOD-原则/">2015-12-23</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2015/12/23/谈谈面向对象设计-OOD-原则/">谈谈面向对象设计(OOD)原则</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p><img src="http://upload-images.jianshu.io/upload_images/458529-fc253eb98334d3c9.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/400" alt="design"></p>
+<blockquote>
+<p><em>拥有一把锤子未必能成为建筑师</em></p>
+</blockquote>
+<p>  最近在项目开发过程中碰到了一些问题，发现在每波迭代开发过程中，经常需要去修改之前的代码，虽然出现这样的情形很正常，新的需求必然会带来新的功能新的设计，导致之前的代码受到影响。记得看过一个笑话：</p>
+<blockquote>
+<p>“杀一个程序员不需要用枪，改三次需求就可以了”</p>
+</blockquote>
+<p>  其实需求设计是一个方面，另外我们作为设计开发人员有时候也需要去反省，反省一下代码的设计是否合理，为什么新功能的在原有代码上扩展会那么难，为什么我们的代码这么不稳定，牵一发而动全身？</p>
+      
+    </div>
+    <footer>
+      
+        
+          <div class="alignleft">
+            <a href="/2015/12/23/谈谈面向对象设计-OOD-原则/#more" class="more-link">Read More</a>
+          </div>
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+  <article class="post">
+  
+    <div class="gallery">
+  <div class="photoset">
+    
+      <img src="">
+    
+  </div>
+  <div class="control">
+    <div class="prev"></div>
+    <div class="next"></div>
+  </div>
+</div>
+  
+  <div class="post-content">
+    <header>
+      
         <time datetime="2015-12-14T07:16:01.000Z"><a href="/2015/12/14/整洁代码/">2015-12-14</a></time>
       
       
@@ -154,6 +306,60 @@
     </div>
     <footer>
       
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+  <article class="post">
+  
+    <div class="gallery">
+  <div class="photoset">
+    
+      <img src="">
+    
+  </div>
+  <div class="control">
+    <div class="prev"></div>
+    <div class="next"></div>
+  </div>
+</div>
+  
+  <div class="post-content">
+    <header>
+      
+        <time datetime="2015-11-20T09:58:10.000Z"><a href="/2015/11/20/关于GCD开发的一些事儿/">2015-11-20</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2015/11/20/关于GCD开发的一些事儿/">关于GCD开发的一些事儿</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p><img src="http://upload-images.jianshu.io/upload_images/458529-b35140f77b183122.png?imageMogr2/auto-orient/strip%7CimageView2/4/w/300" alt=""><br>在之前我们介绍过NSOperation的一些东西，这次我们来聊一聊另一个iOS开发最经常使用的技术之一 — GCD，GCD将线程的管理移到系统级别，你只需要定义好要执行的任务，然后丢到合适的Dispatch queue，GCD会负责创建线程来执行你的代码，由于这部分是处于系统级别，所以执行的性能通常非常高。GCD这部分代码苹果已开源，有兴趣的可以去下载了解一下:<a href="http://libdispatch.macosforge.org/">地址</a><br>在介绍GCD之前我们先了解一下Quality of Service：</p>
+<h3 id="Quality-of-Service-QoS"><a href="#Quality-of-Service-QoS" class="headerlink" title="Quality of Service(QoS)"></a>Quality of Service(QoS)</h3><p>这是在iOS8之后提供的新功能，苹果提供了几个Quality of Service枚举来使用:user interactive, user initiated, utility 和 background，通过这告诉系统我们在进行什么样的工作，然后系统会通过合理的资源控制来最高效的执行任务代码，其中主要涉及到CPU调度的优先级、IO优先级、任务运行在哪个线程以及运行的顺序等等，我们通过一个抽象的Quality of Service参数来表明任务的意图以及类别。</p>
+<ul>
+<li>NSQualityOfServiceUserInteractive<br>与用户交互的任务，这些任务通常跟UI级别的刷新相关，比如动画，这些任务需要在一瞬间完成</li>
+<li>NSQualityOfServiceUserInitiated<br>由用户发起的并且需要立即得到结果的任务，比如滑动scroll view时去加载数据用于后续cell的显示，这些任务通常跟后续的用户交互相关，在几秒或者更短的时间内完成</li>
+<li>NSQualityOfServiceUtility<br>一些可能需要花点时间的任务，这些任务不需要马上返回结果，比如下载的任务，这些任务可能花费几秒或者几分钟的时间</li>
+<li>NSQualityOfServiceBackground<br>这些任务对用户不可见，比如后台进行备份的操作，这些任务可能需要较长的时间，几分钟甚至几个小时</li>
+<li>NSQualityOfServiceDefault<br>优先级介于user-initiated 和 utility，当没有 QoS信息时默认使用，开发者不应该使用这个值来设置自己的任务</li>
+</ul>
+      
+    </div>
+    <footer>
+      
+        
+          <div class="alignleft">
+            <a href="/2015/11/20/关于GCD开发的一些事儿/#more" class="more-link">Read More</a>
+          </div>
         
         
       
@@ -284,11 +490,19 @@
   <h3 class="title">標籤</h3>
   <ul class="entry">
   
+    <li><a href="/tags/GCD/">GCD</a><small>1</small></li>
+  
     <li><a href="/tags/SDWebimage/">SDWebimage</a><small>2</small></li>
+  
+    <li><a href="/tags/iOS开发/">iOS开发</a><small>3</small></li>
   
     <li><a href="/tags/代码整洁之道/">代码整洁之道</a><small>1</small></li>
   
+    <li><a href="/tags/源码剖析/">源码剖析</a><small>1</small></li>
+  
     <li><a href="/tags/源码解析/">源码解析</a><small>2</small></li>
+  
+    <li><a href="/tags/面向对象设计/">面向对象设计</a><small>1</small></li>
   
   </ul>
 </div>
@@ -300,11 +514,27 @@
   <ul class="entry">
     
       <li>
+        <a href="/2016/02/02/iOS应用程序间共享数据/">iOS应用程序间共享数据</a>
+      </li>
+    
+      <li>
+        <a href="/2016/01/07/细说-synchronized和dispatch-once/">细说@synchronized和dispatch_once</a>
+      </li>
+    
+      <li>
+        <a href="/2015/12/23/谈谈面向对象设计-OOD-原则/">谈谈面向对象设计(OOD)原则</a>
+      </li>
+    
+      <li>
         <a href="/2015/12/14/整洁代码/">整洁代码</a>
       </li>
     
       <li>
         <a href="/2015/11/24/开源许可证的一些区别/">开源许可证的一些区别</a>
+      </li>
+    
+      <li>
+        <a href="/2015/11/20/关于GCD开发的一些事儿/">关于GCD开发的一些事儿</a>
       </li>
     
       <li>
