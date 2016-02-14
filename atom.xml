@@ -111,8 +111,8 @@
     <title>SDWebImage源码剖析（－）</title>
     <link href="http://freemind-lj.github.io/2015/05/10/SDWebImage%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90%EF%BC%88%EF%BC%8D%EF%BC%89/"/>
     <id>http://freemind-lj.github.io/2015/05/10/SDWebImage源码剖析（－）/</id>
-    <published>2015-05-10T08:15:45.000Z</published>
-    <updated>2016-02-14T08:37:14.000Z</updated>
+    <published>2015-05-10T04:15:45.000Z</published>
+    <updated>2016-02-14T08:45:27.000Z</updated>
     
     <content type="html">&lt;p&gt;  在开发项目的过程中会用到很多第三方库，比如AFNetWorking,SDWebImage,FMDB等，但一直都没去好好的研究一下，最近刚好项目不是太紧，闲下来可以给自己充充电，先研究一下SDWebImage的底层实现，源码地址：&lt;a href=&quot;https://github.com/rs/SDWebImage&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;SDWebImage&lt;/a&gt;&lt;br&gt;  先介绍一下SDWebImage，我们使用较多的是它提供的UIImageView分类，支持从远程服务器下载并缓存图片。自从iOS5.0开始，NSURLCache也可以处理磁盘缓存，那么SDWebImage的优势在哪？首先NSURLCache是缓存原始数据(raw data)到磁盘或内存，因此每次使用的时候需要将原始数据转换成具体的对象，如UIImage等，这会导致额外的数据解析以及内存占用等，而SDWebImage则是缓存UIImage对象在内存，缓存在NSCache中，同时直接保存压缩过的图片到磁盘中；还有一个问题是当你第一次在UIImageView中使用image对象的时候，图片的解码是在主线程中运行的！而SDWebImage会强制将解码操作放到子线程中。下图是SDWebImage简单的类图关系：&lt;/p&gt;
 &lt;p&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-c1788a3eb9134b64.png&quot; alt=&quot;SDWebImage.png&quot;&gt;&lt;/p&gt;
