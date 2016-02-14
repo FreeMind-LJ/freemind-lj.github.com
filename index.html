@@ -186,8 +186,7 @@
     </header>
     <div class="entry">
       
-        <p><img src="http://upload-images.jianshu.io/upload_images/458529-fc253eb98334d3c9.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/400" alt="design"></p>
-<blockquote>
+        <blockquote>
 <p><em>拥有一把锤子未必能成为建筑师</em></p>
 </blockquote>
 <p>  最近在项目开发过程中碰到了一些问题，发现在每波迭代开发过程中，经常需要去修改之前的代码，虽然出现这样的情形很正常，新的需求必然会带来新的功能新的设计，导致之前的代码受到影响。记得看过一个笑话：</p>
@@ -452,6 +451,59 @@
   <div class="post-content">
     <header>
       
+        <time datetime="2015-11-02T08:06:56.000Z"><a href="/2015/11/02/NSOperation和NSOperationQueue的一些事儿/">2015-11-02</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2015/11/02/NSOperation和NSOperationQueue的一些事儿/">NSOperation和NSOperationQueue的一些事儿</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>在面对多线程的时候，大多数会选择NSOperation或者GCD来实现，GCD由于使用起来非常方便，应该是很多开发者的首选，不过你会发现其实很多开源代码都是使用NSOpertaion来执行异步任务,所以这次我们来说说NSOperation跟NSOperationQueue，以及它的强大之处。</p>
+<h3 id="NSOPerationQueue"><a href="#NSOPerationQueue" class="headerlink" title="NSOPerationQueue"></a>NSOPerationQueue</h3><p>NSOperation可以通过调用start方法同步地执行相应的任务，不过通常NSOprtaion都是配合NSOPerationQueue来使用的，NSOperationQueue可以看作是一种高级的dispatch queue，将NSOperation加入到queue中，queue会自动异步的执行该NSOperation</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">//&#21019;&#24314;&#38431;&#21015;&#10;NSOperationQueue *queue = [[NSOperationQueue alloc] init];  &#10;&#10;//&#23558;NSOperation&#21152;&#20837;&#38431;&#21015;&#20043;&#21518;&#65292;queue&#20250;&#33258;&#21160;&#25191;&#34892;&#35813;operation&#10;[queue addOperation:operation];</span><br></pre></td></tr></table></figure>
+<p>在gcd编程的时候，我们无法取消block对应的任务，不过NSOPerationQueue之所以称为高级的dispatch queue除了能异步的执行任务之外，还能够:</p>
+<ul>
+<li>取消操作<br>当NSOperation加入到NSOperationQueue之后，可以通过调用cancel方法取消单个任务，如果想取消所有的任务可以调用cancelAllOperations方法;</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">// &#21462;&#28040;&#19968;&#20010;&#20219;&#21153; &#10;[operation cancel];  &#10;  &#10;// &#21462;&#28040;queue&#20013;&#25152;&#26377;&#30340;&#20219;&#21153;  &#10;[queue cancelAllOperations];</span><br></pre></td></tr></table></figure>
+      
+    </div>
+    <footer>
+      
+        
+          <div class="alignleft">
+            <a href="/2015/11/02/NSOperation和NSOperationQueue的一些事儿/#more" class="more-link">Read More</a>
+          </div>
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+  <article class="post">
+  
+    <div class="gallery">
+  <div class="photoset">
+    
+      <img src="">
+    
+  </div>
+  <div class="control">
+    <div class="prev"></div>
+    <div class="next"></div>
+  </div>
+</div>
+  
+  <div class="post-content">
+    <header>
+      
         <time datetime="2015-05-10T08:29:07.000Z"><a href="/2015/05/10/SDWebImage源码剖析（二）/">2015-05-10</a></time>
       
       
@@ -555,11 +607,11 @@
   <h3 class="title">標籤</h3>
   <ul class="entry">
   
-    <li><a href="/tags/GCD/">GCD</a><small>1</small></li>
+    <li><a href="/tags/GCD/">GCD</a><small>2</small></li>
   
     <li><a href="/tags/SDWebimage/">SDWebimage</a><small>2</small></li>
   
-    <li><a href="/tags/iOS开发/">iOS开发</a><small>3</small></li>
+    <li><a href="/tags/iOS开发/">iOS开发</a><small>4</small></li>
   
     <li><a href="/tags/代码整洁之道/">代码整洁之道</a><small>2</small></li>
   
@@ -604,6 +656,10 @@
     
       <li>
         <a href="/2015/11/20/关于GCD开发的一些事儿/">关于GCD开发的一些事儿</a>
+      </li>
+    
+      <li>
+        <a href="/2015/11/02/NSOperation和NSOperationQueue的一些事儿/">NSOperation和NSOperationQueue的一些事儿</a>
       </li>
     
       <li>
