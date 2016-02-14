@@ -4,9 +4,9 @@
   <subtitle>工匠之行，在行动中体悟修行的乐趣</subtitle>
   <link href="/atom.xml" rel="self"/>
   
-  <link href="http://treeboy.github.io/"/>
+  <link href="http://yoursite.com/"/>
   <updated>2016-02-14T07:38:10.000Z</updated>
-  <id>http://treeboy.github.io/</id>
+  <id>http://yoursite.com/</id>
   
   <author>
     <name>树下的老男孩</name>
@@ -17,8 +17,8 @@
   
   <entry>
     <title>整洁代码</title>
-    <link href="http://treeboy.github.io/2016/02/14/%E6%95%B4%E6%B4%81%E4%BB%A3%E7%A0%81/"/>
-    <id>http://treeboy.github.io/2016/02/14/整洁代码/</id>
+    <link href="http://yoursite.com/2016/02/14/%E6%95%B4%E6%B4%81%E4%BB%A3%E7%A0%81/"/>
+    <id>http://yoursite.com/2016/02/14/整洁代码/</id>
     <published>2016-02-14T07:16:01.000Z</published>
     <updated>2016-02-14T07:38:10.000Z</updated>
     
@@ -51,14 +51,14 @@
     </summary>
     
     
-      <category term="代码整洁之道" scheme="http://treeboy.github.io/tags/%E4%BB%A3%E7%A0%81%E6%95%B4%E6%B4%81%E4%B9%8B%E9%81%93/"/>
+      <category term="代码整洁之道" scheme="http://yoursite.com/tags/%E4%BB%A3%E7%A0%81%E6%95%B4%E6%B4%81%E4%B9%8B%E9%81%93/"/>
     
   </entry>
   
   <entry>
     <title>Hello World</title>
-    <link href="http://treeboy.github.io/2016/02/14/hello-world/"/>
-    <id>http://treeboy.github.io/2016/02/14/hello-world/</id>
+    <link href="http://yoursite.com/2016/02/14/hello-world/"/>
+    <id>http://yoursite.com/2016/02/14/hello-world/</id>
     <published>2016-02-14T06:21:40.000Z</published>
     <updated>2016-02-14T06:21:40.000Z</updated>
     
