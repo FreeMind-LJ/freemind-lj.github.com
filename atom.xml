@@ -4,9 +4,9 @@
   <subtitle>工匠之行，在行动中体悟修行的乐趣</subtitle>
   <link href="/atom.xml" rel="self"/>
   
-  <link href="http://yoursite.com/"/>
+  <link href="http://freemind-lj.github.io/"/>
   <updated>2016-02-14T08:14:29.000Z</updated>
-  <id>http://yoursite.com/</id>
+  <id>http://freemind-lj.github.io/</id>
   
   <author>
     <name>树下的老男孩</name>
@@ -17,8 +17,8 @@
   
   <entry>
     <title>整洁代码</title>
-    <link href="http://yoursite.com/2015/12/14/%E6%95%B4%E6%B4%81%E4%BB%A3%E7%A0%81/"/>
-    <id>http://yoursite.com/2015/12/14/整洁代码/</id>
+    <link href="http://freemind-lj.github.io/2015/12/14/%E6%95%B4%E6%B4%81%E4%BB%A3%E7%A0%81/"/>
+    <id>http://freemind-lj.github.io/2015/12/14/整洁代码/</id>
     <published>2015-12-14T07:16:01.000Z</published>
     <updated>2016-02-14T08:14:29.000Z</updated>
     
@@ -51,14 +51,14 @@
     </summary>
     
     
-      <category term="代码整洁之道" scheme="http://yoursite.com/tags/%E4%BB%A3%E7%A0%81%E6%95%B4%E6%B4%81%E4%B9%8B%E9%81%93/"/>
+      <category term="代码整洁之道" scheme="http://freemind-lj.github.io/tags/%E4%BB%A3%E7%A0%81%E6%95%B4%E6%B4%81%E4%B9%8B%E9%81%93/"/>
     
   </entry>
   
   <entry>
     <title>SDWebImage源码剖析（二）</title>
-    <link href="http://yoursite.com/2015/05/10/SDWebImage%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90%EF%BC%88%E4%BA%8C%EF%BC%89/"/>
-    <id>http://yoursite.com/2015/05/10/SDWebImage源码剖析（二）/</id>
+    <link href="http://freemind-lj.github.io/2015/05/10/SDWebImage%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90%EF%BC%88%E4%BA%8C%EF%BC%89/"/>
+    <id>http://freemind-lj.github.io/2015/05/10/SDWebImage源码剖析（二）/</id>
     <published>2015-05-10T08:29:07.000Z</published>
     <updated>2016-02-14T08:32:12.000Z</updated>
     
@@ -98,19 +98,19 @@
     
     </summary>
     
-      <category term="tech" scheme="http://yoursite.com/categories/tech/"/>
+      <category term="tech" scheme="http://freemind-lj.github.io/categories/tech/"/>
     
     
-      <category term="SDWebimage" scheme="http://yoursite.com/tags/SDWebimage/"/>
+      <category term="SDWebimage" scheme="http://freemind-lj.github.io/tags/SDWebimage/"/>
     
-      <category term="源码解析" scheme="http://yoursite.com/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/"/>
+      <category term="源码解析" scheme="http://freemind-lj.github.io/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/"/>
     
   </entry>
   
   <entry>
     <title>SDWebImage源码剖析（－）</title>
-    <link href="http://yoursite.com/2015/05/10/SDWebImage%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90%EF%BC%88%EF%BC%8D%EF%BC%89/"/>
-    <id>http://yoursite.com/2015/05/10/SDWebImage源码剖析（－）/</id>
+    <link href="http://freemind-lj.github.io/2015/05/10/SDWebImage%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90%EF%BC%88%EF%BC%8D%EF%BC%89/"/>
+    <id>http://freemind-lj.github.io/2015/05/10/SDWebImage源码剖析（－）/</id>
     <published>2015-05-10T08:15:45.000Z</published>
     <updated>2016-02-14T08:34:48.000Z</updated>
     
@@ -213,7 +213,7 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
 &lt;p&gt;SDWebImageDownloaderOperation派生自NSOperation，通过NSURLConnection进行图片的下载，为了确保能够处理下载的数据，需要在后台运行runloop：&lt;br&gt;&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;- (void)start &amp;#123;&amp;#10;&amp;#160; /*...*/&amp;#10;#if TARGET_OS_IPHONE &amp;#38;&amp;#38; __IPHONE_OS_VERSION_MAX_ALLOWED &amp;#62;= __IPHONE_4_0&amp;#10;        //&amp;#24320;&amp;#21551;&amp;#21518;&amp;#21488;&amp;#19979;&amp;#36733;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; if ([self shouldContinueWhenAppEntersBackground]) &amp;#123;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; __weak __typeof__ (self) wself = self;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; self.backgroundTaskId = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^&amp;#123;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; __strong __typeof (wself) sself = wself;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; if (sself) &amp;#123;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; [sself cancel];&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; [[UIApplication sharedApplication] endBackgroundTask:sself.backgroundTaskId];&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; sself.backgroundTaskId = UIBackgroundTaskInvalid;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#125;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#125;];&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#125;&amp;#10;#endif&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; self.executing = YES;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; self.connection = [[NSURLConnection alloc] initWithRequest:self.request delegate:self startImmediately:NO];&amp;#10;&amp;#160; &amp;#160; &amp;#125;&amp;#10;&amp;#160; &amp;#160; [self.connection start];&amp;#10;&amp;#10;&amp;#160; &amp;#160; if (self.connection) &amp;#123;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; if (self.progressBlock) &amp;#123;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; self.progressBlock(0, NSURLResponseUnknownLength);&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#125;&amp;#10;       //&amp;#22312;&amp;#20027;&amp;#32447;&amp;#31243;&amp;#21457;&amp;#36890;&amp;#30693;&amp;#65292;&amp;#36825;&amp;#26679;&amp;#20063;&amp;#20445;&amp;#35777;&amp;#22312;&amp;#20027;&amp;#32447;&amp;#31243;&amp;#25910;&amp;#21040;&amp;#36890;&amp;#30693;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; dispatch_async(dispatch_get_main_queue(), ^&amp;#123;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStartNotification object:self];&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#125;);&amp;#10;       CFRunLoopRun();//&amp;#22312;&amp;#40664;&amp;#35748;&amp;#27169;&amp;#24335;&amp;#19979;&amp;#36816;&amp;#34892;&amp;#24403;&amp;#21069;runlooprun&amp;#65292;&amp;#30452;&amp;#21040;&amp;#35843;&amp;#29992;CFRunLoopStop&amp;#20572;&amp;#27490;&amp;#36816;&amp;#34892;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; if (!self.isFinished) &amp;#123;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; [self.connection cancel];&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; [self connection:self.connection didFailWithError:[NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorTimedOut userInfo:@&amp;#123;NSURLErrorFailingURLErrorKey : self.request.URL&amp;#125;]];&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#125;&amp;#10;&amp;#160; &amp;#160; &amp;#125;&amp;#10;#if TARGET_OS_IPHONE &amp;#38;&amp;#38; __IPHONE_OS_VERSION_MAX_ALLOWED &amp;#62;= __IPHONE_4_0&amp;#10;&amp;#160; &amp;#160; if (self.backgroundTaskId != UIBackgroundTaskInvalid) &amp;#123;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; [[UIApplication sharedApplication] endBackgroundTask:self.backgroundTaskId];&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; self.backgroundTaskId = UIBackgroundTaskInvalid;&amp;#10;&amp;#160; &amp;#160; &amp;#125;&amp;#10;#endif&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
 &lt;p&gt;下载过程中，在代理 － (void)connection:(NSURLConnection &lt;em&gt;)connection didReceiveData:(NSData &lt;/em&gt;)data中将接收到的数据保存到NSMutableData中，[self.imageData appendData:data]，下载完成后在该线程完成图片的解码，并在完成的completionBlock中进行imageCache的缓存：&lt;/p&gt;
 &lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;- (void)connectionDidFinishLoading:(NSURLConnection *)aConnection &amp;#123;&amp;#10;    SDWebImageDownloaderCompletedBlock completionBlock = self.completedBlock;&amp;#10;    @synchronized(self) &amp;#123;&amp;#10;        CFRunLoopStop(CFRunLoopGetCurrent());//&amp;#20572;&amp;#27490;&amp;#24403;&amp;#21069;&amp;#23545;runloop&amp;#10;        /*...*/&amp;#10;        if (completionBlock) &amp;#123;&amp;#10;            /*...*/&amp;#10;            UIImage *image = [UIImage sd_imageWithData:self.imageData];&amp;#10;            NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:self.request.URL];&amp;#10;            image = [self scaledImageForKey:key image:image];&amp;#10;            &amp;#10;              // Do not force decoding animated GIFs&amp;#10;             if (!image.images) &amp;#123;&amp;#10;                 if (self.shouldDecompressImages) &amp;#123;&amp;#10;                    image = [UIImage decodedImageWithImage:image];//&amp;#22270;&amp;#29255;&amp;#35299;&amp;#30721;&amp;#10;                &amp;#125;&amp;#10;            &amp;#125;&amp;#10;            if (CGSizeEqualToSize(image.size, CGSizeZero)) &amp;#123;&amp;#10;                completionBlock(nil, nil, [NSError errorWithDomain:@&amp;#34;SDWebImageErrorDomain&amp;#34; code:0 userInfo:@&amp;#123;NSLocalizedDescriptionKey : @&amp;#34;Downloaded image has 0 pixels&amp;#34;&amp;#125;], YES);&amp;#10;            &amp;#125;&amp;#10;            else &amp;#123;&amp;#10;                completionBlock(image, self.imageData, nil, YES);&amp;#10;            &amp;#125;&amp;#10;        &amp;#125;&amp;#10;    &amp;#125;&amp;#10;    self.completionBlock = nil;&amp;#10;    [self done];&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
-&lt;p&gt;后续的图片缓存可以参考：&lt;a href=&quot;http://freemind-lj.github.io/2015/05/10/SDWebImage%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90%EF%BC%88%EF%BC%8D%EF%BC%89/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;SDWebImage源码剖析（二）&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;后续的图片缓存可以参考：&lt;a href=&quot;http://freemind-lj.github.io/2015/05/10/SDWebImage%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90%EF%BC%88%EF%BC%8D%EF%BC%89/&quot;&gt;SDWebImage源码剖析（二）&lt;/a&gt;&lt;/p&gt;
 </content>
     
     <summary type="html">
@@ -222,12 +222,12 @@ typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
     
     </summary>
     
-      <category term="tech" scheme="http://yoursite.com/categories/tech/"/>
+      <category term="tech" scheme="http://freemind-lj.github.io/categories/tech/"/>
     
     
-      <category term="SDWebimage" scheme="http://yoursite.com/tags/SDWebimage/"/>
+      <category term="SDWebimage" scheme="http://freemind-lj.github.io/tags/SDWebimage/"/>
     
-      <category term="源码解析" scheme="http://yoursite.com/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/"/>
+      <category term="源码解析" scheme="http://freemind-lj.github.io/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/"/>
     
   </entry>
   
