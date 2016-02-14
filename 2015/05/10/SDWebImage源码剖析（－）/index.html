@@ -1,0 +1,327 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>SDWebImage源码剖析（－） | 树下的老男孩</title>
+  <meta name="author" content="树下的老男孩">
+  
+  <meta name="description" content="在开发项目的过程中会用到很多第三方库，比如AFNetWorking,SDWebImage,FMDB等，但一直都没去好好的研究一下，最近刚好项目不是太紧，闲下来可以给自己充充电，先研究一下SDWebImage的底层实现，源码地址：SDWebImage  先介绍一下SDWebImage，我们使用较多的是它提供的UIImageView分类，支持从远程服务器下载并缓存图片。自从iOS5.0开始，NSURLCache也可以处理磁盘缓存，那么SDWebImage的优势在哪？首先NSURLCache是缓存原始数据(raw data)到磁盘或内存，因此每次使用的时候需要将原始数据转换成具体的对象，如UIImage等，这会导致额外的数据解析以及内存占用等，而SDWebImage则是缓存UIImage对象在内存，缓存在NSCache中，同时直接保存压缩过的图片到磁盘中；还有一个问题是当你第一次在UIImageView中使用image对象的时候，图片的解码是在主线程中运行的！而SDWebImage会强制将解码操作放到子线程中。下图是SDWebImage简单的类图关系：">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="SDWebImage源码剖析（－）"/>
+  <meta property="og:site_name" content="树下的老男孩"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="树下的老男孩" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  <script src="/js/jquery.min.js"></script>
+  
+<script type="text/javascript">
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-45019001-1', 'topdna.org');
+  ga('send', 'pageview');
+
+</script>
+
+
+</head>
+
+
+<body>
+  <!--[if lte IE 8]> <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'> <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode"><img src="http://storage.ie6countdown.com/assets/100/images/banners/warning_bar_0027_Simplified Chinese.jpg" border="0" height="42" width="820" alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today." style='margin-left:auto;margin-right:auto;display: block;'/></a></div> <![endif]-->
+  <header id="header" class="inner"><div class="alignleft">
+  <h1><a href="/">树下的老男孩</a></h1>
+  <h2><a href="/">工匠之行，在行动中体悟修行的乐趣</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">首页</a></li>
+    
+      <li><a href="/categories/essay/">随感</a></li>
+    
+      <li><a href="/categories/tech/">技术</a></li>
+    
+      <li><a href="/categories/life/">生活</a></li>
+    
+      <li><a href="/archives">归档</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div></header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+    <div class="gallery">
+  <div class="photoset">
+    
+      <img src="">
+    
+  </div>
+  <div class="control">
+    <div class="prev"></div>
+    <div class="next"></div>
+  </div>
+</div>
+  
+  <div class="post-content">
+    <header>
+      
+        <time datetime="2015-05-10T08:15:45.000Z"><a href="/2015/05/10/SDWebImage源码剖析（－）/">2015-05-10</a></time>
+      
+      
+  
+    <h1 class="title">SDWebImage源码剖析（－）</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>  在开发项目的过程中会用到很多第三方库，比如AFNetWorking,SDWebImage,FMDB等，但一直都没去好好的研究一下，最近刚好项目不是太紧，闲下来可以给自己充充电，先研究一下SDWebImage的底层实现，源码地址：<a href="https://github.com/rs/SDWebImage" target="_blank" rel="external">SDWebImage</a><br>  先介绍一下SDWebImage，我们使用较多的是它提供的UIImageView分类，支持从远程服务器下载并缓存图片。自从iOS5.0开始，NSURLCache也可以处理磁盘缓存，那么SDWebImage的优势在哪？首先NSURLCache是缓存原始数据(raw data)到磁盘或内存，因此每次使用的时候需要将原始数据转换成具体的对象，如UIImage等，这会导致额外的数据解析以及内存占用等，而SDWebImage则是缓存UIImage对象在内存，缓存在NSCache中，同时直接保存压缩过的图片到磁盘中；还有一个问题是当你第一次在UIImageView中使用image对象的时候，图片的解码是在主线程中运行的！而SDWebImage会强制将解码操作放到子线程中。下图是SDWebImage简单的类图关系：<br><a id="more"></a><br><img src="http://upload-images.jianshu.io/upload_images/458529-c1788a3eb9134b64.png" alt="SDWebImage.png"></p>
+<p>下面从UIImageView的图片加载开始看起，Let’s go!</p>
+<p>首先我们在给UIImageView设置图片的时候会调用方法：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- (void)sd_setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder;</span><br></pre></td></tr></table></figure></p>
+<p>其中url为远程图片的地址，而placeholder为预显示的图片。<br>其实还可以添加一些额外的参数，比如图片选项SDWebImageOptions</p>
+<pre><code>
+typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
+    SDWebImageRetryFailed = 1 << 0,//下载失败了会再次尝试下载
+    WebImageLowPriority = 1 << 1,//当UIScrollView等正在滚动时，延迟下载图片（放置scrollView滚动卡）
+    SDWebImageCacheMemoryOnly = 1 << 2,//只缓存到内存中
+    SDWebImageProgressiveDownload = 1 << 3,// 图片会边下边显示
+    SDWebImageRefreshCached = 1 << 4,//将硬盘缓存交给系统自带的NSURLCache去处理
+    SDWebImageContinueInBackground = 1 << 5,//后台下载
+    SDWebImageHandleCookies = 1 << 6,// 通过设置NSMutableURLRequest.HTTPShouldHandleCookies = YES来处理存储在NSHTTPCookieStore中的cookie
+    SDWebImageAllowInvalidSSLCertificates = 1 << 7,// 允许不受信任的SSL证书。主要用于测试目的。
+    SDWebImageHighPriority = 1 << 8,
+    SDWebImageDelayPlaceholder = 1 << 9,
+    SDWebImageTransformAnimatedImage = 1 << 10,
+};
+</code></pre>
+
+<p>一般使用的是SDWebImageRetryFailed | SDWebImageLowPriority，下面看看具体的函数调用：</p>
+<pre><code>
+- (void)sd_setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageCompletionBlock)completedBlock 
+{
+    [self sd_cancelCurrentImageLoad];//取消正在下载的操作
+    objc_setAssociatedObject(self, &imageURLKey, url, OBJC_ASSOCIATION_RETAIN_NONATOMIC);//关联该view对应的图片URL  
+   /*...*/ 
+    if (url) {
+        __weak UIImageView *wself = self;//防止retain cricle
+        //由SDWebImageManager负责图片的获取
+        id <sdwebimageoperation> operation = [SDWebImageManager.sharedManager downloadImageWithURL:url options:options progress:progressBlock completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
+              /*获取图片到主线层显示*/ 
+        }];
+        [self sd_setImageLoadOperation:operation forKey:@"UIImageViewImageLoad"];
+    } 
+}
+</sdwebimageoperation></code></pre>
+
+<p>可以看出图片是从服务端、内存或者硬盘获取是由SDWebImageManager管理的，这个类有几个重要的属性：</p>
+<pre><code>
+@property (strong, nonatomic, readwrite) SDImageCache *imageCache;//负责管理cache，涉及内存缓存和硬盘保存
+@property (strong, nonatomic, readwrite) SDWebImageDownloader *imageDownloader;//负责从网络下载图片
+@property (strong, nonatomic) NSMutableArray *runningOperations;//包含所有当前正在下载的操作对象
+</code></pre>
+
+<p>manager会根据URL先去imageCache中查找对应的图片，如果没有在使用downloader去下载，并在下载完成缓存图片到imageCache，接着看实现：</p>
+<pre><code>
+- (id <sdwebimageoperation>)downloadImageWithURL:(NSURL *)url options:(SDWebImageOptions)options
+                                        progress:(SDWebImageDownloaderProgressBlock)progressBlock
+                                       completed:(SDWebImageCompletionWithFinishedBlock)completedBlock
+ {
+     /*...*/
+    //根据URL生成对应的key，没有特殊处理为[url absoluteString];
+    NSString *key = [self cacheKeyForURL:url];
+    //去imageCache中寻找图片
+    operation.cacheOperation = [self.imageCache queryDiskCacheForKey:key done:^(UIImage *image, SDImageCacheType cacheType) 
+    {
+       /*...*/
+       //如果图片没有找到，或者采用的SDWebImageRefreshCached选项，则从网络下载
+        if ((!image || options & SDWebImageRefreshCached) && (![self.delegate respondsToSelector:@selector(imageManager:shouldDownloadImageForURL:)] || [self.delegate imageManager:self shouldDownloadImageForURL:url])) {
+                dispatch_main_sync_safe(^{
+                  //如果图片找到了，但是采用的SDWebImageRefreshCached选项，通知获取到了图片，并再次从网络下载，使NSURLCache重新刷新
+                     completedBlock(image, nil, cacheType, YES, url);
+                });
+            }
+            /*下载选项设置*/ 
+            //使用imageDownloader开启网络下载
+            id <sdwebimageoperation> subOperation = [self.imageDownloader downloadImageWithURL:url options:downloaderOptions progress:progressBlock completed:^(UIImage *downloadedImage, NSData *data, NSError *error, BOOL finished) {
+                /*...*/
+               if (downloadedImage && finished) {
+                     //下载完成后，先将图片保存到imageCache中，然后主线程返回
+                     [self.imageCache storeImage:downloadedImage recalculateFromImage:NO imageData:data forKey:key toDisk:cacheOnDisk];
+                        }
+                     dispatch_main_sync_safe(^{
+                            if (!weakOperation.isCancelled) {
+                                completedBlock(downloadedImage, nil, SDImageCacheTypeNone, finished, url);
+                            }
+                        });
+                    }
+                }
+          /*...*/
+       }
+        else if (image) {
+          //在cache中找到图片了，直接返回
+            dispatch_main_sync_safe(^{
+                if (!weakOperation.isCancelled) {
+                    completedBlock(image, nil, cacheType, YES, url);
+                }
+            });
+        }
+    }];
+    return operation;
+}
+</sdwebimageoperation></sdwebimageoperation></code></pre>
+
+<p>下面先看downloader从网络下载的过程，下载是放在NSOperationQueue中进行的，默认maxConcurrentOperationCount为6，timeout时间为15s：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- (id &#60;SDWebImageOperation&#62;)downloadImageWithURL:(NSURL *)url options:(SDWebImageDownloaderOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageDownloaderCompletedBlock)completedBlock &#123;&#10;    __block SDWebImageDownloaderOperation *operation;&#10;    __weak SDWebImageDownloader *wself = self;&#10;    /*...*/&#10;    //&#38450;&#27490;NSURLCache&#21644;SDImageCache&#37325;&#22797;&#32531;&#23384;&#10;    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url cachePolicy:(options &#38; SDWebImageDownloaderUseNSURLCache ? NSURLRequestUseProtocolCachePolicy :NSURLRequestReloadIgnoringLocalCacheData) timeoutInterval:timeoutInterval];&#10;    request.HTTPShouldHandleCookies = (options &#38; SDWebImageDownloaderHandleCookies);&#10;    request.HTTPShouldUsePipelining = YES;&#10;    request.allHTTPHeaderFields = wself.HTTPHeaders;//&#35774;&#32622;http&#22836;&#37096;&#10;    //SDWebImageDownloaderOperation&#27966;&#29983;&#33258;NSOperation&#65292;&#36127;&#36131;&#22270;&#29255;&#19979;&#36733;&#24037;&#20316;&#10;    operation = [[SDWebImageDownloaderOperation alloc] initWithRequest:request&#10;                                                          options:options&#10;                                                         progress:^(NSInteger receivedSize, NSInteger expectedSize) &#123;&#125;&#10;                                                        completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) &#123;&#125;&#10;                                                        cancelled:^&#123;&#125;];&#10;    operation.shouldDecompressImages = wself.shouldDecompressImages;//&#26159;&#21542;&#38656;&#35201;&#35299;&#30721;&#10;    if (wself.username &#38;&#38; wself.password) &#123;&#10;            operation.credential = [NSURLCredential credentialWithUser:wself.username password:wself.password persistence:NSURLCredentialPersistenceForSession];&#10;    &#125;&#10;    if (options &#38; SDWebImageDownloaderHighPriority) &#123;&#10;            operation.queuePriority = NSOperationQueuePriorityHigh;&#10;        &#125; else if (options &#38; SDWebImageDownloaderLowPriority) &#123;&#10;            operation.queuePriority = NSOperationQueuePriorityLow;&#10;    &#125;&#10;        [wself.downloadQueue addOperation:operation];&#10;        if (wself.executionOrder == SDWebImageDownloaderLIFOExecutionOrder) &#123;&#10;            // &#22914;&#26524;&#19979;&#36733;&#39034;&#24207;&#26159;&#21518;&#38754;&#28155;&#21152;&#30340;&#20808;&#36816;&#34892;&#10;            [wself.lastAddedOperation addDependency:operation];&#10;            wself.lastAddedOperation = operation;&#10;        &#125;&#10;    &#125;];&#10;    return operation;&#10;&#125;</span><br></pre></td></tr></table></figure></p>
+<p>SDWebImageDownloaderOperation派生自NSOperation，通过NSURLConnection进行图片的下载，为了确保能够处理下载的数据，需要在后台运行runloop：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- (void)start &#123;&#10;&#160; /*...*/&#10;#if TARGET_OS_IPHONE &#38;&#38; __IPHONE_OS_VERSION_MAX_ALLOWED &#62;= __IPHONE_4_0&#10;        //&#24320;&#21551;&#21518;&#21488;&#19979;&#36733;&#10;&#160; &#160; &#160; &#160; if ([self shouldContinueWhenAppEntersBackground]) &#123;&#10;&#160; &#160; &#160; &#160; &#160; &#160; __weak __typeof__ (self) wself = self;&#10;&#160; &#160; &#160; &#160; &#160; &#160; self.backgroundTaskId = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^&#123;&#10;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; __strong __typeof (wself) sself = wself;&#10;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; if (sself) &#123;&#10;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; [sself cancel];&#10;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; [[UIApplication sharedApplication] endBackgroundTask:sself.backgroundTaskId];&#10;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; sself.backgroundTaskId = UIBackgroundTaskInvalid;&#10;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#125;&#10;&#160; &#160; &#160; &#160; &#160; &#160; &#125;];&#10;&#160; &#160; &#160; &#160; &#125;&#10;#endif&#10;&#160; &#160; &#160; &#160; self.executing = YES;&#10;&#160; &#160; &#160; &#160; self.connection = [[NSURLConnection alloc] initWithRequest:self.request delegate:self startImmediately:NO];&#10;&#160; &#160; &#125;&#10;&#160; &#160; [self.connection start];&#10;&#10;&#160; &#160; if (self.connection) &#123;&#10;&#160; &#160; &#160; &#160; if (self.progressBlock) &#123;&#10;&#160; &#160; &#160; &#160; &#160; &#160; self.progressBlock(0, NSURLResponseUnknownLength);&#10;&#160; &#160; &#160; &#160; &#125;&#10;       //&#22312;&#20027;&#32447;&#31243;&#21457;&#36890;&#30693;&#65292;&#36825;&#26679;&#20063;&#20445;&#35777;&#22312;&#20027;&#32447;&#31243;&#25910;&#21040;&#36890;&#30693;&#10;&#160; &#160; &#160; &#160; dispatch_async(dispatch_get_main_queue(), ^&#123;&#10;&#160; &#160; &#160; &#160; &#160; &#160; [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStartNotification object:self];&#10;&#160; &#160; &#160; &#160; &#125;);&#10;       CFRunLoopRun();//&#22312;&#40664;&#35748;&#27169;&#24335;&#19979;&#36816;&#34892;&#24403;&#21069;runlooprun&#65292;&#30452;&#21040;&#35843;&#29992;CFRunLoopStop&#20572;&#27490;&#36816;&#34892;&#10;&#160; &#160; &#160; &#160; if (!self.isFinished) &#123;&#10;&#160; &#160; &#160; &#160; &#160; &#160; [self.connection cancel];&#10;&#160; &#160; &#160; &#160; &#160; &#160; [self connection:self.connection didFailWithError:[NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorTimedOut userInfo:@&#123;NSURLErrorFailingURLErrorKey : self.request.URL&#125;]];&#10;&#160; &#160; &#160; &#160; &#125;&#10;&#160; &#160; &#125;&#10;#if TARGET_OS_IPHONE &#38;&#38; __IPHONE_OS_VERSION_MAX_ALLOWED &#62;= __IPHONE_4_0&#10;&#160; &#160; if (self.backgroundTaskId != UIBackgroundTaskInvalid) &#123;&#10;&#160; &#160; &#160; &#160; [[UIApplication sharedApplication] endBackgroundTask:self.backgroundTaskId];&#10;&#160; &#160; &#160; &#160; self.backgroundTaskId = UIBackgroundTaskInvalid;&#10;&#160; &#160; &#125;&#10;#endif&#10;&#125;</span><br></pre></td></tr></table></figure></p>
+<p>下载过程中，在代理 － (void)connection:(NSURLConnection <em>)connection didReceiveData:(NSData </em>)data中将接收到的数据保存到NSMutableData中，[self.imageData appendData:data]，下载完成后在该线程完成图片的解码，并在完成的completionBlock中进行imageCache的缓存：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- (void)connectionDidFinishLoading:(NSURLConnection *)aConnection &#123;&#10;    SDWebImageDownloaderCompletedBlock completionBlock = self.completedBlock;&#10;    @synchronized(self) &#123;&#10;        CFRunLoopStop(CFRunLoopGetCurrent());//&#20572;&#27490;&#24403;&#21069;&#23545;runloop&#10;        /*...*/&#10;        if (completionBlock) &#123;&#10;            /*...*/&#10;            UIImage *image = [UIImage sd_imageWithData:self.imageData];&#10;            NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:self.request.URL];&#10;            image = [self scaledImageForKey:key image:image];&#10;            &#10;              // Do not force decoding animated GIFs&#10;             if (!image.images) &#123;&#10;                 if (self.shouldDecompressImages) &#123;&#10;                    image = [UIImage decodedImageWithImage:image];//&#22270;&#29255;&#35299;&#30721;&#10;                &#125;&#10;            &#125;&#10;            if (CGSizeEqualToSize(image.size, CGSizeZero)) &#123;&#10;                completionBlock(nil, nil, [NSError errorWithDomain:@&#34;SDWebImageErrorDomain&#34; code:0 userInfo:@&#123;NSLocalizedDescriptionKey : @&#34;Downloaded image has 0 pixels&#34;&#125;], YES);&#10;            &#125;&#10;            else &#123;&#10;                completionBlock(image, self.imageData, nil, YES);&#10;            &#125;&#10;        &#125;&#10;    &#125;&#10;    self.completionBlock = nil;&#10;    [self done];&#10;&#125;</span><br></pre></td></tr></table></figure>
+<p>后续的图片缓存可以参考：<a href="http://www.jianshu.com/p/d401ec7626eb" target="_blank" rel="external">SDWebImage源码剖析（二）</a></p>
+
+      
+    </div>
+    <footer>
+      
+
+        
+          <div class="alignleft post-nav">
+            <em>上一篇: </em><a href="/2015/05/10/SDWebImage源码剖析（二）/">SDWebImage源码剖析（二）</a>
+          </div>
+        
+        
+
+        
+          <div class="copyright">
+            
+              <span class="claim">版权声明：自由转载-非商用-保持署名  树下的老男孩</span>
+            
+            
+              <span class="from-link">
+                <em>本文链接地址:</em>
+                <a href="/2015/05/10/SDWebImage源码剖析（－）/">
+                  http://yoursite.com/2015/05/10/SDWebImage源码剖析（－）/
+                </a>
+              </span>
+            
+          </div>
+        
+        
+  
+  <div class="categories">
+    <a href="/categories/tech/">tech</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/SDWebimage/">SDWebimage</a>, <a href="/tags/源码解析/">源码解析</a>
+  </div>
+
+        
+  <div class="addthis addthis_toolbox addthis_default_style">
+    
+      <a class="addthis_button_facebook_like" fb:like:layout="button_count"></a>
+    
+    
+      <a class="addthis_button_tweet"></a>
+    
+    
+      <a class="addthis_button_sinaweibo_like"></a>
+    
+    
+      <a class="addthis_button_linkedin"></a>
+    
+    
+    
+    <a class="addthis_counter addthis_pill_style"></a>
+  </div>
+  <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js"></script>
+
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="text" name="q" results="0" placeholder="搜尋">
+    <i class="icon-search"></i>
+    <input type="hidden" name="q" value="site:yoursite.com">
+  </form>
+</div>
+
+  
+<div class="widget tag">
+  <h3 class="title">標籤</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/SDWebimage/">SDWebimage</a><small>2</small></li>
+  
+    <li><a href="/tags/代码整洁之道/">代码整洁之道</a><small>1</small></li>
+  
+    <li><a href="/tags/源码解析/">源码解析</a><small>2</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">最新文章</h3>
+  <ul class="entry">
+    
+      <li>
+        <a href="/2015/12/14/整洁代码/">整洁代码</a>
+      </li>
+    
+      <li>
+        <a href="/2015/05/10/SDWebImage源码剖析（二）/">SDWebImage源码剖析（二）</a>
+      </li>
+    
+      <li>
+        <a href="/2015/05/10/SDWebImage源码剖析（－）/">SDWebImage源码剖析（－）</a>
+      </li>
+    
+  </ul>
+</div>
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <div id="go-pg-top"><i class="icon-arrow-up"></i></div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2016 树下的老男孩
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript" charset="utf-8" src="/js/page.js"></script>
+
+</body>
+
+</html>

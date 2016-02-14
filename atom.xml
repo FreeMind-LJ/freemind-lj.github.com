@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2016-02-14T07:38:10.000Z</updated>
+  <updated>2016-02-14T08:14:29.000Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -17,10 +17,10 @@
   
   <entry>
     <title>整洁代码</title>
-    <link href="http://yoursite.com/2016/02/14/%E6%95%B4%E6%B4%81%E4%BB%A3%E7%A0%81/"/>
-    <id>http://yoursite.com/2016/02/14/整洁代码/</id>
-    <published>2016-02-14T07:16:01.000Z</published>
-    <updated>2016-02-14T07:38:10.000Z</updated>
+    <link href="http://yoursite.com/2015/12/14/%E6%95%B4%E6%B4%81%E4%BB%A3%E7%A0%81/"/>
+    <id>http://yoursite.com/2015/12/14/整洁代码/</id>
+    <published>2015-12-14T07:16:01.000Z</published>
+    <updated>2016-02-14T08:14:29.000Z</updated>
     
     <content type="html">&lt;h2 id=&quot;为什么要写糟糕的代码？&quot;&gt;&lt;a href=&quot;#为什么要写糟糕的代码？&quot; class=&quot;headerlink&quot; title=&quot;为什么要写糟糕的代码？&quot;&gt;&lt;/a&gt;为什么要写糟糕的代码？&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;赶时间完成任务 ，期望后面再清理.&lt;/li&gt;
@@ -52,6 +52,182 @@
     
     
       <category term="代码整洁之道" scheme="http://yoursite.com/tags/%E4%BB%A3%E7%A0%81%E6%95%B4%E6%B4%81%E4%B9%8B%E9%81%93/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>SDWebImage源码剖析（二）</title>
+    <link href="http://yoursite.com/2015/05/10/SDWebImage%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90%EF%BC%88%E4%BA%8C%EF%BC%89/"/>
+    <id>http://yoursite.com/2015/05/10/SDWebImage源码剖析（二）/</id>
+    <published>2015-05-10T08:29:07.000Z</published>
+    <updated>2016-02-14T08:32:12.000Z</updated>
+    
+    <content type="html">&lt;p&gt;SDWebImageCache管理着SDWebImage的缓存，其中内存缓存采用NSCache，同时会创建一个ioQueue负责对硬盘的读写，并且会添加观察者，在收到内存警告、关闭或进入后台时完成对应的处理:&lt;/p&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;- (id)init &amp;#123;&amp;#10;     _memCache = [[NSCache alloc] init];&amp;#10;     _ioQueue = dispatch_queue_create(&amp;#34;com.hackemist.SDWebImageCache&amp;#34;, DISPATCH_QUEUE_SERIAL);&amp;#10;     //&amp;#25910;&amp;#21040;&amp;#20869;&amp;#23384;&amp;#35686;&amp;#21578;&amp;#26102;&amp;#65292;&amp;#28165;&amp;#38500;NSCache&amp;#65306;[self.memCache removeAllObjects];&amp;#10;     [[NSNotificationCenter defaultCenter] addObserver:self&amp;#10;                                                 selector:@selector(clearMemory)&amp;#10;                                              name:UIApplicationDidReceiveMemoryWarningNotification&amp;#10;                                                   object:nil];&amp;#10;      //&amp;#31243;&amp;#24207;&amp;#20851;&amp;#38381;&amp;#26102;&amp;#65292;&amp;#20250;&amp;#23545;&amp;#30828;&amp;#30424;&amp;#25991;&amp;#20214;&amp;#20570;&amp;#19968;&amp;#20123;&amp;#22788;&amp;#29702;&amp;#10;      [[NSNotificationCenter defaultCenter] addObserver:self&amp;#10;                                                 selector:@selector(cleanDisk)&amp;#10;                                                     name:UIApplicationWillTerminateNotification&amp;#10;                                                   object:nil];&amp;#10;      //&amp;#31243;&amp;#24207;&amp;#36827;&amp;#20837;&amp;#21518;&amp;#21488;&amp;#26102;&amp;#65292;&amp;#20063;&amp;#20250;&amp;#36827;&amp;#34892;&amp;#30828;&amp;#30424;&amp;#25991;&amp;#20214;&amp;#22788;&amp;#29702;&amp;#10;      [[NSNotificationCenter defaultCenter] addObserver:self&amp;#10;                                                 selector:@selector(backgroundCleanDisk)&amp;#10;                                                     name:UIApplicationDidEnterBackgroundNotification&amp;#10;                                                   object:nil];&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;h3 id=&quot;查询图片&quot;&gt;&lt;a href=&quot;#查询图片&quot; class=&quot;headerlink&quot; title=&quot;查询图片&quot;&gt;&lt;/a&gt;查询图片&lt;/h3&gt;&lt;p&gt;每次向SDWebImageCache索取图片的时候，会先根据图片URL对应的key值先检查内存中是否有对应的图片，如果有则直接返回；如果没有则在ioQueue中去硬盘中查找，其中文件名是是根据URL生成的MD5值，找到之后先将图片缓存在内存中，然后在把图片返回：&lt;br&gt;&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;- (NSOperation *)queryDiskCacheForKey:(NSString *)key done:(SDWebImageQueryCompletedBlock)doneBlock &amp;#123;&amp;#10;    /*...*/&amp;#10;    // &amp;#39318;&amp;#20808;&amp;#26597;&amp;#25214;&amp;#20869;&amp;#23384;&amp;#32531;&amp;#23384;&amp;#10;    UIImage *image = [self imageFromMemoryCacheForKey:key];&amp;#10;    if (image) &amp;#123;&amp;#10;        doneBlock(image, SDImageCacheTypeMemory);&amp;#10;        return nil;&amp;#10;    &amp;#125;&amp;#10;    //&amp;#30828;&amp;#30424;&amp;#26597;&amp;#25214;&amp;#10;    NSOperation *operation = [NSOperation new];&amp;#10;    dispatch_async(self.ioQueue, ^&amp;#123;&amp;#10;        //&amp;#21019;&amp;#24314;&amp;#33258;&amp;#21160;&amp;#37322;&amp;#25918;&amp;#27744;&amp;#65292;&amp;#20869;&amp;#23384;&amp;#21450;&amp;#26102;&amp;#37322;&amp;#25918;&amp;#10;        @autoreleasepool &amp;#123;&amp;#10;            UIImage *diskImage = [self diskImageForKey:key];&amp;#10;            if (diskImage) &amp;#123;&amp;#10;                CGFloat cost = diskImage.size.height * diskImage.size.width * diskImage.scale * diskImage.scale;&amp;#10;                //&amp;#32531;&amp;#23384;&amp;#21040;NSCache&amp;#20013;&amp;#10;                [self.memCache setObject:diskImage forKey:key cost:cost];&amp;#10;            &amp;#125;&amp;#10;            dispatch_async(dispatch_get_main_queue(), ^&amp;#123;&amp;#10;                doneBlock(diskImage, SDImageCacheTypeDisk);&amp;#10;            &amp;#125;);&amp;#10;        &amp;#125;&amp;#10;    &amp;#125;);&amp;#10;    return operation;&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;在硬盘查询的时候，会在后台将NSData转成UIImage，并完成相关的解码工作:&lt;br&gt;&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;- (UIImage *)diskImageForKey:(NSString *)key &amp;#123;&amp;#10;    NSData *data = [self diskImageDataBySearchingAllPathsForKey:key];&amp;#10;    if (data) &amp;#123;&amp;#10;        UIImage *image = [UIImage sd_imageWithData:data];&amp;#10;        image = [self scaledImageForKey:key image:image];&amp;#10;        if (self.shouldDecompressImages) &amp;#123;&amp;#10;            image = [UIImage decodedImageWithImage:image];&amp;#10;        &amp;#125;&amp;#10;        return image;&amp;#10;    &amp;#125;&amp;#10;    else &amp;#123;&amp;#10;        return nil;&amp;#10;    &amp;#125;&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
+&lt;h3 id=&quot;保存图片&quot;&gt;&lt;a href=&quot;#保存图片&quot; class=&quot;headerlink&quot; title=&quot;保存图片&quot;&gt;&lt;/a&gt;保存图片&lt;/h3&gt;&lt;p&gt;当下载完图片后，会先将图片保存到NSCache中，并把图片像素大小作为该对象的cost值，同时如果需要保存到硬盘，会先判断图片的格式，PNG或者JPEG，并保存对应的NSData到缓存路径中，文件名为URL的MD5值：&lt;br&gt;&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;- (NSString *)cachedFileNameForKey:(NSString *)key &amp;#123;&amp;#10;    //&amp;#26681;&amp;#25454;key&amp;#29983;&amp;#25104;&amp;#23545;&amp;#24212;&amp;#30340;MD5&amp;#20540;&amp;#20316;&amp;#20026;&amp;#25991;&amp;#20214;&amp;#21517;&amp;#10;    const char *str = [key UTF8String];&amp;#10;    if (str == NULL) &amp;#123;&amp;#10;        str = &amp;#34;&amp;#34;;&amp;#10;    &amp;#125;&amp;#10;    unsigned char r[CC_MD5_DIGEST_LENGTH];&amp;#10;    CC_MD5(str, (CC_LONG)strlen(str), r);&amp;#10;    NSString *filename = [NSString stringWithFormat:@&amp;#34;%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x&amp;#34;,&amp;#10;                                                    r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7], r[8], r[9], r[10], r[11], r[12], r[13], r[14], r[15]];&amp;#10;&amp;#10;    return filename;&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;- (void)storeImage:(UIImage *)image recalculateFromImage:(BOOL)recalculate imageData:(NSData *)imageData forKey:(NSString *)key toDisk:(BOOL)toDisk &amp;#10;&amp;#123;&amp;#10;    //&amp;#20445;&amp;#23384;&amp;#21040;NSCache&amp;#65292;cost&amp;#20026;&amp;#20687;&amp;#32032;&amp;#20540;&amp;#10;&amp;#160; &amp;#160; [self.memCache setObject:image forKey:key cost:image.size.height * image.size.width * image.scale * image.scale];&amp;#10;&amp;#160; &amp;#160; if (toDisk) &amp;#123;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; dispatch_async(self.ioQueue, ^&amp;#123;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; NSData *data = imageData;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; if (image &amp;#38;&amp;#38; (recalculate || !data)) &amp;#123;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160;//&amp;#21028;&amp;#26029;&amp;#22270;&amp;#29255;&amp;#26684;&amp;#24335;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; BOOL imageIsPng = YES;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; // &amp;#26597;&amp;#30475;imagedata&amp;#30340;&amp;#21069;&amp;#32512;&amp;#26159;&amp;#21542;&amp;#26159;PNG&amp;#30340;&amp;#21069;&amp;#32512;&amp;#26684;&amp;#24335;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; if ([imageData length] &amp;#62;= [kPNGSignatureData length]) &amp;#123;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; imageIsPng = ImageDataHasPNGPreffix(imageData);&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#125;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; if (imageIsPng) &amp;#123;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; data = UIImagePNGRepresentation(image);&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#125;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; else &amp;#123;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; data = UIImageJPEGRepresentation(image, (CGFloat)1.0);&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#125;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#125;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; if (data) &amp;#123;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; if (![_fileManager fileExistsAtPath:_diskCachePath]) &amp;#123;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; [_fileManager createDirectoryAtPath:_diskCachePath withIntermediateDirectories:YES attributes:nil error:NULL];&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#125;&amp;#10;                //&amp;#20445;&amp;#23384;data&amp;#21040;&amp;#25351;&amp;#23450;&amp;#30340;&amp;#36335;&amp;#24452;&amp;#20013;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; [_fileManager createFileAtPath:[self defaultCachePathForKey:key] contents:data attributes:nil];&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#125;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#125;);&amp;#10;&amp;#160; &amp;#160; &amp;#125;&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;h3 id=&quot;硬盘文件的管理&quot;&gt;&lt;a href=&quot;#硬盘文件的管理&quot; class=&quot;headerlink&quot; title=&quot;硬盘文件的管理&quot;&gt;&lt;/a&gt;硬盘文件的管理&lt;/h3&gt;&lt;p&gt;在程序退出或者进入后台时，会出图片文件进行管理，具体的策略：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;清除过期的文件，默认一星期 &lt;/li&gt;
+&lt;li&gt;如果设置了最大缓存，并且当前缓存的文件超过了这个限制，则删除最旧的文件，直到当前缓存文件的大小为最大缓存大小的一半&lt;/li&gt;
+&lt;/ul&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;- (void)cleanDiskWithCompletionBlock:(SDWebImageNoParamsBlock)completionBlock &amp;#123;&amp;#10;    dispatch_async(self.ioQueue, ^&amp;#123;&amp;#10;        NSURL *diskCacheURL = [NSURL fileURLWithPath:self.diskCachePath isDirectory:YES];&amp;#10;        NSArray *resourceKeys = @[NSURLIsDirectoryKey, NSURLContentModificationDateKey, NSURLTotalFileAllocatedSizeKey];&amp;#10;&amp;#10;        // This enumerator prefetches useful properties for our cache files.&amp;#10;        NSDirectoryEnumerator *fileEnumerator = [_fileManager enumeratorAtURL:diskCacheURL&amp;#10;                                                   includingPropertiesForKeys:resourceKeys&amp;#10;                                                                      options:NSDirectoryEnumerationSkipsHiddenFiles&amp;#10;                                                                 errorHandler:NULL];&amp;#10;&amp;#10;        NSDate *expirationDate = [NSDate dateWithTimeIntervalSinceNow:-self.maxCacheAge];&amp;#10;        NSMutableDictionary *cacheFiles = [NSMutableDictionary dictionary];&amp;#10;        NSUInteger currentCacheSize = 0;&amp;#10;&amp;#10;        // Enumerate all of the files in the cache directory.  This loop has two purposes:&amp;#10;        //&amp;#10;        //  1. Removing files that are older than the expiration date.&amp;#10;        //  2. Storing file attributes for the size-based cleanup pass.&amp;#10;        NSMutableArray *urlsToDelete = [[NSMutableArray alloc] init];&amp;#10;        for (NSURL *fileURL in fileEnumerator) &amp;#123;&amp;#10;            NSDictionary *resourceValues = [fileURL resourceValuesForKeys:resourceKeys error:NULL];&amp;#10;&amp;#10;            // Skip directories.&amp;#10;            if ([resourceValues[NSURLIsDirectoryKey] boolValue]) &amp;#123;&amp;#10;                continue;&amp;#10;            &amp;#125;&amp;#10;&amp;#10;            // Remove files that are older than the expiration date;&amp;#10;            NSDate *modificationDate = resourceValues[NSURLContentModificationDateKey];&amp;#10;            if ([[modificationDate laterDate:expirationDate] isEqualToDate:expirationDate]) &amp;#123;&amp;#10;                [urlsToDelete addObject:fileURL];&amp;#10;                continue;&amp;#10;            &amp;#125;&amp;#10;&amp;#10;            // Store a reference to this file and account for its total size.&amp;#10;            NSNumber *totalAllocatedSize = resourceValues[NSURLTotalFileAllocatedSizeKey];&amp;#10;            currentCacheSize += [totalAllocatedSize unsignedIntegerValue];&amp;#10;            [cacheFiles setObject:resourceValues forKey:fileURL];&amp;#10;        &amp;#125;&amp;#10;        &amp;#10;        for (NSURL *fileURL in urlsToDelete) &amp;#123;&amp;#10;            [_fileManager removeItemAtURL:fileURL error:nil];&amp;#10;        &amp;#125;&amp;#10;&amp;#10;        // If our remaining disk cache exceeds a configured maximum size, perform a second&amp;#10;        // size-based cleanup pass.  We delete the oldest files first.&amp;#10;        if (self.maxCacheSize &amp;#62; 0 &amp;#38;&amp;#38; currentCacheSize &amp;#62; self.maxCacheSize) &amp;#123;&amp;#10;            // Target half of our maximum cache size for this cleanup pass.&amp;#10;            const NSUInteger desiredCacheSize = self.maxCacheSize / 2;&amp;#10;&amp;#10;            // Sort the remaining cache files by their last modification time (oldest first).&amp;#10;            NSArray *sortedFiles = [cacheFiles keysSortedByValueWithOptions:NSSortConcurrent&amp;#10;                                                            usingComparator:^NSComparisonResult(id obj1, id obj2) &amp;#123;&amp;#10;                                                                return [obj1[NSURLContentModificationDateKey] compare:obj2[NSURLContentModificationDateKey]];&amp;#10;                                                            &amp;#125;];&amp;#10;&amp;#10;            // Delete files until we fall below our desired cache size.&amp;#10;            for (NSURL *fileURL in sortedFiles) &amp;#123;&amp;#10;                if ([_fileManager removeItemAtURL:fileURL error:nil]) &amp;#123;&amp;#10;                    NSDictionary *resourceValues = cacheFiles[fileURL];&amp;#10;                    NSNumber *totalAllocatedSize = resourceValues[NSURLTotalFileAllocatedSizeKey];&amp;#10;                    currentCacheSize -= [totalAllocatedSize unsignedIntegerValue];&amp;#10;&amp;#10;                    if (currentCacheSize &amp;#60; desiredCacheSize) &amp;#123;&amp;#10;                        break;&amp;#10;                    &amp;#125;&amp;#10;                &amp;#125;&amp;#10;            &amp;#125;&amp;#10;        &amp;#125;&amp;#10;        if (completionBlock) &amp;#123;&amp;#10;            dispatch_async(dispatch_get_main_queue(), ^&amp;#123;&amp;#10;                completionBlock();&amp;#10;            &amp;#125;);&amp;#10;        &amp;#125;&amp;#10;    &amp;#125;);&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;h3 id=&quot;总结&quot;&gt;&lt;a href=&quot;#总结&quot; class=&quot;headerlink&quot; title=&quot;总结&quot;&gt;&lt;/a&gt;总结&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;接口设计简单&lt;br&gt;通常我们使用较多的UIImageView分类：&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;[self.imageView sd_setImageWithURL:[NSURL URLWithString:@&amp;#34;url&amp;#34;]&amp;#10;                  placeholderImage:[UIImage imageNamed:@&amp;#34;placeholder&amp;#34;]];&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;一个简单的接口将其中复杂的实现细节全部隐藏：简单就是美。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;采用NSCache作为内存缓&lt;/li&gt;
+&lt;li&gt;耗时较长的请求，都采用异步形式，在回调函数块中处理请求结果&lt;/li&gt;
+&lt;li&gt;NSOperation和NSOperationQueue：可以取消任务处理队列中的任务，设置最大并发数，设置operation之间的依赖关系。&lt;/li&gt;
+&lt;li&gt;图片缓存清理的策略&lt;/li&gt;
+&lt;li&gt;dispatch_barrier_sync：前面的任务执行结束后它才执行，而且它后面的任务要等它执行完成之后才会执行。&lt;/li&gt;
+&lt;li&gt;使用weak self  strong self 防止retain circle&lt;/li&gt;
+&lt;li&gt;如果子线程进需要不断处理一些事件，那么设置一个Run Loop是最好的处理方式&lt;/li&gt;
+&lt;/ul&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;SDWebImageCache管理着SDWebImage的缓存，其中内存缓存采用NSCache，同时会创建一个ioQueue负责对硬盘的读写，并且会添加观察者，在收到内存警告、关闭或进入后台时完成对应的处理:&lt;/p&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;- (id)init &amp;#123;&amp;#10;     _memCache = [[NSCache alloc] init];&amp;#10;     _ioQueue = dispatch_queue_create(&amp;#34;com.hackemist.SDWebImageCache&amp;#34;, DISPATCH_QUEUE_SERIAL);&amp;#10;     //&amp;#25910;&amp;#21040;&amp;#20869;&amp;#23384;&amp;#35686;&amp;#21578;&amp;#26102;&amp;#65292;&amp;#28165;&amp;#38500;NSCache&amp;#65306;[self.memCache removeAllObjects];&amp;#10;     [[NSNotificationCenter defaultCenter] addObserver:self&amp;#10;                                                 selector:@selector(clearMemory)&amp;#10;                                              name:UIApplicationDidReceiveMemoryWarningNotification&amp;#10;                                                   object:nil];&amp;#10;      //&amp;#31243;&amp;#24207;&amp;#20851;&amp;#38381;&amp;#26102;&amp;#65292;&amp;#20250;&amp;#23545;&amp;#30828;&amp;#30424;&amp;#25991;&amp;#20214;&amp;#20570;&amp;#19968;&amp;#20123;&amp;#22788;&amp;#29702;&amp;#10;      [[NSNotificationCenter defaultCenter] addObserver:self&amp;#10;                                                 selector:@selector(cleanDisk)&amp;#10;                                                     name:UIApplicationWillTerminateNotification&amp;#10;                                                   object:nil];&amp;#10;      //&amp;#31243;&amp;#24207;&amp;#36827;&amp;#20837;&amp;#21518;&amp;#21488;&amp;#26102;&amp;#65292;&amp;#20063;&amp;#20250;&amp;#36827;&amp;#34892;&amp;#30828;&amp;#30424;&amp;#25991;&amp;#20214;&amp;#22788;&amp;#29702;&amp;#10;      [[NSNotificationCenter defaultCenter] addObserver:self&amp;#10;                                                 selector:@selector(backgroundCleanDisk)&amp;#10;                                                     name:UIApplicationDidEnterBackgroundNotification&amp;#10;                                                   object:nil];&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+    
+    </summary>
+    
+      <category term="tech" scheme="http://yoursite.com/categories/tech/"/>
+    
+    
+      <category term="SDWebimage" scheme="http://yoursite.com/tags/SDWebimage/"/>
+    
+      <category term="源码解析" scheme="http://yoursite.com/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>SDWebImage源码剖析（－）</title>
+    <link href="http://yoursite.com/2015/05/10/SDWebImage%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90%EF%BC%88%EF%BC%8D%EF%BC%89/"/>
+    <id>http://yoursite.com/2015/05/10/SDWebImage源码剖析（－）/</id>
+    <published>2015-05-10T08:15:45.000Z</published>
+    <updated>2016-02-14T08:27:54.000Z</updated>
+    
+    <content type="html">&lt;p&gt;  在开发项目的过程中会用到很多第三方库，比如AFNetWorking,SDWebImage,FMDB等，但一直都没去好好的研究一下，最近刚好项目不是太紧，闲下来可以给自己充充电，先研究一下SDWebImage的底层实现，源码地址：&lt;a href=&quot;https://github.com/rs/SDWebImage&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;SDWebImage&lt;/a&gt;&lt;br&gt;  先介绍一下SDWebImage，我们使用较多的是它提供的UIImageView分类，支持从远程服务器下载并缓存图片。自从iOS5.0开始，NSURLCache也可以处理磁盘缓存，那么SDWebImage的优势在哪？首先NSURLCache是缓存原始数据(raw data)到磁盘或内存，因此每次使用的时候需要将原始数据转换成具体的对象，如UIImage等，这会导致额外的数据解析以及内存占用等，而SDWebImage则是缓存UIImage对象在内存，缓存在NSCache中，同时直接保存压缩过的图片到磁盘中；还有一个问题是当你第一次在UIImageView中使用image对象的时候，图片的解码是在主线程中运行的！而SDWebImage会强制将解码操作放到子线程中。下图是SDWebImage简单的类图关系：&lt;br&gt;&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;&lt;br&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-c1788a3eb9134b64.png&quot; alt=&quot;SDWebImage.png&quot;&gt;&lt;/p&gt;
+&lt;p&gt;下面从UIImageView的图片加载开始看起，Let’s go!&lt;/p&gt;
+&lt;p&gt;首先我们在给UIImageView设置图片的时候会调用方法：&lt;br&gt;&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;- (void)sd_setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;其中url为远程图片的地址，而placeholder为预显示的图片。&lt;br&gt;其实还可以添加一些额外的参数，比如图片选项SDWebImageOptions&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;
+typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
+    SDWebImageRetryFailed = 1 &lt;&lt; 0,//下载失败了会再次尝试下载
+    WebImageLowPriority = 1 &lt;&lt; 1,//当UIScrollView等正在滚动时，延迟下载图片（放置scrollView滚动卡）
+    SDWebImageCacheMemoryOnly = 1 &lt;&lt; 2,//只缓存到内存中
+    SDWebImageProgressiveDownload = 1 &lt;&lt; 3,// 图片会边下边显示
+    SDWebImageRefreshCached = 1 &lt;&lt; 4,//将硬盘缓存交给系统自带的NSURLCache去处理
+    SDWebImageContinueInBackground = 1 &lt;&lt; 5,//后台下载
+    SDWebImageHandleCookies = 1 &lt;&lt; 6,// 通过设置NSMutableURLRequest.HTTPShouldHandleCookies = YES来处理存储在NSHTTPCookieStore中的cookie
+    SDWebImageAllowInvalidSSLCertificates = 1 &lt;&lt; 7,// 允许不受信任的SSL证书。主要用于测试目的。
+    SDWebImageHighPriority = 1 &lt;&lt; 8,
+    SDWebImageDelayPlaceholder = 1 &lt;&lt; 9,
+    SDWebImageTransformAnimatedImage = 1 &lt;&lt; 10,
+};
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;一般使用的是SDWebImageRetryFailed | SDWebImageLowPriority，下面看看具体的函数调用：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;
+- (void)sd_setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageCompletionBlock)completedBlock 
+{
+    [self sd_cancelCurrentImageLoad];//取消正在下载的操作
+    objc_setAssociatedObject(self, &amp;imageURLKey, url, OBJC_ASSOCIATION_RETAIN_NONATOMIC);//关联该view对应的图片URL  
+   /*...*/ 
+    if (url) {
+        __weak UIImageView *wself = self;//防止retain cricle
+        //由SDWebImageManager负责图片的获取
+        id &lt;sdwebimageoperation&gt; operation = [SDWebImageManager.sharedManager downloadImageWithURL:url options:options progress:progressBlock completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
+              /*获取图片到主线层显示*/ 
+        }];
+        [self sd_setImageLoadOperation:operation forKey:@&quot;UIImageViewImageLoad&quot;];
+    } 
+}
+&lt;/sdwebimageoperation&gt;&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;可以看出图片是从服务端、内存或者硬盘获取是由SDWebImageManager管理的，这个类有几个重要的属性：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;
+@property (strong, nonatomic, readwrite) SDImageCache *imageCache;//负责管理cache，涉及内存缓存和硬盘保存
+@property (strong, nonatomic, readwrite) SDWebImageDownloader *imageDownloader;//负责从网络下载图片
+@property (strong, nonatomic) NSMutableArray *runningOperations;//包含所有当前正在下载的操作对象
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;manager会根据URL先去imageCache中查找对应的图片，如果没有在使用downloader去下载，并在下载完成缓存图片到imageCache，接着看实现：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;
+- (id &lt;sdwebimageoperation&gt;)downloadImageWithURL:(NSURL *)url options:(SDWebImageOptions)options
+                                        progress:(SDWebImageDownloaderProgressBlock)progressBlock
+                                       completed:(SDWebImageCompletionWithFinishedBlock)completedBlock
+ {
+     /*...*/
+    //根据URL生成对应的key，没有特殊处理为[url absoluteString];
+    NSString *key = [self cacheKeyForURL:url];
+    //去imageCache中寻找图片
+    operation.cacheOperation = [self.imageCache queryDiskCacheForKey:key done:^(UIImage *image, SDImageCacheType cacheType) 
+    {
+       /*...*/
+       //如果图片没有找到，或者采用的SDWebImageRefreshCached选项，则从网络下载
+        if ((!image || options &amp; SDWebImageRefreshCached) &amp;&amp; (![self.delegate respondsToSelector:@selector(imageManager:shouldDownloadImageForURL:)] || [self.delegate imageManager:self shouldDownloadImageForURL:url])) {
+                dispatch_main_sync_safe(^{
+                  //如果图片找到了，但是采用的SDWebImageRefreshCached选项，通知获取到了图片，并再次从网络下载，使NSURLCache重新刷新
+                     completedBlock(image, nil, cacheType, YES, url);
+                });
+            }
+            /*下载选项设置*/ 
+            //使用imageDownloader开启网络下载
+            id &lt;sdwebimageoperation&gt; subOperation = [self.imageDownloader downloadImageWithURL:url options:downloaderOptions progress:progressBlock completed:^(UIImage *downloadedImage, NSData *data, NSError *error, BOOL finished) {
+                /*...*/
+               if (downloadedImage &amp;&amp; finished) {
+                     //下载完成后，先将图片保存到imageCache中，然后主线程返回
+                     [self.imageCache storeImage:downloadedImage recalculateFromImage:NO imageData:data forKey:key toDisk:cacheOnDisk];
+                        }
+                     dispatch_main_sync_safe(^{
+                            if (!weakOperation.isCancelled) {
+                                completedBlock(downloadedImage, nil, SDImageCacheTypeNone, finished, url);
+                            }
+                        });
+                    }
+                }
+          /*...*/
+       }
+        else if (image) {
+          //在cache中找到图片了，直接返回
+            dispatch_main_sync_safe(^{
+                if (!weakOperation.isCancelled) {
+                    completedBlock(image, nil, cacheType, YES, url);
+                }
+            });
+        }
+    }];
+    return operation;
+}
+&lt;/sdwebimageoperation&gt;&lt;/sdwebimageoperation&gt;&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;下面先看downloader从网络下载的过程，下载是放在NSOperationQueue中进行的，默认maxConcurrentOperationCount为6，timeout时间为15s：&lt;br&gt;&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;- (id &amp;#60;SDWebImageOperation&amp;#62;)downloadImageWithURL:(NSURL *)url options:(SDWebImageDownloaderOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageDownloaderCompletedBlock)completedBlock &amp;#123;&amp;#10;    __block SDWebImageDownloaderOperation *operation;&amp;#10;    __weak SDWebImageDownloader *wself = self;&amp;#10;    /*...*/&amp;#10;    //&amp;#38450;&amp;#27490;NSURLCache&amp;#21644;SDImageCache&amp;#37325;&amp;#22797;&amp;#32531;&amp;#23384;&amp;#10;    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url cachePolicy:(options &amp;#38; SDWebImageDownloaderUseNSURLCache ? NSURLRequestUseProtocolCachePolicy :NSURLRequestReloadIgnoringLocalCacheData) timeoutInterval:timeoutInterval];&amp;#10;    request.HTTPShouldHandleCookies = (options &amp;#38; SDWebImageDownloaderHandleCookies);&amp;#10;    request.HTTPShouldUsePipelining = YES;&amp;#10;    request.allHTTPHeaderFields = wself.HTTPHeaders;//&amp;#35774;&amp;#32622;http&amp;#22836;&amp;#37096;&amp;#10;    //SDWebImageDownloaderOperation&amp;#27966;&amp;#29983;&amp;#33258;NSOperation&amp;#65292;&amp;#36127;&amp;#36131;&amp;#22270;&amp;#29255;&amp;#19979;&amp;#36733;&amp;#24037;&amp;#20316;&amp;#10;    operation = [[SDWebImageDownloaderOperation alloc] initWithRequest:request&amp;#10;                                                          options:options&amp;#10;                                                         progress:^(NSInteger receivedSize, NSInteger expectedSize) &amp;#123;&amp;#125;&amp;#10;                                                        completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) &amp;#123;&amp;#125;&amp;#10;                                                        cancelled:^&amp;#123;&amp;#125;];&amp;#10;    operation.shouldDecompressImages = wself.shouldDecompressImages;//&amp;#26159;&amp;#21542;&amp;#38656;&amp;#35201;&amp;#35299;&amp;#30721;&amp;#10;    if (wself.username &amp;#38;&amp;#38; wself.password) &amp;#123;&amp;#10;            operation.credential = [NSURLCredential credentialWithUser:wself.username password:wself.password persistence:NSURLCredentialPersistenceForSession];&amp;#10;    &amp;#125;&amp;#10;    if (options &amp;#38; SDWebImageDownloaderHighPriority) &amp;#123;&amp;#10;            operation.queuePriority = NSOperationQueuePriorityHigh;&amp;#10;        &amp;#125; else if (options &amp;#38; SDWebImageDownloaderLowPriority) &amp;#123;&amp;#10;            operation.queuePriority = NSOperationQueuePriorityLow;&amp;#10;    &amp;#125;&amp;#10;        [wself.downloadQueue addOperation:operation];&amp;#10;        if (wself.executionOrder == SDWebImageDownloaderLIFOExecutionOrder) &amp;#123;&amp;#10;            // &amp;#22914;&amp;#26524;&amp;#19979;&amp;#36733;&amp;#39034;&amp;#24207;&amp;#26159;&amp;#21518;&amp;#38754;&amp;#28155;&amp;#21152;&amp;#30340;&amp;#20808;&amp;#36816;&amp;#34892;&amp;#10;            [wself.lastAddedOperation addDependency:operation];&amp;#10;            wself.lastAddedOperation = operation;&amp;#10;        &amp;#125;&amp;#10;    &amp;#125;];&amp;#10;    return operation;&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;SDWebImageDownloaderOperation派生自NSOperation，通过NSURLConnection进行图片的下载，为了确保能够处理下载的数据，需要在后台运行runloop：&lt;br&gt;&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;- (void)start &amp;#123;&amp;#10;&amp;#160; /*...*/&amp;#10;#if TARGET_OS_IPHONE &amp;#38;&amp;#38; __IPHONE_OS_VERSION_MAX_ALLOWED &amp;#62;= __IPHONE_4_0&amp;#10;        //&amp;#24320;&amp;#21551;&amp;#21518;&amp;#21488;&amp;#19979;&amp;#36733;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; if ([self shouldContinueWhenAppEntersBackground]) &amp;#123;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; __weak __typeof__ (self) wself = self;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; self.backgroundTaskId = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^&amp;#123;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; __strong __typeof (wself) sself = wself;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; if (sself) &amp;#123;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; [sself cancel];&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; [[UIApplication sharedApplication] endBackgroundTask:sself.backgroundTaskId];&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; sself.backgroundTaskId = UIBackgroundTaskInvalid;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#125;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#125;];&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#125;&amp;#10;#endif&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; self.executing = YES;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; self.connection = [[NSURLConnection alloc] initWithRequest:self.request delegate:self startImmediately:NO];&amp;#10;&amp;#160; &amp;#160; &amp;#125;&amp;#10;&amp;#160; &amp;#160; [self.connection start];&amp;#10;&amp;#10;&amp;#160; &amp;#160; if (self.connection) &amp;#123;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; if (self.progressBlock) &amp;#123;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; self.progressBlock(0, NSURLResponseUnknownLength);&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#125;&amp;#10;       //&amp;#22312;&amp;#20027;&amp;#32447;&amp;#31243;&amp;#21457;&amp;#36890;&amp;#30693;&amp;#65292;&amp;#36825;&amp;#26679;&amp;#20063;&amp;#20445;&amp;#35777;&amp;#22312;&amp;#20027;&amp;#32447;&amp;#31243;&amp;#25910;&amp;#21040;&amp;#36890;&amp;#30693;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; dispatch_async(dispatch_get_main_queue(), ^&amp;#123;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStartNotification object:self];&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#125;);&amp;#10;       CFRunLoopRun();//&amp;#22312;&amp;#40664;&amp;#35748;&amp;#27169;&amp;#24335;&amp;#19979;&amp;#36816;&amp;#34892;&amp;#24403;&amp;#21069;runlooprun&amp;#65292;&amp;#30452;&amp;#21040;&amp;#35843;&amp;#29992;CFRunLoopStop&amp;#20572;&amp;#27490;&amp;#36816;&amp;#34892;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; if (!self.isFinished) &amp;#123;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; [self.connection cancel];&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; [self connection:self.connection didFailWithError:[NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorTimedOut userInfo:@&amp;#123;NSURLErrorFailingURLErrorKey : self.request.URL&amp;#125;]];&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#125;&amp;#10;&amp;#160; &amp;#160; &amp;#125;&amp;#10;#if TARGET_OS_IPHONE &amp;#38;&amp;#38; __IPHONE_OS_VERSION_MAX_ALLOWED &amp;#62;= __IPHONE_4_0&amp;#10;&amp;#160; &amp;#160; if (self.backgroundTaskId != UIBackgroundTaskInvalid) &amp;#123;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; [[UIApplication sharedApplication] endBackgroundTask:self.backgroundTaskId];&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; self.backgroundTaskId = UIBackgroundTaskInvalid;&amp;#10;&amp;#160; &amp;#160; &amp;#125;&amp;#10;#endif&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;下载过程中，在代理 － (void)connection:(NSURLConnection &lt;em&gt;)connection didReceiveData:(NSData &lt;/em&gt;)data中将接收到的数据保存到NSMutableData中，[self.imageData appendData:data]，下载完成后在该线程完成图片的解码，并在完成的completionBlock中进行imageCache的缓存：&lt;/p&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;- (void)connectionDidFinishLoading:(NSURLConnection *)aConnection &amp;#123;&amp;#10;    SDWebImageDownloaderCompletedBlock completionBlock = self.completedBlock;&amp;#10;    @synchronized(self) &amp;#123;&amp;#10;        CFRunLoopStop(CFRunLoopGetCurrent());//&amp;#20572;&amp;#27490;&amp;#24403;&amp;#21069;&amp;#23545;runloop&amp;#10;        /*...*/&amp;#10;        if (completionBlock) &amp;#123;&amp;#10;            /*...*/&amp;#10;            UIImage *image = [UIImage sd_imageWithData:self.imageData];&amp;#10;            NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:self.request.URL];&amp;#10;            image = [self scaledImageForKey:key image:image];&amp;#10;            &amp;#10;              // Do not force decoding animated GIFs&amp;#10;             if (!image.images) &amp;#123;&amp;#10;                 if (self.shouldDecompressImages) &amp;#123;&amp;#10;                    image = [UIImage decodedImageWithImage:image];//&amp;#22270;&amp;#29255;&amp;#35299;&amp;#30721;&amp;#10;                &amp;#125;&amp;#10;            &amp;#125;&amp;#10;            if (CGSizeEqualToSize(image.size, CGSizeZero)) &amp;#123;&amp;#10;                completionBlock(nil, nil, [NSError errorWithDomain:@&amp;#34;SDWebImageErrorDomain&amp;#34; code:0 userInfo:@&amp;#123;NSLocalizedDescriptionKey : @&amp;#34;Downloaded image has 0 pixels&amp;#34;&amp;#125;], YES);&amp;#10;            &amp;#125;&amp;#10;            else &amp;#123;&amp;#10;                completionBlock(image, self.imageData, nil, YES);&amp;#10;            &amp;#125;&amp;#10;        &amp;#125;&amp;#10;    &amp;#125;&amp;#10;    self.completionBlock = nil;&amp;#10;    [self done];&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;后续的图片缓存可以参考：&lt;a href=&quot;http://www.jianshu.com/p/d401ec7626eb&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;SDWebImage源码剖析（二）&lt;/a&gt;&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;  在开发项目的过程中会用到很多第三方库，比如AFNetWorking,SDWebImage,FMDB等，但一直都没去好好的研究一下，最近刚好项目不是太紧，闲下来可以给自己充充电，先研究一下SDWebImage的底层实现，源码地址：&lt;a href=&quot;https://github.com/rs/SDWebImage&quot;&gt;SDWebImage&lt;/a&gt;&lt;br&gt;  先介绍一下SDWebImage，我们使用较多的是它提供的UIImageView分类，支持从远程服务器下载并缓存图片。自从iOS5.0开始，NSURLCache也可以处理磁盘缓存，那么SDWebImage的优势在哪？首先NSURLCache是缓存原始数据(raw data)到磁盘或内存，因此每次使用的时候需要将原始数据转换成具体的对象，如UIImage等，这会导致额外的数据解析以及内存占用等，而SDWebImage则是缓存UIImage对象在内存，缓存在NSCache中，同时直接保存压缩过的图片到磁盘中；还有一个问题是当你第一次在UIImageView中使用image对象的时候，图片的解码是在主线程中运行的！而SDWebImage会强制将解码操作放到子线程中。下图是SDWebImage简单的类图关系：&lt;br&gt;
+    
+    </summary>
+    
+      <category term="tech" scheme="http://yoursite.com/categories/tech/"/>
+    
+    
+      <category term="SDWebimage" scheme="http://yoursite.com/tags/SDWebimage/"/>
+    
+      <category term="源码解析" scheme="http://yoursite.com/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/"/>
     
   </entry>
   

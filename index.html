@@ -80,11 +80,11 @@
   <div class="post-content">
     <header>
       
-        <time datetime="2016-02-14T07:16:01.000Z"><a href="/2016/02/14/整洁代码/">2016-02-14</a></time>
+        <time datetime="2015-12-14T07:16:01.000Z"><a href="/2015/12/14/整洁代码/">2015-12-14</a></time>
       
       
   
-    <h1 class="title"><a href="/2016/02/14/整洁代码/">整洁代码</a></h1>
+    <h1 class="title"><a href="/2015/12/14/整洁代码/">整洁代码</a></h1>
   
 
     </header>
@@ -123,6 +123,99 @@
 
 
 
+  <article class="post">
+  
+    <div class="gallery">
+  <div class="photoset">
+    
+      <img src="">
+    
+  </div>
+  <div class="control">
+    <div class="prev"></div>
+    <div class="next"></div>
+  </div>
+</div>
+  
+  <div class="post-content">
+    <header>
+      
+        <time datetime="2015-05-10T08:29:07.000Z"><a href="/2015/05/10/SDWebImage源码剖析（二）/">2015-05-10</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2015/05/10/SDWebImage源码剖析（二）/">SDWebImage源码剖析（二）</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>SDWebImageCache管理着SDWebImage的缓存，其中内存缓存采用NSCache，同时会创建一个ioQueue负责对硬盘的读写，并且会添加观察者，在收到内存警告、关闭或进入后台时完成对应的处理:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- (id)init &#123;&#10;     _memCache = [[NSCache alloc] init];&#10;     _ioQueue = dispatch_queue_create(&#34;com.hackemist.SDWebImageCache&#34;, DISPATCH_QUEUE_SERIAL);&#10;     //&#25910;&#21040;&#20869;&#23384;&#35686;&#21578;&#26102;&#65292;&#28165;&#38500;NSCache&#65306;[self.memCache removeAllObjects];&#10;     [[NSNotificationCenter defaultCenter] addObserver:self&#10;                                                 selector:@selector(clearMemory)&#10;                                              name:UIApplicationDidReceiveMemoryWarningNotification&#10;                                                   object:nil];&#10;      //&#31243;&#24207;&#20851;&#38381;&#26102;&#65292;&#20250;&#23545;&#30828;&#30424;&#25991;&#20214;&#20570;&#19968;&#20123;&#22788;&#29702;&#10;      [[NSNotificationCenter defaultCenter] addObserver:self&#10;                                                 selector:@selector(cleanDisk)&#10;                                                     name:UIApplicationWillTerminateNotification&#10;                                                   object:nil];&#10;      //&#31243;&#24207;&#36827;&#20837;&#21518;&#21488;&#26102;&#65292;&#20063;&#20250;&#36827;&#34892;&#30828;&#30424;&#25991;&#20214;&#22788;&#29702;&#10;      [[NSNotificationCenter defaultCenter] addObserver:self&#10;                                                 selector:@selector(backgroundCleanDisk)&#10;                                                     name:UIApplicationDidEnterBackgroundNotification&#10;                                                   object:nil];&#10;&#125;</span><br></pre></td></tr></table></figure>
+      
+    </div>
+    <footer>
+      
+        
+          <div class="alignleft">
+            <a href="/2015/05/10/SDWebImage源码剖析（二）/#more" class="more-link">Read More</a>
+          </div>
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+  <article class="post">
+  
+    <div class="gallery">
+  <div class="photoset">
+    
+      <img src="">
+    
+  </div>
+  <div class="control">
+    <div class="prev"></div>
+    <div class="next"></div>
+  </div>
+</div>
+  
+  <div class="post-content">
+    <header>
+      
+        <time datetime="2015-05-10T08:15:45.000Z"><a href="/2015/05/10/SDWebImage源码剖析（－）/">2015-05-10</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2015/05/10/SDWebImage源码剖析（－）/">SDWebImage源码剖析（－）</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>  在开发项目的过程中会用到很多第三方库，比如AFNetWorking,SDWebImage,FMDB等，但一直都没去好好的研究一下，最近刚好项目不是太紧，闲下来可以给自己充充电，先研究一下SDWebImage的底层实现，源码地址：<a href="https://github.com/rs/SDWebImage">SDWebImage</a><br>  先介绍一下SDWebImage，我们使用较多的是它提供的UIImageView分类，支持从远程服务器下载并缓存图片。自从iOS5.0开始，NSURLCache也可以处理磁盘缓存，那么SDWebImage的优势在哪？首先NSURLCache是缓存原始数据(raw data)到磁盘或内存，因此每次使用的时候需要将原始数据转换成具体的对象，如UIImage等，这会导致额外的数据解析以及内存占用等，而SDWebImage则是缓存UIImage对象在内存，缓存在NSCache中，同时直接保存压缩过的图片到磁盘中；还有一个问题是当你第一次在UIImageView中使用image对象的时候，图片的解码是在主线程中运行的！而SDWebImage会强制将解码操作放到子线程中。下图是SDWebImage简单的类图关系：<br>
+      
+    </div>
+    <footer>
+      
+        
+          <div class="alignleft">
+            <a href="/2015/05/10/SDWebImage源码剖析（－）/#more" class="more-link">Read More</a>
+          </div>
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
 
 <ul class="page-direction" id="page-direction">
     <li><a class="page-prev icon-chevron-sign-left" href="javascript:;" title="上一頁"></a></li>
@@ -148,7 +241,11 @@
   <h3 class="title">標籤</h3>
   <ul class="entry">
   
+    <li><a href="/tags/SDWebimage/">SDWebimage</a><small>2</small></li>
+  
     <li><a href="/tags/代码整洁之道/">代码整洁之道</a><small>1</small></li>
+  
+    <li><a href="/tags/源码解析/">源码解析</a><small>2</small></li>
   
   </ul>
 </div>
@@ -160,7 +257,15 @@
   <ul class="entry">
     
       <li>
-        <a href="/2016/02/14/整洁代码/">整洁代码</a>
+        <a href="/2015/12/14/整洁代码/">整洁代码</a>
+      </li>
+    
+      <li>
+        <a href="/2015/05/10/SDWebImage源码剖析（二）/">SDWebImage源码剖析（二）</a>
+      </li>
+    
+      <li>
+        <a href="/2015/05/10/SDWebImage源码剖析（－）/">SDWebImage源码剖析（－）</a>
       </li>
     
   </ul>
