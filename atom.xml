@@ -624,7 +624,7 @@
     <link href="http://freemind-lj.github.io/2015/10/20/IM%E5%BC%80%E5%8F%91-2-XMPP-iOS%E5%BC%80%E5%8F%91/"/>
     <id>http://freemind-lj.github.io/2015/10/20/IM开发-2-XMPP-iOS开发/</id>
     <published>2015-10-20T04:30:46.000Z</published>
-    <updated>2016-02-15T04:00:37.000Z</updated>
+    <updated>2016-02-15T04:03:19.000Z</updated>
     
     <content type="html">&lt;p&gt;搭建完&lt;a href=&quot;http://www.jianshu.com/p/f801229de016&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;本地服务器&lt;/a&gt;之后，我们便可以着手客户端的工作，这里我们使用&lt;a href=&quot;https://github.com/robbiehanson/XMPPFramework&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;XMPPFramework&lt;/a&gt;这个开源库，安卓平台可以使用&lt;a href=&quot;https://github.com/igniterealtime/Smack&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Smack&lt;/a&gt;(最好使用4.1以及之后的版本，支持流管理)，为了简单起见这里只实现登陆、获取好友列表以及聊天等功能，页面如下所示：&lt;/p&gt;
 &lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
@@ -653,11 +653,11 @@
 &lt;li&gt;节确认(stanza acknowledgement)&lt;br&gt;用来确认一段时间内节(包括&amp;lt;iq/&amp;gt;,&amp;lt;message/&amp;gt;,&amp;lt;presence/&amp;gt;,不是&amp;lt;iq/&amp;gt;&lt;br&gt;,&amp;lt;message/&amp;gt;,或&amp;lt;presence/&amp;gt;这样的stanzas不会在流管理中被确认跟计数的)是否被对方接收，客户端跟服务端都各自有有两个h值用来维护这些信息。从客户端来看，其中一个h值用于记录收到的节，比如当收到服务推送的消息时，会将该h值加1；另一个h值用于记录发出去的节，当发出一条消息时该h值也加1，所以为了确认消息是否被收到其实都是在比较双方的两个h值。&lt;br&gt;为了查询这些h值，xmpp定义了 &amp;lt;a/&amp;gt; 和 &amp;lt;r/&amp;gt; 两个元素，&amp;lt;r/&amp;gt;用户请求节的确认消息，&amp;lt;a/&amp;gt;用于回答节的确认消息，必须携带自己已处理的h值。&lt;/li&gt;
 &lt;/ul&gt;
 &lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&amp;#26381;&amp;#21153;&amp;#31471;: &amp;#60;r xmlns=&amp;#39;urn:xmpp:sm:3&amp;#39;/&amp;#62;&amp;#10;&amp;#23458;&amp;#25143;&amp;#31471;: &amp;#60;a xmlns=&amp;#39;urn:xmpp:sm:3&amp;#39; h=&amp;#39;3&amp;#39;/&amp;#62;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
-&lt;p&gt;比如服务端发送&amp;lt;r&amp;gt;请求，客户端返回自己接受收到的h值（3），然后服务端会根据这个h值跟它自己记录发出去的节的h值做比较，假如小的话会重新发送剩下的节，来防止节丢失。&lt;/p&gt;
+&lt;p&gt;比如服务端发送 &amp;lt;r/&amp;gt; 请求，客户端返回自己接受收到的h值（3），然后服务端会根据这个h值跟它自己记录发出去的节的h值做比较，假如小的话会重新发送剩下的节，来防止节丢失。&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;流恢复&lt;br&gt;由于移动网络可能随时down掉，所以在我们重连上来的时候需要的是快速恢复上一次的流，而不是重新新建一个流，roster的检索以及状态的广播，流管理可以通过上一次的流id（当启用流管理的时候，服务端会生成一个id来表示一个流）以及双方的h值来完成流的快速恢复以及这期间的节确认，发送未被确认的节。&lt;/p&gt;
 &lt;/li&gt;
-&lt;li&gt;&lt;p&gt;开启流管理&lt;br&gt;要想启用流管理，客户端发送&amp;lt;enable/&amp;gt;元素给服务端，服务端返回&amp;lt;enabled/&amp;gt;元素表示该流已经被管理了，同时有一个id值来标示这个流，xmppframework开启流管理只需要调用&lt;br&gt;enableStreamManagementWithResumption: maxTimeout:接口：&lt;/p&gt;
+&lt;li&gt;&lt;p&gt;开启流管理&lt;br&gt;要想启用流管理，客户端发送 &amp;lt;enable/ &amp;gt;元素给服务端，服务端返回&amp;lt;enabled/&amp;gt;元素表示该流已经被管理了，同时有一个id值来标示这个流，xmppframework开启流管理只需要调用&lt;br&gt;enableStreamManagementWithResumption: maxTimeout:接口：&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
 &lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&amp;#23458;&amp;#25143;&amp;#31471;: &amp;#60;enable xmlns=&amp;#39;urn:xmpp:sm:3&amp;#39; resume=&amp;#39;true&amp;#39;/&amp;#62;&amp;#10;&amp;#26381;&amp;#21153;&amp;#31471;: &amp;#60;enabled xmlns=&amp;#39;urn:xmpp:sm:3&amp;#39; id=&amp;#39;&amp;#27969;id&amp;#39; resume=&amp;#39;true&amp;#39;/&amp;#62;&amp;#10;&amp;#10;- (void)xmppStreamDidAuthenticate:(XMPPStream *)sender&amp;#10;&amp;#123;&amp;#10;&amp;#160; &amp;#160; //&amp;#30331;&amp;#38470;&amp;#23436;&amp;#25104;&amp;#21518;&amp;#65292;&amp;#21551;&amp;#29992;&amp;#27969;&amp;#31649;&amp;#29702;&amp;#10;&amp;#160; &amp;#160; [_xmppStreamManagement enableStreamManagementWithResumption:YES maxTimeout:0];&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;

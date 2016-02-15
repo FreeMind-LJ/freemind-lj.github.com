@@ -116,11 +116,11 @@
 <li>节确认(stanza acknowledgement)<br>用来确认一段时间内节(包括&lt;iq/&gt;,&lt;message/&gt;,&lt;presence/&gt;,不是&lt;iq/&gt;<br>,&lt;message/&gt;,或&lt;presence/&gt;这样的stanzas不会在流管理中被确认跟计数的)是否被对方接收，客户端跟服务端都各自有有两个h值用来维护这些信息。从客户端来看，其中一个h值用于记录收到的节，比如当收到服务推送的消息时，会将该h值加1；另一个h值用于记录发出去的节，当发出一条消息时该h值也加1，所以为了确认消息是否被收到其实都是在比较双方的两个h值。<br>为了查询这些h值，xmpp定义了 &lt;a/&gt; 和 &lt;r/&gt; 两个元素，&lt;r/&gt;用户请求节的确认消息，&lt;a/&gt;用于回答节的确认消息，必须携带自己已处理的h值。</li>
 </ul>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#26381;&#21153;&#31471;: &#60;r xmlns=&#39;urn:xmpp:sm:3&#39;/&#62;&#10;&#23458;&#25143;&#31471;: &#60;a xmlns=&#39;urn:xmpp:sm:3&#39; h=&#39;3&#39;/&#62;</span><br></pre></td></tr></table></figure>
-<p>比如服务端发送&lt;r&gt;请求，客户端返回自己接受收到的h值（3），然后服务端会根据这个h值跟它自己记录发出去的节的h值做比较，假如小的话会重新发送剩下的节，来防止节丢失。</p>
+<p>比如服务端发送 &lt;r/&gt; 请求，客户端返回自己接受收到的h值（3），然后服务端会根据这个h值跟它自己记录发出去的节的h值做比较，假如小的话会重新发送剩下的节，来防止节丢失。</p>
 <ul>
 <li><p>流恢复<br>由于移动网络可能随时down掉，所以在我们重连上来的时候需要的是快速恢复上一次的流，而不是重新新建一个流，roster的检索以及状态的广播，流管理可以通过上一次的流id（当启用流管理的时候，服务端会生成一个id来表示一个流）以及双方的h值来完成流的快速恢复以及这期间的节确认，发送未被确认的节。</p>
 </li>
-<li><p>开启流管理<br>要想启用流管理，客户端发送&lt;enable/&gt;元素给服务端，服务端返回&lt;enabled/&gt;元素表示该流已经被管理了，同时有一个id值来标示这个流，xmppframework开启流管理只需要调用<br>enableStreamManagementWithResumption: maxTimeout:接口：</p>
+<li><p>开启流管理<br>要想启用流管理，客户端发送 &lt;enable/ &gt;元素给服务端，服务端返回&lt;enabled/&gt;元素表示该流已经被管理了，同时有一个id值来标示这个流，xmppframework开启流管理只需要调用<br>enableStreamManagementWithResumption: maxTimeout:接口：</p>
 </li>
 </ul>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#23458;&#25143;&#31471;: &#60;enable xmlns=&#39;urn:xmpp:sm:3&#39; resume=&#39;true&#39;/&#62;&#10;&#26381;&#21153;&#31471;: &#60;enabled xmlns=&#39;urn:xmpp:sm:3&#39; id=&#39;&#27969;id&#39; resume=&#39;true&#39;/&#62;&#10;&#10;- (void)xmppStreamDidAuthenticate:(XMPPStream *)sender&#10;&#123;&#10;&#160; &#160; //&#30331;&#38470;&#23436;&#25104;&#21518;&#65292;&#21551;&#29992;&#27969;&#31649;&#29702;&#10;&#160; &#160; [_xmppStreamManagement enableStreamManagementWithResumption:YES maxTimeout:0];&#10;&#125;</span><br></pre></td></tr></table></figure>
