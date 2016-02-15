@@ -129,7 +129,7 @@ NSURLProtocol  NSURLProtocol能够让你去重新定义苹果的URL加载系
 <li>NSURLConnectionDataDelegate方法<br>在处理网络请求的时候会调用到该代理方法，我们需要将收到的消息通过client返回给URL Loading System。</li>
 </ul>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- (void) connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response &#123;&#10;    [self.client URLProtocol:self didReceiveResponse:response cacheStoragePolicy:NSURLCacheStorageNotAllowed];&#10;&#125;&#10;&#10;- (void) connection:(NSURLConnection *)connection didReceiveData:(NSData *)data &#123;&#10;    [self.client URLProtocol:self didLoadData:data];&#10;&#125;&#10;&#10;- (void) connectionDidFinishLoading:(NSURLConnection *)connection &#123;&#10;    [self.client URLProtocolDidFinishLoading:self];&#10;&#125;&#10;&#10;- (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error &#123;&#10;    [self.client URLProtocol:self didFailWithError:error];&#10;&#125;</span><br></pre></td></tr></table></figure>
-<p>现在你已经可以截取request并做你想做的事了，这里有个<a href="https://github.com/FreeMind-LJ/NSURLProtocolExample" target="_blank" rel="external">demo</a>可以参考一下，截取request并重新定向到新的地址，具体dns解析方法可以参看<a href="http://www.jianshu.com/p/d945454e3abc" target="_blank" rel="external">DNS解析)</a> ，如有不对，欢迎指正，哈～</p>
+<p>现在你已经可以截取request并做你想做的事了，这里有个<a href="https://github.com/FreeMind-LJ/NSURLProtocolExample" target="_blank" rel="external">demo</a>可以参考一下，截取request并重新定向到新的地址，具体dns解析方法可以参看<a href="http://freemind-lj.github.io/2015/06/18/iOS开发之－－-DNS解析-网络切换的问题解决/">DNS解析)</a> ，如有不对，欢迎指正，哈～</p>
 
       
     </div>

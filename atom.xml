@@ -1063,7 +1063,7 @@
     <link href="http://freemind-lj.github.io/2015/06/16/iOS%E5%BC%80%E5%8F%91%E4%B9%8B-NSURLProtocol/"/>
     <id>http://freemind-lj.github.io/2015/06/16/iOS开发之-NSURLProtocol/</id>
     <published>2015-06-16T03:29:55.000Z</published>
-    <updated>2016-02-15T01:30:58.000Z</updated>
+    <updated>2016-02-15T03:40:22.000Z</updated>
     
     <content type="html">&lt;p&gt;  最近在项目里由于电信那边发生dns发生域名劫持，因此需要手动将URL请求的域名重定向到指定的IP地址，但是由于请求可能是通过NSURLConnection,NSURLSession或者AFNetworking等方式，因此要想统一进行处理，一开始是想通过Method Swizzling去hook cfnetworking底层方法，后来发现其实有个更好的方法–NSURLProtocol。&lt;/p&gt;
 &lt;h2 id=&quot;NSURLProtocol&quot;&gt;&lt;a href=&quot;#NSURLProtocol&quot; class=&quot;headerlink&quot; title=&quot;NSURLProtocol&quot;&gt;&lt;/a&gt;NSURLProtocol&lt;/h2&gt;&lt;p&gt;  NSURLProtocol能够让你去重新定义苹果的&lt;a href=&quot;https://developer.apple.com/library/ios/documentation/Cocoa/Conceptual/URLLoadingSystem/URLLoadingSystem.html#//apple_ref/doc/uid/10000165-BCICJDHA&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;URL加载系统&lt;/a&gt; (URL Loading System)的行为，URL Loading System里有许多类用于处理URL请求，比如NSURL，NSURLRequest，NSURLConnection和NSURLSession等，当URL Loading System使用NSURLRequest去获取资源的时候，它会创建一个NSURLProtocol子类的实例，你不应该直接实例化一个NSURLProtocol，NSURLProtocol看起来像是一个协议，但其实这是一个类，而且必须使用该类的子类，并且需要被注册。&lt;/p&gt;
@@ -1098,7 +1098,7 @@
 &lt;li&gt;NSURLConnectionDataDelegate方法&lt;br&gt;在处理网络请求的时候会调用到该代理方法，我们需要将收到的消息通过client返回给URL Loading System。&lt;/li&gt;
 &lt;/ul&gt;
 &lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;- (void) connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response &amp;#123;&amp;#10;    [self.client URLProtocol:self didReceiveResponse:response cacheStoragePolicy:NSURLCacheStorageNotAllowed];&amp;#10;&amp;#125;&amp;#10;&amp;#10;- (void) connection:(NSURLConnection *)connection didReceiveData:(NSData *)data &amp;#123;&amp;#10;    [self.client URLProtocol:self didLoadData:data];&amp;#10;&amp;#125;&amp;#10;&amp;#10;- (void) connectionDidFinishLoading:(NSURLConnection *)connection &amp;#123;&amp;#10;    [self.client URLProtocolDidFinishLoading:self];&amp;#10;&amp;#125;&amp;#10;&amp;#10;- (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error &amp;#123;&amp;#10;    [self.client URLProtocol:self didFailWithError:error];&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
-&lt;p&gt;现在你已经可以截取request并做你想做的事了，这里有个&lt;a href=&quot;https://github.com/FreeMind-LJ/NSURLProtocolExample&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;demo&lt;/a&gt;可以参考一下，截取request并重新定向到新的地址，具体dns解析方法可以参看&lt;a href=&quot;http://www.jianshu.com/p/d945454e3abc&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;DNS解析)&lt;/a&gt; ，如有不对，欢迎指正，哈～&lt;/p&gt;
+&lt;p&gt;现在你已经可以截取request并做你想做的事了，这里有个&lt;a href=&quot;https://github.com/FreeMind-LJ/NSURLProtocolExample&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;demo&lt;/a&gt;可以参考一下，截取request并重新定向到新的地址，具体dns解析方法可以参看&lt;a href=&quot;http://freemind-lj.github.io/2015/06/18/iOS开发之－－-DNS解析-网络切换的问题解决/&quot;&gt;DNS解析)&lt;/a&gt; ，如有不对，欢迎指正，哈～&lt;/p&gt;
 </content>
     
     <summary type="html">
