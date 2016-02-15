@@ -980,7 +980,7 @@
     <link href="http://freemind-lj.github.io/2015/07/21/git%E9%81%87%E5%88%B0%E7%9A%84%E4%B8%80%E4%BA%9B%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3/"/>
     <id>http://freemind-lj.github.io/2015/07/21/git遇到的一些问题解决/</id>
     <published>2015-07-21T07:27:01.000Z</published>
-    <updated>2016-02-15T03:27:50.000Z</updated>
+    <updated>2016-02-15T03:41:27.000Z</updated>
     
     <content type="html">&lt;p&gt;  最近在使用git clone代码的时候遇到了一些问题，现在记录一下：&lt;/p&gt;
 &lt;ul&gt;
@@ -992,8 +992,7 @@
 &lt;ul&gt;
 &lt;li&gt;fatal: The remote end hung up unexpectedly&lt;br&gt;在clone分支的时候可能会失败，比如early EOF：&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;&lt;img src=&quot;http://7xpjm0.com1.z0.glb.clouddn.com/clone%E5%A4%B1%E8%B4%A5.png&quot; alt=&quot;clone失败&quot;&gt;&lt;/p&gt;
-&lt;p&gt;解决的办法是使用ssh协议去clone，而不是http协议。&lt;/p&gt;
+&lt;p&gt;&lt;center&gt;&lt;br&gt;&lt;img src=&quot;http://7xpjm0.com1.z0.glb.clouddn.com/clone%E5%A4%B1%E8%B4%A5.png&quot; alt=&quot;clone失败&quot;&gt;&lt;br&gt;&lt;/center&gt;&lt;br&gt;解决的办法是使用ssh协议去clone，而不是http协议。&lt;/p&gt;
 </content>
     
     <summary type="html">
