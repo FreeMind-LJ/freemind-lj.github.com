@@ -211,6 +211,235 @@
 
     
     
+      
+      
+
+      
+    
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2015/10/20/IM开发-2-XMPP-iOS开发/" itemprop="url">
+                  IM开发(2)-XMPP iOS开发
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2015-10-20T12:30:46+08:00" content="2015-10-20">
+              2015-10-20
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/tech/" itemprop="url" rel="index">
+                    <span itemprop="name">tech</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2015/10/20/IM开发-2-XMPP-iOS开发/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2015/10/20/IM开发-2-XMPP-iOS开发/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>搭建完<a href="http://www.jianshu.com/p/f801229de016">本地服务器</a>之后，我们便可以着手客户端的工作，这里我们使用<a href="https://github.com/robbiehanson/XMPPFramework">XMPPFramework</a>这个开源库，安卓平台可以使用<a href="https://github.com/igniterealtime/Smack">Smack</a>(最好使用4.1以及之后的版本，支持流管理)，为了简单起见这里只实现登陆、获取好友列表以及聊天等功能，页面如下所示：</p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2015/10/20/IM开发-2-XMPP-iOS开发/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2015/10/08/IM开发-1-ejabberd服务器搭建/" itemprop="url">
+                  IM开发(1)-ejabberd服务器搭建
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2015-10-08T18:12:50+08:00" content="2015-10-08">
+              2015-10-08
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/tech/" itemprop="url" rel="index">
+                    <span itemprop="name">tech</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2015/10/08/IM开发-1-ejabberd服务器搭建/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2015/10/08/IM开发-1-ejabberd服务器搭建/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>最近项目中需要集成IM功能，市面上有很多的第三方提供im服务，比如环信、融云等，但都有使用限制的地方，如果不使用第三方可以自己去实现一套IM系统，不过一个IM系统涉及到的东西比较多，开发难度较高。另一种选择是使用xmpp，xmpp的优点是有很多的开源实现，比如服务端的ejabberd、Openfire，iOS以及安卓端都很优秀的开源库可以使用，而且传输安全以及扩展性强等(环信也是基于xmpp)；同时也有一些缺点，比如不能传输二进制数据以及费流量等，有些地方需要去改进。<br>   下面记录如何使用XMPP来简单实现IM功能，在这之前需要先搭建本地服务器用于测试。</p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2015/10/08/IM开发-1-ejabberd服务器搭建/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
 
     
       
@@ -913,479 +1142,12 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2015/06/16/iOS开发之-NSURLProtocol/" itemprop="url">
-                  iOS开发之--- NSURLProtocol
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2015-06-16T11:29:55+08:00" content="2015-06-16">
-              2015-06-16
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/tech/" itemprop="url" rel="index">
-                    <span itemprop="name">tech</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2015/06/16/iOS开发之-NSURLProtocol/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2015/06/16/iOS开发之-NSURLProtocol/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>  最近在项目里由于电信那边发生dns发生域名劫持，因此需要手动将URL请求的域名重定向到指定的IP地址，但是由于请求可能是通过NSURLConnection,NSURLSession或者AFNetworking等方式，因此要想统一进行处理，一开始是想通过Method Swizzling去hook cfnetworking底层方法，后来发现其实有个更好的方法–NSURLProtocol。</p>
-<h2 id="NSURLProtocol"><a href="#NSURLProtocol" class="headerlink" title="NSURLProtocol"></a>NSURLProtocol</h2><p>  NSURLProtocol能够让你去重新定义苹果的<a href="https://developer.apple.com/library/ios/documentation/Cocoa/Conceptual/URLLoadingSystem/URLLoadingSystem.html#//apple_ref/doc/uid/10000165-BCICJDHA">URL加载系统</a> (URL Loading System)的行为，URL Loading System里有许多类用于处理URL请求，比如NSURL，NSURLRequest，NSURLConnection和NSURLSession等，当URL Loading System使用NSURLRequest去获取资源的时候，它会创建一个NSURLProtocol子类的实例，你不应该直接实例化一个NSURLProtocol，NSURLProtocol看起来像是一个协议，但其实这是一个类，而且必须使用该类的子类，并且需要被注册。</p>
-<h2 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h2><p>  不管你是通过UIWebView, NSURLConnection 或者第三方库 (AFNetworking, MKNetworkKit等)，他们都是基于NSURLConnection或者 NSURLSession实现的，因此你可以通过NSURLProtocol做自定义的操作。</p>
-<ul>
-<li>重定向网络请求</li>
-<li>忽略网络请求，使用本地缓存</li>
-<li>自定义网络请求的返回结果</li>
-<li>一些全局的网络请求设置</li>
-</ul>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2015/06/16/iOS开发之-NSURLProtocol/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2015/06/11/Xcode中统计代码覆盖率/" itemprop="url">
-                  Xcode中统计代码覆盖率
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2015-06-11T19:31:20+08:00" content="2015-06-11">
-              2015-06-11
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/others/" itemprop="url" rel="index">
-                    <span itemprop="name">others</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2015/06/11/Xcode中统计代码覆盖率/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2015/06/11/Xcode中统计代码覆盖率/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>  最近在项目里需要在单元测试时统计一下<a href="http://www.cnblogs.com/coderzh/archive/2009/03/29/1424344.html">代码覆盖率</a>，其实就是被用来作为测量单元测试的指标，看看测试的代码覆盖到多广的范围，下面介绍一下如何统计单元测试的代码覆盖率：</p>
-<h4 id="下载工具"><a href="#下载工具" class="headerlink" title="下载工具"></a>下载工具</h4><p>  主要采用<a href="https://github.com/jonreid/XcodeCoverage">XcodeCoverage</a>工具，它可以将代码覆盖的结果以html的形式展现，方便我们查看，可以采用pod的方式安装:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pod &#39;XcodeCoverage&#39;, &#39;~&#62;1.0&#39;</span><br></pre></td></tr></table></figure></p>
-<h4 id="工程配置"><a href="#工程配置" class="headerlink" title="工程配置"></a>工程配置</h4><p>pod安装后需要配置工程：</p>
-<ul>
-<li>设置 Build Settings<br>需要设置两个地方，找到 “Generate Test Coverage Files”和“Instrument Program Flow”两个选项，分别设置Debug下为YES：</li>
-</ul>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2015/06/11/Xcode中统计代码覆盖率/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2015/06/05/ios-runtime浅析-三-：Method-Swizzling/" itemprop="url">
-                  ios runtime浅析(三)：Method Swizzling
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2015-06-05T23:33:10+08:00" content="2015-06-05">
-              2015-06-05
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/tech/" itemprop="url" rel="index">
-                    <span itemprop="name">tech</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2015/06/05/ios-runtime浅析-三-：Method-Swizzling/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2015/06/05/ios-runtime浅析-三-：Method-Swizzling/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>  看到nshipster 的<a href="https://github.com/AFNetworking/AFNetworking/">Method Swizzling</a>这篇不错的文章还没翻译，就补充一下，没有逐字翻译，关于<a href="http://nshipster.cn/associated-objects/">associated objects</a>已经有翻译了，大家也可以去了解一下。<br>  method swizzling也许是runtime中最有争议的技术，它的作用就是改变已经存在selector的实现，之所以可以这样是因为方法调用可以在运行时改变：通过改变类的分发表( dispatch table，该表包含selector的名称及对应实现函数的地址)里selector和实现之间的对应关系。<br>  举个例子，比如你想记录一个iOS应用里每个view controller显示的次数：可以在每个view controller添加记录的代码，但这会导致大量的重复代码；通过继承也是一个方法，但需要同时创建UIViewController, UITableViewController, UINavigationController及其它中view controller的子类，同样也会产生许多重复的代码出现。<br>  幸运的是，在UIViewController的category使用method swizzling：</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2015/06/05/ios-runtime浅析-三-：Method-Swizzling/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2015/06/02/ios-runtime浅析-二-：消息转发/" itemprop="url">
-                  ios runtime浅析(二)：消息转发
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2015-06-02T14:34:48+08:00" content="2015-06-02">
-              2015-06-02
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/tech/" itemprop="url" rel="index">
-                    <span itemprop="name">tech</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2015/06/02/ios-runtime浅析-二-：消息转发/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2015/06/02/ios-runtime浅析-二-：消息转发/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>  如果你给一个对象发送它不认识的消息时，系统会抛出一个错误，但在错误抛出之前，运行时会给改对象发送forwardInvocation:消息，同时传递一个NSInvocation对象作为该消息的参数，NSInvocation对象包封装原始消息和对应的参数。你可以实现forwardInvocation:方法来对不能处理的消息做一些默认的处理，以避免程序崩溃，但正如该函数的名字一样，这个函数主要是用来将消息转发给其它对象。每一个对象都从NSObject类继承了forwardInvocation:方法，但在NSObject中，该方法只是简单的调用doesNotRecognizeSelector:，通过重写该方法你就可以利用forwardInvocation:将消息转发给其它对象。<br>  为了转发一个消息，forwardInvocation:需要做的事：</p>
-<ul>
-<li>确定消息该往哪发</li>
-<li>同时发送对应的原始参数<br>消息可以通过invokeWithTarget:方法发送：</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- (void)forwardInvocation:(NSInvocation *)anInvocation&#10;&#123;&#10;    if ([someOtherObject respondsToSelector:[anInvocation selector]])&#10;        [anInvocation invokeWithTarget:someOtherObject];&#10;    else&#10;       [super forwardInvocation:anInvocation];&#10;&#125;</span><br></pre></td></tr></table></figure>
-<p>forwardInvocation:方法可以作为无法认识的消息的分发中心，将它们打包发给不同的接受者，或者作为一个中转站将所有消息发往同一个目的地。它可以将一个消息转换成另外的一个消息，或者只是单纯的把消息“吞下”，不对外响应和抛出错误，forwardInvocation:做什么取决于实现者。</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2015/06/02/ios-runtime浅析-二-：消息转发/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
 
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
