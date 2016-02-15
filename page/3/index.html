@@ -47,8 +47,6 @@
 
 
 
-  <link rel="alternate" href="/atom.xml" title="树下的老男孩" type="application/atom+xml" />
-
 
 
 
@@ -211,6 +209,11 @@
 
     
     
+      
+      
+
+      
+    
 
     
       
@@ -288,6 +291,15 @@
           
 
           
+          
+             <span id="/2015/06/16/iOS开发之-NSURLProtocol/" class="leancloud_visitors" data-flag-title="iOS开发之--- NSURLProtocol">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
           
         </div>
       </header>
@@ -409,6 +421,15 @@
 
           
           
+             <span id="/2015/06/11/Xcode中统计代码覆盖率/" class="leancloud_visitors" data-flag-title="Xcode中统计代码覆盖率">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
         </div>
       </header>
     
@@ -526,6 +547,15 @@
 
           
           
+             <span id="/2015/06/05/ios-runtime浅析-三-：Method-Swizzling/" class="leancloud_visitors" data-flag-title="ios runtime浅析(三)：Method Swizzling">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
         </div>
       </header>
     
@@ -637,6 +667,15 @@
           
 
           
+          
+             <span id="/2015/06/02/ios-runtime浅析-二-：消息转发/" class="leancloud_visitors" data-flag-title="ios runtime浅析(二)：消息转发">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
           
         </div>
       </header>
@@ -756,6 +795,15 @@
 
           
           
+             <span id="/2015/05/29/利用Charles分析iOS-app的网络通信/" class="leancloud_visitors" data-flag-title="利用Charles分析iOS app的网络通信">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
         </div>
       </header>
     
@@ -769,18 +817,21 @@
       
         
           
-            <p><a href="http://www.charlesproxy.com/" target="_blank" rel="external">Charles</a>，一个非常方便的抓包工具，这次主要介绍一下如何利用Charles分析iOS应用的网络通信，以iOS应用NASA为例（最近对universe有点感兴趣），下面为app的模样：</p>
-<center><br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202015-05-29%20%E4%B8%8B%E5%8D%88.jpeg" alt="屏幕快照 2015-05-29 下午2.38.34.png"><br></center><br>里面可以查看一些跟太空相关的图片，分析一下如何获取这些图片，但需要手机连接到Mac共享的Wi-Fi上。<br><em> 查看Mac的IP地址，比如我机器上的为：192.168.56.160;
-</em> 打开iPhone设置，选择连接的Wi-Fi，设置HTTP代理，选择手动，并设置服务器的Mac的IP地址，端口设为8090;<br><center><br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/%E6%89%8B%E6%9C%BA%E8%AE%BE%E7%BD%AE.jpeg" alt="手机设置"><br></center>
+          Charles，一个非常方便的抓包工具，这次主要介绍一下如何利用Charles分析iOS应用的网络通信，以iOS应用NASA为例（最近对universe有点感兴趣），下面为app的模样：
+里面可以查看一些跟太空相关的图片，分析一下如何获取这些图片，但需要手机连接到Mac共享的Wi-Fi上。 查看Mac的IP地址，比如我机器上的为：192.168.56.160;
+ 打开iPhone设置，选择连接的Wi-Fi，设置HTTP代理，选择手动，并设置服务器的Mac的IP地址，端口设为8090;
 
-<ul>
-<li>打开Charles应用，选择菜单“Proxy”-&gt;”Proxy Settings”，设置端口号8090，同时勾选”Enable transparent HTTP proxying” </li>
-</ul>
-<center><br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/Charles%E8%AE%BE%E7%BD%AE.jpeg" alt="Charles设置"><br></center><br>* 打开NASA应用，Charles开始记录，进入app的Images选项：<br><br><center><br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/Charles%E7%BA%AA%E5%BD%95%E7%BB%93%E6%9E%9C.jpeg" alt="Charles纪录结果"><br><br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/%E6%89%8B%E6%9C%BA%E7%95%8C%E9%9D%A2.jpeg" alt="手机界面"><br></center>
 
-<p>通过Charles可以看出获取这张图片请求方式为：<br><a href="http://mobile.arc.nasa.gov/public/iexplore/images/useradded/320/norfolk_ast_2009316.jpg" target="_blank" rel="external">http://mobile.arc.nasa.gov/public/iexplore/images/useradded/320/norfolk_ast_2009316.jpg</a> ，其它的请求信息都可以在Charles中查看。所以假如你自己的应用想要显示NASA的一些图片，你就可以使用这些请求方式了，分析其它应用方法类似。</p>
+打开Charles应用，选择菜单“Proxy”-&gt;”Proxy Settings”，设置端口号8090，同时勾选”Enable transparent HTTP proxying” 
 
-          
+* 打开NAS
+          ...
+
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2015/05/29/利用Charles分析iOS-app的网络通信/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
         
       
     </div>
@@ -874,6 +925,15 @@
           
 
           
+          
+             <span id="/2015/05/25/ios-runtime浅析-：消息传递与动态解析/" class="leancloud_visitors" data-flag-title="ios runtime浅析(-)：消息传递与动态解析">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
           
         </div>
       </header>
@@ -995,6 +1055,15 @@
 
           
           
+             <span id="/2015/05/21/iOS-block浅析/" class="leancloud_visitors" data-flag-title="iOS block浅析">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
         </div>
       </header>
     
@@ -1115,6 +1184,15 @@
 
           
           
+             <span id="/2015/05/19/iOS持续集成：命令行创建工程/" class="leancloud_visitors" data-flag-title="iOS持续集成：命令行创建工程">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
         </div>
       </header>
     
@@ -1228,13 +1306,6 @@
         </nav>
 
         
-          <div class="feed-link motion-element">
-            <a href="/atom.xml" rel="alternate">
-              <i class="fa fa-rss"></i>
-              RSS
-            </a>
-          </div>
-        
 
         <div class="links-of-author motion-element">
           
@@ -1261,7 +1332,9 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright" >
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+<div class="copyright" >
   
   &copy;  2015 - 
   <span itemprop="copyrightYear">2016</span>
@@ -1281,7 +1354,9 @@
     NexT.Pisces
   </a>
 </div>
-
+<span id="busuanzi_container_site_pv">
+    本站总访问量<span id="busuanzi_value_site_pv"></span>次
+</span>
 
 
       </div>
@@ -1370,6 +1445,99 @@
 
   
   
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("DvWhe5PSPJP5bPXSjWLCB0mj-gzGzoHsz", "TTKtGStuW0SPbCbajWcG5w5W");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
 
 
 </body>
