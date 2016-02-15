@@ -251,7 +251,7 @@
     <link href="http://freemind-lj.github.io/2015/12/16/%E6%9C%89%E6%84%8F%E4%B9%89%E7%9A%84%E5%91%BD%E5%90%8D/"/>
     <id>http://freemind-lj.github.io/2015/12/16/有意义的命名/</id>
     <published>2015-12-16T01:37:01.000Z</published>
-    <updated>2016-02-14T10:04:25.000Z</updated>
+    <updated>2016-02-15T06:51:00.000Z</updated>
     
     <content type="html">&lt;h3 id=&quot;名副其实：&quot;&gt;&lt;a href=&quot;#名副其实：&quot; class=&quot;headerlink&quot; title=&quot;名副其实：&quot;&gt;&lt;/a&gt;名副其实：&lt;/h3&gt;&lt;p&gt;变量、函数或类的名称就能够说明为什么它存在，做什么事，怎么用，如果需要注释来补充，就不算名副其实:&lt;br&gt;&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;//&amp;#28040;&amp;#36893;&amp;#30340;&amp;#26102;&amp;#38388;&amp;#65292;&amp;#20197;&amp;#26085;&amp;#35745;, bad!&amp;#10;int d;&amp;#10;&amp;#10;//good&amp;#10;int daysSinceCreation;&amp;#160;&amp;#10;int daysSinceModification;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
 &lt;h3 id=&quot;避免误导&quot;&gt;&lt;a href=&quot;#避免误导&quot; class=&quot;headerlink&quot; title=&quot;避免误导&quot;&gt;&lt;/a&gt;避免误导&lt;/h3&gt;&lt;p&gt;避免留下隐藏代码本意的错误线索。&lt;br&gt;accountList  一组账号，如果类型不是List会引起误判，accountGroup或bunchOfAccoutns,甚至accounts，更可怕的例子：使用小些字母l跟字母O作为变量名&lt;/p&gt;
@@ -262,6 +262,7 @@
 &lt;li&gt;使用可读的名字：避免过度使用缩写，genymdhms (生成日期，年月日时分秒)&lt;/li&gt;
 &lt;li&gt;使用便于搜索的名称：避免使用Magic Number，避免使用单字母,或出现频率极高的短字母组合(注意度的把握)；MAX_CLASSER_PER_STUDENT  跟  “7” “e”&lt;/li&gt;
 &lt;/ul&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
 &lt;h3 id=&quot;类名&quot;&gt;&lt;a href=&quot;#类名&quot; class=&quot;headerlink&quot; title=&quot;类名&quot;&gt;&lt;/a&gt;类名&lt;/h3&gt;&lt;p&gt;类名和对象名应该是名词或名词短语，Customer、Account&lt;/p&gt;
 &lt;h3 id=&quot;方法名&quot;&gt;&lt;a href=&quot;#方法名&quot; class=&quot;headerlink&quot; title=&quot;方法名&quot;&gt;&lt;/a&gt;方法名&lt;/h3&gt;&lt;p&gt;动词或动词短语：deletePage、save,属性访问、修改和断言：加上get、set和is&lt;/p&gt;
 &lt;h3 id=&quot;别装可爱&quot;&gt;&lt;a href=&quot;#别装可爱&quot; class=&quot;headerlink&quot; title=&quot;别装可爱&quot;&gt;&lt;/a&gt;别装可爱&lt;/h3&gt;&lt;p&gt;使用俗语或俚语, eatMyShorts()表示abort()  eatMyShorts：去死吧&lt;/p&gt;
@@ -280,7 +281,15 @@
     
     <summary type="html">
     
-      &lt;h3 id=&quot;名副其实：&quot;&gt;&lt;a href=&quot;#名副其实：&quot; class=&quot;headerlink&quot; title=&quot;名副其实：&quot;&gt;&lt;/a&gt;名副其实：&lt;/h3&gt;&lt;p&gt;变量、函数或类的名称就能够说明为什么它存在，做什么事，怎么用，如果需要注释来补充，就不算名副其实:&lt;br&gt;&lt;figu
+      &lt;h3 id=&quot;名副其实：&quot;&gt;&lt;a href=&quot;#名副其实：&quot; class=&quot;headerlink&quot; title=&quot;名副其实：&quot;&gt;&lt;/a&gt;名副其实：&lt;/h3&gt;&lt;p&gt;变量、函数或类的名称就能够说明为什么它存在，做什么事，怎么用，如果需要注释来补充，就不算名副其实:&lt;br&gt;&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;//&amp;#28040;&amp;#36893;&amp;#30340;&amp;#26102;&amp;#38388;&amp;#65292;&amp;#20197;&amp;#26085;&amp;#35745;, bad!&amp;#10;int d;&amp;#10;&amp;#10;//good&amp;#10;int daysSinceCreation;&amp;#160;&amp;#10;int daysSinceModification;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
+&lt;h3 id=&quot;避免误导&quot;&gt;&lt;a href=&quot;#避免误导&quot; class=&quot;headerlink&quot; title=&quot;避免误导&quot;&gt;&lt;/a&gt;避免误导&lt;/h3&gt;&lt;p&gt;避免留下隐藏代码本意的错误线索。&lt;br&gt;accountList  一组账号，如果类型不是List会引起误判，accountGroup或bunchOfAccoutns,甚至accounts，更可怕的例子：使用小些字母l跟字母O作为变量名&lt;/p&gt;
+&lt;h3 id=&quot;做有意义的区分&quot;&gt;&lt;a href=&quot;#做有意义的区分&quot; class=&quot;headerlink&quot; title=&quot;做有意义的区分&quot;&gt;&lt;/a&gt;做有意义的区分&lt;/h3&gt;&lt;p&gt;代码是写给人看的,仅仅是满足编译器的要求,就会引起混乱&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;以数字系列命名：void copyChars(char a1[],char a2[]) ==&amp;gt; void copyChars(char source[],char destination[])&lt;/li&gt;
+&lt;li&gt;说废话： a, an, the, Info, Data&lt;/li&gt;
+&lt;li&gt;使用可读的名字：避免过度使用缩写，genymdhms (生成日期，年月日时分秒)&lt;/li&gt;
+&lt;li&gt;使用便于搜索的名称：避免使用Magic Number，避免使用单字母,或出现频率极高的短字母组合(注意度的把握)；MAX_CLASSER_PER_STUDENT  跟  “7” “e”&lt;/li&gt;
+&lt;/ul&gt;
     
     </summary>
     
@@ -296,7 +305,7 @@
     <link href="http://freemind-lj.github.io/2015/12/14/%E6%95%B4%E6%B4%81%E4%BB%A3%E7%A0%81/"/>
     <id>http://freemind-lj.github.io/2015/12/14/整洁代码/</id>
     <published>2015-12-14T07:16:01.000Z</published>
-    <updated>2016-02-14T09:57:05.000Z</updated>
+    <updated>2016-02-15T06:50:48.000Z</updated>
     
     <content type="html">&lt;h2 id=&quot;为什么要写糟糕的代码？&quot;&gt;&lt;a href=&quot;#为什么要写糟糕的代码？&quot; class=&quot;headerlink&quot; title=&quot;为什么要写糟糕的代码？&quot;&gt;&lt;/a&gt;为什么要写糟糕的代码？&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;赶时间完成任务 ，期望后面再清理.&lt;/li&gt;
@@ -312,6 +321,7 @@
 &lt;li&gt;花时间保持代码整洁不但关乎效率，还关乎生存&lt;/li&gt;
 &lt;li&gt;制造混乱无助于赶上工期，只会拖累，唯一方法就是始终尽可能保持代码整洁&lt;/li&gt;
 &lt;/ul&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
 &lt;h2 id=&quot;什么是整洁代码？&quot;&gt;&lt;a href=&quot;#什么是整洁代码？&quot; class=&quot;headerlink&quot; title=&quot;什么是整洁代码？&quot;&gt;&lt;/a&gt;什么是整洁代码？&lt;/h2&gt;&lt;h4 id=&quot;Bjarne-stroustrup：&quot;&gt;&lt;a href=&quot;#Bjarne-stroustrup：&quot; class=&quot;headerlink&quot; title=&quot;Bjarne stroustrup：&quot;&gt;&lt;/a&gt;Bjarne stroustrup：&lt;/h4&gt;&lt;p&gt;我喜欢优雅和高效的代码，代码逻辑应直截了当，叫缺陷难以隐藏；尽量减少依赖，使之便于维护；依据某种分成战略完善错误代码处理；性能调至最优，省的引诱别人做没规矩的优化，搞出一堆混乱来。整洁的代码只做好一件事。&lt;/p&gt;
 &lt;h4 id=&quot;Michael-Feathers-修改代码的艺术作者-：&quot;&gt;&lt;a href=&quot;#Michael-Feathers-修改代码的艺术作者-：&quot; class=&quot;headerlink&quot; title=&quot;Michael Feathers(修改代码的艺术作者)：&quot;&gt;&lt;/a&gt;Michael Feathers(修改代码的艺术作者)：&lt;/h4&gt;&lt;p&gt;我可以列出我留意到的整洁代码的所有特点，但其中有一条是根本性的。整洁的代码总是看起来像是某位特别在意它的人写的，几乎没有什么改进的余地，代码作者什么都想到了，如果你企图改进它，总会回到原点，赞叹某人留给你的代码———全心头人的某人留下的代码。&lt;/p&gt;
 &lt;h4 id=&quot;Ron（c-极限编程探险作者）&quot;&gt;&lt;a href=&quot;#Ron（c-极限编程探险作者）&quot; class=&quot;headerlink&quot; title=&quot;Ron（c#极限编程探险作者）:&quot;&gt;&lt;/a&gt;Ron（c#极限编程探险作者）:&lt;/h4&gt;&lt;p&gt;不要重复的代码（表示某种想法未在代码中得到良好的体现），只做一件事，提早构建简单抽象（在集合中查找某物）&lt;/p&gt;
@@ -322,7 +332,18 @@
     
       &lt;h2 id=&quot;为什么要写糟糕的代码？&quot;&gt;&lt;a href=&quot;#为什么要写糟糕的代码？&quot; class=&quot;headerlink&quot; title=&quot;为什么要写糟糕的代码？&quot;&gt;&lt;/a&gt;为什么要写糟糕的代码？&lt;/h2&gt;&lt;ul&gt;
 &lt;li&gt;赶时间完成任务 ，期望后面再清理.&lt;/li&gt;
-&lt;li&gt;勒
+&lt;li&gt;勒布朗法则：稍后等于永不（Later equals never）&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&quot;混乱的代价：&quot;&gt;&lt;a href=&quot;#混乱的代价：&quot; class=&quot;headerlink&quot; title=&quot;混乱的代价：&quot;&gt;&lt;/a&gt;混乱的代价：&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;代码变的无法管理，团队生产力下降，&lt;/li&gt;
+&lt;li&gt;增加人力？Brooks定律(人月神话)：向进度落后的项目中增加人手，只会使进度更加落后。&lt;/li&gt;
+&lt;li&gt;破窗理论：假如原来的代码很优秀，新加入的代码会害怕破坏这美妙的整体而变的更好，反之则不会去在意。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&quot;开始新设计&quot;&gt;&lt;a href=&quot;#开始新设计&quot; class=&quot;headerlink&quot; title=&quot;开始新设计:&quot;&gt;&lt;/a&gt;开始新设计:&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;新系统设计与旧系统维护竞赛，时间可持续十年之久，完成时成员早不知去向&lt;/li&gt;
+&lt;li&gt;花时间保持代码整洁不但关乎效率，还关乎生存&lt;/li&gt;
+&lt;li&gt;制造混乱无助于赶上工期，只会拖累，唯一方法就是始终尽可能保持代码整洁&lt;/li&gt;
+&lt;/ul&gt;
     
     </summary>
     

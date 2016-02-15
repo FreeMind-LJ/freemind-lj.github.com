@@ -211,15 +211,6 @@
 
     
     
-      
-      
-        
-        
-        
-      
-
-      
-    
 
     
       
@@ -659,8 +650,7 @@
 
       
         
-          
-            <h3 id="名副其实："><a href="#名副其实：" class="headerlink" title="名副其实："></a>名副其实：</h3><p>变量、函数或类的名称就能够说明为什么它存在，做什么事，怎么用，如果需要注释来补充，就不算名副其实:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">//&#28040;&#36893;&#30340;&#26102;&#38388;&#65292;&#20197;&#26085;&#35745;, bad!&#10;int d;&#10;&#10;//good&#10;int daysSinceCreation;&#160;&#10;int daysSinceModification;</span><br></pre></td></tr></table></figure></p>
+          <h3 id="名副其实："><a href="#名副其实：" class="headerlink" title="名副其实："></a>名副其实：</h3><p>变量、函数或类的名称就能够说明为什么它存在，做什么事，怎么用，如果需要注释来补充，就不算名副其实:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">//&#28040;&#36893;&#30340;&#26102;&#38388;&#65292;&#20197;&#26085;&#35745;, bad!&#10;int d;&#10;&#10;//good&#10;int daysSinceCreation;&#160;&#10;int daysSinceModification;</span><br></pre></td></tr></table></figure></p>
 <h3 id="避免误导"><a href="#避免误导" class="headerlink" title="避免误导"></a>避免误导</h3><p>避免留下隐藏代码本意的错误线索。<br>accountList  一组账号，如果类型不是List会引起误判，accountGroup或bunchOfAccoutns,甚至accounts，更可怕的例子：使用小些字母l跟字母O作为变量名</p>
 <h3 id="做有意义的区分"><a href="#做有意义的区分" class="headerlink" title="做有意义的区分"></a>做有意义的区分</h3><p>代码是写给人看的,仅仅是满足编译器的要求,就会引起混乱</p>
 <ul>
@@ -669,22 +659,11 @@
 <li>使用可读的名字：避免过度使用缩写，genymdhms (生成日期，年月日时分秒)</li>
 <li>使用便于搜索的名称：避免使用Magic Number，避免使用单字母,或出现频率极高的短字母组合(注意度的把握)；MAX_CLASSER_PER_STUDENT  跟  “7” “e”</li>
 </ul>
-<h3 id="类名"><a href="#类名" class="headerlink" title="类名"></a>类名</h3><p>类名和对象名应该是名词或名词短语，Customer、Account</p>
-<h3 id="方法名"><a href="#方法名" class="headerlink" title="方法名"></a>方法名</h3><p>动词或动词短语：deletePage、save,属性访问、修改和断言：加上get、set和is</p>
-<h3 id="别装可爱"><a href="#别装可爱" class="headerlink" title="别装可爱"></a>别装可爱</h3><p>使用俗语或俚语, eatMyShorts()表示abort()  eatMyShorts：去死吧</p>
-<h3 id="每个概念对应一个词"><a href="#每个概念对应一个词" class="headerlink" title="每个概念对应一个词"></a>每个概念对应一个词</h3><p>给每个抽象概念选一个词，并一以贯之。比如获取数据可以使用fetch、retrive、get这些词语，但最好能够统一使用一种(controller、manager类似)</p>
-<h3 id="名字尽量来自解决方案领域或问题领域："><a href="#名字尽量来自解决方案领域或问题领域：" class="headerlink" title="名字尽量来自解决方案领域或问题领域："></a>名字尽量来自解决方案领域或问题领域：</h3><ul>
-<li>使用解决方案领域名称：使用计算机领域的科学术语、算法名、模式名等。如AccountVisitor：Visitor模式实现的Account类。</li>
-<li>使用问题领域的名称：如果不能用程序员熟悉的术语来命名，就采用所涉问题领域的名称。排序==&gt; sort</li>
-</ul>
-<h3 id="适当使用有意义的语境："><a href="#适当使用有意义的语境：" class="headerlink" title="适当使用有意义的语境："></a>适当使用有意义的语境：</h3><ul>
-<li>良好命名的类、函数、名称空间来放置名称，给读者提供语境</li>
-<li>给名称前加前缀：firstName、lastName、street、houseNumber、city、state和zipcode，和在一起知道是地址，孤零零时无法推断， state＝》addrState</li>
-<li>事不过三，如果传递给函数的变量超过三个，考虑封装成概念,添加struct或class</li>
-<li>不要添加没用的语境</li>
-</ul>
-
-          
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2015/12/16/有意义的命名/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
         
       
     </div>
@@ -791,8 +770,7 @@
 
       
         
-          
-            <h2 id="为什么要写糟糕的代码？"><a href="#为什么要写糟糕的代码？" class="headerlink" title="为什么要写糟糕的代码？"></a>为什么要写糟糕的代码？</h2><ul>
+          <h2 id="为什么要写糟糕的代码？"><a href="#为什么要写糟糕的代码？" class="headerlink" title="为什么要写糟糕的代码？"></a>为什么要写糟糕的代码？</h2><ul>
 <li>赶时间完成任务 ，期望后面再清理.</li>
 <li>勒布朗法则：稍后等于永不（Later equals never）</li>
 </ul>
@@ -806,12 +784,11 @@
 <li>花时间保持代码整洁不但关乎效率，还关乎生存</li>
 <li>制造混乱无助于赶上工期，只会拖累，唯一方法就是始终尽可能保持代码整洁</li>
 </ul>
-<h2 id="什么是整洁代码？"><a href="#什么是整洁代码？" class="headerlink" title="什么是整洁代码？"></a>什么是整洁代码？</h2><h4 id="Bjarne-stroustrup："><a href="#Bjarne-stroustrup：" class="headerlink" title="Bjarne stroustrup："></a>Bjarne stroustrup：</h4><p>我喜欢优雅和高效的代码，代码逻辑应直截了当，叫缺陷难以隐藏；尽量减少依赖，使之便于维护；依据某种分成战略完善错误代码处理；性能调至最优，省的引诱别人做没规矩的优化，搞出一堆混乱来。整洁的代码只做好一件事。</p>
-<h4 id="Michael-Feathers-修改代码的艺术作者-："><a href="#Michael-Feathers-修改代码的艺术作者-：" class="headerlink" title="Michael Feathers(修改代码的艺术作者)："></a>Michael Feathers(修改代码的艺术作者)：</h4><p>我可以列出我留意到的整洁代码的所有特点，但其中有一条是根本性的。整洁的代码总是看起来像是某位特别在意它的人写的，几乎没有什么改进的余地，代码作者什么都想到了，如果你企图改进它，总会回到原点，赞叹某人留给你的代码———全心头人的某人留下的代码。</p>
-<h4 id="Ron（c-极限编程探险作者）"><a href="#Ron（c-极限编程探险作者）" class="headerlink" title="Ron（c#极限编程探险作者）:"></a>Ron（c#极限编程探险作者）:</h4><p>不要重复的代码（表示某种想法未在代码中得到良好的体现），只做一件事，提早构建简单抽象（在集合中查找某物）</p>
-<h4 id="美国童子军军规：让营地比你来时更干净。"><a href="#美国童子军军规：让营地比你来时更干净。" class="headerlink" title="美国童子军军规：让营地比你来时更干净。"></a>美国童子军军规：让营地比你来时更干净。</h4><p>改好一个变量名，拆分一个过长的函数，消除一点点重复代码</p>
-
-          
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2015/12/14/整洁代码/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
         
       
     </div>
