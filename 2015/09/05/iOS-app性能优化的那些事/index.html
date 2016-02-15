@@ -95,10 +95,12 @@
 <a id="more"></a>
 <h3 id="2-不要阻塞主线程"><a href="#2-不要阻塞主线程" class="headerlink" title="2 不要阻塞主线程"></a>2 不要阻塞主线程</h3><p>  在iOS里关于UIKit的操作都是放在主线程，因此如果主线程被阻塞住了，你的UI可能无法及时响应事件，给人一种卡顿的感觉。大多数阻塞主线程的情况是在主线程做IO操作，比如文件的读写，包含数据库、图片、json文本或者log日志等，尽量将这些操作放放到子线程(如果数据库有一次有较多的操作，记得采用事务来处理，性能相差还是挺大的)，或者在后台建立对应的dispatch queue来做这些操作，比如一个低级别的serial queue来负责log文件的记录等等。程序中如果你的代码逻辑是按照同步的逻辑来写的，尽量修改逻辑代码吧。。。</p>
 <h3 id="3-使用cache"><a href="#3-使用cache" class="headerlink" title="3 使用cache"></a>3 使用cache</h3><p>  一般为了提升用户体验，都会在应用中使用缓存，比如对于图片资源可以使用SDWebImage这个开源库，里面就实现了一个图片缓存的功能。参考SDWebImage的代码自己也可以实现缓存功能:</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/458529-fdf0dd0b4a6e4077.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="cache简单示意图"></p>
+<center><br><img src="http://upload-images.jianshu.io/upload_images/458529-fdf0dd0b4a6e4077.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="cache简单示意图"><br></center>
+
 <p>业务层根据资源的url向resourcemanager获取对应的资源，resourcemanager首先会到memorycache这边去获取资源，memorycache可以利用NSCache实现，因为NSCache首先是线程安全的，而且在收到内存警告的时候会自己释放对应的内存；如果memorycache没有对应的资源再去disk查找，disk也没有的话再去internet获取，获取到的话会更新到memorycache和disk中，具体可以去参考一下SDWebimage的实现细节。</p>
 <h3 id="4-减少程序启动过程中的任务"><a href="#4-减少程序启动过程中的任务" class="headerlink" title="4 减少程序启动过程中的任务"></a>4 减少程序启动过程中的任务</h3><p>当用户点击app的图标之后，程序应该尽可能快的进入到主页面，尽可能减少用户的等待时间，比如我们的应用程序在启动的时候会去做3d模型的渲染操作，完成之后在进入首页面展示，但其实我们可以先进入到主页面，将渲染3d的任务放到子线程去完成，缩短用户需要等待的时间。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/458529-e3db5218134ab8dd.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="3d"></p>
+<center><br><img src="http://upload-images.jianshu.io/upload_images/458529-e3db5218134ab8dd.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="3d"><br></center>
+
 <h3 id="5-使用合适的数据结构"><a href="#5-使用合适的数据结构" class="headerlink" title="5 使用合适的数据结构"></a>5 使用合适的数据结构</h3><p>根据不同的业务场景来选择合适的数据结构，可能在数据量比较少的时候看不出什么区别，但是假如你存储的数据量比较大且数据结构比较复杂的话，这有可能会影响到你的程序性能。一般用的比较多的数据结构就是array，但我们知道它的查找复杂度是O(n)，因此假如需要快速的查找某个元素，可以使用map。可以参考下<a href="https://developer.apple.com/library/ios/documentation/Cocoa/Conceptual/Collections/Collections.html" target="_blank" rel="external"> <a href="https://developer.apple.com/library/ios/#documentation/cocoa/conceptual/collections/Collections.html" target="_blank" rel="external">Apple Collections Programming Topics</a> </a>。</p>
 <h3 id="6-内存"><a href="#6-内存" class="headerlink" title="6 内存"></a>6 内存</h3><p>一般开发都使用的ARC，不太需要开发者去关注内存的创建和释放这块，但假如你使用的是MRC，并且跟其它语言混杂在一起(比如c++和lua)等的时候，如何确保内存正确释放就是你需要考虑的问题了。有时候一些内存泄漏instruments可能无法准确的分析出来，那么就需要自己去排查了，可以使用<a href="http://www.jianshu.com/p/be1ddd8c699f" target="_blank" rel="external">method swizzling</a>方法来辅助我们排查内存泄漏的问题，确保程序的正确运行。</p>
 <h3 id="7-懒加载view"><a href="#7-懒加载view" class="headerlink" title="7 懒加载view"></a>7 懒加载view</h3><p>不要在cell里面嵌套太多的view，这会很影响滑动的流畅感，而且更多的view也需要花费更多的CPU跟内存。假如由于view太多而导致了滑动不流畅，那就不要在一次就把所有的view都创建出来，把部分view放到需要显示cell的时候再去创建。</p>
@@ -175,7 +177,7 @@
     <aside id="sidebar" class="alignright">
   <div class="search">
   <form action="//google.com/search" method="get" accept-charset="utf-8">
-    <input type="text" name="q" results="0" placeholder="搜一下">
+    <input type="text" name="q" results="0" placeholder="搜尋">
     <i class="icon-search"></i>
     <input type="hidden" name="q" value="site:freemind-lj.github.io">
   </form>
@@ -183,7 +185,7 @@
 
   
 <div class="widget tag">
-  <h3 class="title">标签</h3>
+  <h3 class="title">標籤</h3>
   <ul class="entry">
   
     <li><a href="/tags/GCD/">GCD</a><small>2</small></li>

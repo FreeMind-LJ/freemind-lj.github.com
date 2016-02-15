@@ -101,7 +101,8 @@ UIPasteboard剪贴板是应用程序之间传递数据的简单方式，建议�
 <ul>
 <li>注册URL Scheme<br>为了能够处理URL请求，我们需要先注册自定义的URL Scheme，只需要在Info tab下的URL Types添加即可，比如我们这里注册Example2的URL Scheme。</li>
 </ul>
-<p><img src="http://upload-images.jianshu.io/upload_images/458529-cee0e4ad11ffc587.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/500" alt="注册URL scheme"></p>
+<center><br><br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/16-2-15%2F13214719.jpg" alt="注册URL scheme"><br><br></center>
+
 <p>Identifier用于标示名称，为了唯一性可以采用反转域名的形式，另外我们设置URL Scheme为Example2，以及role为Viewer(Viewer表示只能读取改URL但不能修改，Editor可以对URL进行读写)，这样Example2就能够接受类似”Example2:\“的URL请求了，可以在浏览器中输入”Example2:\“链接打开app。</p>
 <ul>
 <li>处理URL请求</li>
@@ -111,13 +112,15 @@ UIPasteboard剪贴板是应用程序之间传递数据的简单方式，建议�
 <p>Example2处理URL请求并解析:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-(BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation&#10;&#123;&#10;&#160; &#160; if ([[url scheme] isEqualToString:@&#34;Example2&#34;]) &#123;&#10;&#160; &#160; &#160; &#160; NSString *content = [url resourceSpecifier];&#10;        //&#35299;&#26512;content&#33719;&#21462;&#25968;&#25454;&#10;        //...&#10;&#160; &#160; &#160; &#160; return YES;&#10;&#160; &#160; &#125;&#10;&#160; &#160; return NO;&#10;&#125;</span><br></pre></td></tr></table></figure></p>
 <h4 id="Shared-Keychain-Access"><a href="#Shared-Keychain-Access" class="headerlink" title="Shared Keychain Access"></a>Shared Keychain Access</h4><p>iOS的keychain提供一种安全保存信息的方式，可以保存密码等数据，而且keychain中的数据不会因为你删除app而丢失，你可以在重新安装后继续读取keychain中的数据。通常每个应用程序只允许访问自己在keychain中保存的数据，不过假如你使用同一个证书的话，不同的app也可以通过keychain来实现应用间的数据共享。</p>
 <p>为了实现keychain共享数据，我们需要开启Keychain Sharing，开启方法如下，然后添加设置相同的Keychain Group，不过别忘记了添加Security.framework。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/458529-00ce1a0c8ccf752c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/500" alt="Example1"></p>
-<p><img src="http://upload-images.jianshu.io/upload_images/458529-33c95673f2c49a7c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/500" alt="Example2"></p>
+<center><br><br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/458529-00ce1a0c8ccf752c.png" alt="Example1"><br><br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/2.png" alt="Example2"><br></center>
+
 <p>Example1保存数据到keychain(为了简单使用<a href="https://github.com/soffes/sskeychain" target="_blank" rel="external">SSKeychian</a>)</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- (void)setKeyChain&#10;&#123;&#10;    [SSKeychain setPassword:@&#34;shareData&#34; forService:@&#34;myservice&#34; account:@&#34;jiangbin&#34;];&#10;&#125;</span><br></pre></td></tr></table></figure>
 <p>Example2读取数据<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- (IBAction)getByKeychain:(id)sender&#10;&#123;&#10;    NSString *myData = [SSKeychain passwordForService:@&#34;myservice&#34; account:@&#34;jiangbin&#34;];&#10;&#125;</span><br></pre></td></tr></table></figure></p>
 <h4 id="App-Groups"><a href="#App-Groups" class="headerlink" title="App Groups"></a>App Groups</h4><p>iOS8之后苹果加入了App Groups功能，应用程序之间可以通过同一个group来共享资源，app group可以通过NSUserDefaults进行小量数据的共享，如果需要共享较大的文件可以通过NSFileCoordinator、NSFilePresenter等方式。<br>开启app groups，需要添加一个group name，app之间通过这个group共享数据：</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/458529-f5aca858ca61a215.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/500" alt="App Groups"><br>Example1根据group name设置内容：</p>
+<center><br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/16-2-15%2F66665066.jpg" alt="App Groups"><br><br></center>
+
+<p>Example1根据group name设置内容：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- (void)setAppGroup&#10;&#123;&#10;    NSUserDefaults *myDefaults = [[NSUserDefaults alloc]&#10;                                  initWithSuiteName:@&#34;group.com.jiangbin.SharedData&#34;];&#10;    [myDefaults setObject:@&#34;shared data&#34; forKey:@&#34;mykey&#34;];&#10;&#125;</span><br></pre></td></tr></table></figure>
 <p>Example2根据group name读取数据</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- (void)getByAppGroup&#10; &#123;&#10;    NSUserDefaults *myDefaults = [[NSUserDefaults alloc]&#10;                                  initWithSuiteName:@&#34;group.com.jiangbin.SharedData&#34;];&#10;    NSString *content = [myDefaults objectForKey:@&#34;mykey&#34;];&#10;&#125;</span><br></pre></td></tr></table></figure>
@@ -188,7 +191,7 @@ UIPasteboard剪贴板是应用程序之间传递数据的简单方式，建议�
     <aside id="sidebar" class="alignright">
   <div class="search">
   <form action="//google.com/search" method="get" accept-charset="utf-8">
-    <input type="text" name="q" results="0" placeholder="搜一下">
+    <input type="text" name="q" results="0" placeholder="搜尋">
     <i class="icon-search"></i>
     <input type="hidden" name="q" value="site:freemind-lj.github.io">
   </form>
@@ -196,7 +199,7 @@ UIPasteboard剪贴板是应用程序之间传递数据的简单方式，建议�
 
   
 <div class="widget tag">
-  <h3 class="title">标签</h3>
+  <h3 class="title">標籤</h3>
   <ul class="entry">
   
     <li><a href="/tags/GCD/">GCD</a><small>2</small></li>

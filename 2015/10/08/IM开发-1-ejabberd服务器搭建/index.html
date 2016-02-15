@@ -98,27 +98,51 @@
 </ul>
 <p>等待安装完成即可。</p>
 <ul>
-<li>安装ejabbered<br>ejabbered服务器的安装非常简单，下载<a href="https://www.process-one.net/en/ejabberd/downloads" target="_blank" rel="external">ejabberd</a>安装包直接安装即可。<br><img src="http://upload-images.jianshu.io/upload_images/458529-3312b408ef4ec319.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="ejabbered安装包.png"><br>安装完之后可以在Applications目录先找到：<br><img src="http://upload-images.jianshu.io/upload_images/458529-3ad8f667b1b59ab6.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/400" alt="目录结构.png"><br>由于我们的服务器只是测试用的，比较重要的是bin目录下的start和stop命令，这两个分别用于开启和关闭xmpp服务，设置这两个命令为可执行：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chmod 755 stop&#10;chmod 755 start</span><br></pre></td></tr></table></figure>
-</li>
+<li>安装ejabbered<br>ejabbered服务器的安装非常简单，下载<a href="https://www.process-one.net/en/ejabberd/downloads" target="_blank" rel="external">ejabberd</a>安装包直接安装即可。</li>
 </ul>
+<center><br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/ejabbered%E5%AE%89%E8%A3%85%E5%8C%85.png" alt="ejabbered安装包.png"><br></center>
+
+<p>安装完之后可以在Applications目录先找到：</p>
+<center><br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84.png" alt="目录结构.png"><br></center>
+
+<p>由于我们的服务器只是测试用的，比较重要的是bin目录下的start和stop命令，这两个分别用于开启和关闭xmpp服务，设置这两个命令为可执行：<br> <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chmod 755 stop&#10;chmod 755 start</span><br></pre></td></tr></table></figure></p>
 <p>现在输入命令 ./start可以看到如下的页面</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/458529-dc69d6906aa62f8c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/400" alt="启动页面.png"></p>
+<center><br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/%E5%90%AF%E5%8A%A8%E9%A1%B5%E9%9D%A2.png" alt="启动页面.png"><br></center>
+
 <ul>
 <li>添加用户<br>现在我们的服务器只有administrators，我们需要增加几个用户，也方便后面测试，可以输入<a href="http://localhost:5280/admin/" target="_blank" rel="external">http://localhost:5280/admin/</a> 到ejabberd的后台管理页面：</li>
 </ul>
-<p><img src="http://upload-images.jianshu.io/upload_images/458529-4c464f5390f2730b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/400" alt="管理页面.png"><br>点击虚拟主机，选择用户菜单可以看到添加用户的页面如下，我们添加了user1@lujiangbin.local和user2@lujiangbin.local两个用户：</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/458529-f3eedf26de72469b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/600" alt="添加用户.png"></p>
+<center><br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/%E7%AE%A1%E7%90%86%E9%A1%B5%E9%9D%A2.png" alt="管理页面.png"><br></center>
+
+<p>点击虚拟主机，选择用户菜单可以看到添加用户的页面如下，我们添加了user1@lujiangbin.local和user2@lujiangbin.local两个用户：</p>
+<center><br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/%E6%B7%BB%E5%8A%A0%E7%94%A8%E6%88%B7.png" alt="添加用户.png"><br></center>
+
 <ul>
 <li>测试服务器<br>现在可以来测试服务器是否能正常运行了。要测试的话我们需要两个支持xmpp协议的客户端，可以使用Mac OSX自带的iMessage(登陆user1)和Adium(登陆user2) ，其中支持xmpp协议的客户端有：<br><a href="http://xmpp.org/xmpp-software/clients/" target="_blank" rel="external">http://xmpp.org/xmpp-software/clients/</a></li>
 </ul>
-<p>打开iMessage添加用户<br><img src="http://upload-images.jianshu.io/upload_images/458529-66fd15defeaf0b68.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/600" alt="添加用户user1.png"></p>
+<p>打开iMessage添加用户</p>
+<center><br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/%E6%B7%BB%E5%8A%A0%E7%94%A8%E6%88%B7user1.png" alt="添加用户user1.png"><br></center>
+
 <p>iMessage可能会提示服务器的证书需要验证，点击继续即可：</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/458529-64db0d560901b4ac.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/600" alt="屏幕快照 2015-10-08 下午3.34.55.png"><br>可以看到user1已经登陆成功了。<br><img src="http://upload-images.jianshu.io/upload_images/458529-c3990e6ab3919234.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/400" alt="登陆成功"></p>
-<p>接着打开Adium添加user2@lujiangbin.local用户，添加过程跟iMessage类似：<br><img src="http://upload-images.jianshu.io/upload_images/458529-256fe01abf4fd9ce.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/400" alt="添加用户1.png"><br>设置连接服务器为localhost:<br><img src="http://upload-images.jianshu.io/upload_images/458529-8ddb578e478946bb.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/400" alt="添加用户2.png"></p>
+<center><br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202015-10-08%20%E4%B8%8B%E5%8D%883.34.55.png" alt="屏幕快照 2015-10-08 下午3.34.55.png"><br></center>
+
+<p>可以看到user1已经登陆成功了。</p>
+<center><br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/%E7%99%BB%E9%99%86%E6%88%90%E5%8A%9F.png" alt="登陆成功"><br></center>
+
+<p>接着打开Adium添加user2@lujiangbin.local用户，添加过程跟iMessage类似：</p>
+<center><br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/%E6%B7%BB%E5%8A%A0%E7%94%A8%E6%88%B71.png" alt="添加用户1.png"><br></center>
+
+<p>设置连接服务器为localhost:</p>
+<center><br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/%E6%B7%BB%E5%8A%A0%E7%94%A8%E6%88%B72.png" alt="添加用户2.png"><br></center>
+
+
 <p>由于现在user1和user2还不是好友关系，因此没法进行聊天，点击iMessage添加好友user2@lujiangbin.local：</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/458529-afa67bf587ef57fc.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="添加好友"><br>在Adium会收到验证请求，点击接受双方互加好友，接着就可以进行im聊天了：</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/458529-82e0c47aba24c9b7.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/500" alt="好友添加.png"></p>
-<p><img src="http://upload-images.jianshu.io/upload_images/458529-a669fcbe8eff3c23.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="聊天.png"><br>这样我们确认本地的xmpp服务器是可用的，接下来就可以着手客户端的开发了，可以查看<a href="http://www.jianshu.com/p/eb273cb8ac94" target="_blank" rel="external">IM开发(2)-iOS客户端</a></p>
+<center><br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/%E6%B7%BB%E5%8A%A0%E5%A5%BD%E5%8F%8B.png" alt="添加好友"><br></center>
+
+<p>在Adium会收到验证请求，点击接受双方互加好友，接着就可以进行im聊天了：</p>
+<center><br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/%E5%A5%BD%E5%8F%8B%E6%B7%BB%E5%8A%A0.png" alt="好友添加.png"><br><br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/%E8%81%8A%E5%A4%A9IM.png" alt="聊天.png"><br></center>
+
+<p>这样我们确认本地的xmpp服务器是可用的，接下来就可以着手客户端的开发了，可以查看<a href="http://www.jianshu.com/p/eb273cb8ac94" target="_blank" rel="external">IM开发(2)-iOS客户端</a></p>
 
       
     </div>
@@ -191,7 +215,7 @@
     <aside id="sidebar" class="alignright">
   <div class="search">
   <form action="//google.com/search" method="get" accept-charset="utf-8">
-    <input type="text" name="q" results="0" placeholder="搜一下">
+    <input type="text" name="q" results="0" placeholder="搜尋">
     <i class="icon-search"></i>
     <input type="hidden" name="q" value="site:freemind-lj.github.io">
   </form>
@@ -199,7 +223,7 @@
 
   
 <div class="widget tag">
-  <h3 class="title">标签</h3>
+  <h3 class="title">標籤</h3>
   <ul class="entry">
   
     <li><a href="/tags/GCD/">GCD</a><small>2</small></li>

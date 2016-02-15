@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   
-  <title>第 2 页 | 树下的老男孩</title>
+  <title>第 2 頁 | 树下的老男孩</title>
   <meta name="author" content="树下的老男孩">
   
   
@@ -89,7 +89,7 @@
     <div class="entry">
       
         <p>  这次我们来说说iOS app中滑动的那些事。iOS为了提高滑动的流畅感，特意在滑动的时候将runloop模式切换到UITrackingRunLoopMode，在这个过程中专心做跟滑动相关的工作，这也就是在滑动过程中为什么nstimer无法工作的原因，因为两个没在同一mode下面。但我们可能经常会遇到滑动不怎么流畅的情况，比如在项目中碰到在滑动tableview的时候不怎么顺畅，感觉有点不爽，即便是在测试中表现最好的5s(touch之类的感受更直观)。</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/458529-a0302ed8a146efb8.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="tableview 滑动不流畅"></p>
+<center><br><img src="http://upload-images.jianshu.io/upload_images/458529-a0302ed8a146efb8.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="tableview 滑动不流畅"><br></center>
       
     </div>
     <footer>
@@ -548,22 +548,14 @@
     <div class="entry">
       
         <p><a href="http://www.charlesproxy.com/" target="_blank" rel="external">Charles</a>，一个非常方便的抓包工具，这次主要介绍一下如何利用Charles分析iOS应用的网络通信，以iOS应用NASA为例（最近对universe有点感兴趣），下面为app的模样：</p>
-<p><img src="http://upload-images.jianshu.io/upload_images/458529-a8ef64c58ff1f617.png" alt="屏幕快照 2015-05-29 下午2.38.34.png"></p>
-<p>里面可以查看一些跟太空相关的图片，分析一下如何获取这些图片，但需要手机连接到Mac共享的Wi-Fi上。</p>
-<ul>
-<li>查看Mac的IP地址，比如我机器上的为：192.168.56.160;</li>
-<li>打开iPhone设置，选择连接的Wi-Fi，设置HTTP代理，选择手动，并设置服务器的Mac的IP地址，端口设为8090;</li>
-</ul>
-<p><img src="http://upload-images.jianshu.io/upload_images/458529-e3c8120ab009fec9.png" alt="手机设置"></p>
+<center><br><img src="http://upload-images.jianshu.io/upload_images/458529-a8ef64c58ff1f617.png" alt="屏幕快照 2015-05-29 下午2.38.34.png"><br></center><br>里面可以查看一些跟太空相关的图片，分析一下如何获取这些图片，但需要手机连接到Mac共享的Wi-Fi上。<br><em> 查看Mac的IP地址，比如我机器上的为：192.168.56.160;
+</em> 打开iPhone设置，选择连接的Wi-Fi，设置HTTP代理，选择手动，并设置服务器的Mac的IP地址，端口设为8090;<br><center><br><img src="http://upload-images.jianshu.io/upload_images/458529-e3c8120ab009fec9.png" alt="手机设置"><br></center>
+
 <ul>
 <li>打开Charles应用，选择菜单“Proxy”-&gt;”Proxy Settings”，设置端口号8090，同时勾选”Enable transparent HTTP proxying” </li>
 </ul>
-<p><img src="http://upload-images.jianshu.io/upload_images/458529-b2b75d1a503ee7b5.png" alt="Charles设置"></p>
-<ul>
-<li>打开NASA应用，Charles开始记录，进入app的Images选项：</li>
-</ul>
-<p><img src="http://upload-images.jianshu.io/upload_images/458529-db5d7079fb49c12e.png" alt="Charles纪录结果"></p>
-<p><img src="http://upload-images.jianshu.io/upload_images/458529-e72abf64693bc572.png" alt="手机界面"></p>
+<center><br><img src="http://upload-images.jianshu.io/upload_images/458529-b2b75d1a503ee7b5.png" alt="Charles设置"><br></center><br>* 打开NASA应用，Charles开始记录，进入app的Images选项：<br><br><center><br><img src="http://upload-images.jianshu.io/upload_images/458529-db5d7079fb49c12e.png" alt="Charles纪录结果"><br><br><img src="http://upload-images.jianshu.io/upload_images/458529-e72abf64693bc572.png" alt="手机界面"><br></center>
+
 <p>通过Charles可以看出获取这张图片请求方式为：<br><a href="http://mobile.arc.nasa.gov/public/iexplore/images/useradded/320/norfolk_ast_2009316.jpg" target="_blank" rel="external">http://mobile.arc.nasa.gov/public/iexplore/images/useradded/320/norfolk_ast_2009316.jpg</a> ，其它的请求信息都可以在Charles中查看。所以假如你自己的应用想要显示NASA的一些图片，你就可以使用这些请求方式了，分析其它应用方法类似。</p>
 
       
@@ -582,25 +574,25 @@
 
 
 <ul class="page-direction" id="page-direction">
-    <li><a class="page-prev icon-chevron-sign-left" href="javascript:;" title="上一页"></a></li>
-    <li><a class="page-next icon-chevron-sign-right" href="javascript:;" title="下一页"></a></li>
+    <li><a class="page-prev icon-chevron-sign-left" href="javascript:;" title="上一頁"></a></li>
+    <li><a class="page-next icon-chevron-sign-right" href="javascript:;" title="下一頁"></a></li>
 </ul>
 
     <nav id="page-list" class="page-list"><a class="extend prev" rel="prev" href="/">Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/3/">Next</a></nav>
 
 <nav id="pagination">
   
-    <a href="/" class="alignleft prev">上一页</a>
+    <a href="/" class="alignleft prev">上一頁</a>
   
   
-    <a href="/page/3/" class="alignright next">下一页</a>
+    <a href="/page/3/" class="alignright next">下一頁</a>
   
   <div class="clearfix"></div>
 </nav></div></div>
     <aside id="sidebar" class="alignright">
   <div class="search">
   <form action="//google.com/search" method="get" accept-charset="utf-8">
-    <input type="text" name="q" results="0" placeholder="搜一下">
+    <input type="text" name="q" results="0" placeholder="搜尋">
     <i class="icon-search"></i>
     <input type="hidden" name="q" value="site:freemind-lj.github.io">
   </form>
@@ -608,7 +600,7 @@
 
   
 <div class="widget tag">
-  <h3 class="title">标签</h3>
+  <h3 class="title">標籤</h3>
   <ul class="entry">
   
     <li><a href="/tags/GCD/">GCD</a><small>2</small></li>

@@ -106,7 +106,9 @@ NSQualityOfServiceDefault优先级介于user-initiated 和 utility，当没有 Q
 <li>NSQualityOfServiceDefault<br>优先级介于user-initiated 和 utility，当没有 QoS信息时默认使用，开发者不应该使用这个值来设置自己的任务</li>
 </ul>
 <a id="more"></a>
-<p>Qos可以跟GCD queue做个对照：<br><img src="http://upload-images.jianshu.io/upload_images/458529-74ed8a8b44ba56e5.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="对照表"></p>
+<p>Qos可以跟GCD queue做个对照：</p>
+<center><br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/%E5%AF%B9%E7%85%A7%E8%A1%A8.png" alt="对照表"><br></center>
+
 <p>下面我们了解一下GCD的一些用法：</p>
 <h3 id="Dispatch-Queue"><a href="#Dispatch-Queue" class="headerlink" title="Dispatch Queue"></a>Dispatch Queue</h3><p>开发者将需要执行的任务添加到合适的Dispatch Queue中即可，Dispatch Queue会根据任务添加的顺序先到先执行，其中有以下几种队列：</p>
 <ul>
@@ -126,7 +128,8 @@ NSQualityOfServiceDefault优先级介于user-initiated 和 utility，当没有 Q
 <ul>
 <li>dispatch_set_target_queue<br>dispatch_set_target_queue除了能用来设置队列的优先级之外，还能够创建队列的层次体系，当我们想让不同队列中的任务同步的执行时，我们可以创建一个串行队列，然后将这些队列的target指向新创建的队列即可，比如</li>
 </ul>
-<p><img src="http://upload-images.jianshu.io/upload_images/458529-f9e00e6cbc2000c8.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/300" alt="队列体系.png"></p>
+<center><br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/%E9%98%9F%E5%88%97%E4%BD%93%E7%B3%BB.p.png" alt="队列体系.png"><br><br></center>
+
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dispatch_queue_t targetQueue = dispatch_queue_create(&#34;target_queue&#34;, DISPATCH_QUEUE_SERIAL);&#10;dispatch_queue_t queue1 = dispatch_queue_create(&#34;queue1&#34;, DISPATCH_QUEUE_SERIAL);&#10;dispatch_queue_t queue2 = dispatch_queue_create(&#34;queue2&#34;, DISPATCH_QUEUE_CONCURRENT);&#10;dispatch_set_target_queue(queue1, targetQueue);&#10;dispatch_set_target_queue(queue2, targetQueue);&#10;&#160; dispatch_async(queue1, ^&#123;&#10;&#160; &#160; &#160; &#160; NSLog(@&#34;do job1&#34;);&#10;&#160; &#160; &#160; &#160; [NSThread sleepForTimeInterval:3.f];&#10;&#160; &#160; &#125;);&#10;&#160; dispatch_async(queue2, ^&#123;&#10;&#160; &#160; &#160; &#160; NSLog(@&#34;do job2&#34;);&#10;&#160; &#160; &#160; &#160; [NSThread sleepForTimeInterval:2.f];&#10;&#160; &#160; &#125;);&#10;&#160; dispatch_async(queue2, ^&#123;&#10;&#160; &#160; &#160; &#160; NSLog(@&#34;do job3&#34;);&#10;&#160; &#160; &#160; &#160; [NSThread sleepForTimeInterval:1.f];&#10;&#160; &#160; &#125;);</span><br></pre></td></tr></table></figure>
 <p>可以看到执行的结果如下，这些队列会同步的执行任务。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GCDTests[13323:569147] do job1&#10;GCDTests[13323:569147] do job2&#10;GCDTests[13323:569147] do job3</span><br></pre></td></tr></table></figure></p>
 <ul>
@@ -171,7 +174,7 @@ NSQualityOfServiceDefault优先级介于user-initiated 和 utility，当没有 Q
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dispatch_queue_t queue = dispatch_queue_create(&#34;queue&#34;, DISPATCH_QUEUE_SERIAL);&#10;dispatch_block_t block1 = dispatch_block_create(0, ^&#123;&#10;    NSLog(@&#34;block1 begin&#34;);&#10;    [NSThread sleepForTimeInterval:1];&#10;    NSLog(@&#34;block1 done&#34;);&#10;&#125;);&#10;dispatch_block_t block2 = dispatch_block_create(0, ^&#123;&#10;    NSLog(@&#34;block2 &#34;);&#10;&#125;);&#10;dispatch_async(queue, block1);&#10;dispatch_async(queue, block2);&#10;dispatch_block_cancel(block2);</span><br></pre></td></tr></table></figure>
 <p>可以看到如下的执行结果，block2不再执行了。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GCDTests[17271:902981] block1 begin&#10;GCDTests[17271:902981] block1 done</span><br></pre></td></tr></table></figure>
-<h3 id="Dispatch-Group"><a href="#Dispatch-Group" class="headerlink" title="# Dispatch Group"></a># Dispatch Group</h3><p>当我们想在gcd queue中所有的任务执行完毕之后做些特定事情的时候，也就是队列的同步问题，如果队列是串行的话，那将该操作最后添加到队列中即可，但如果队列是并行队列的话，这时候就可以利用dispatch_group来实现了，dispatch_group能很方便的解决同步的问题。dispatch_group_create可以创建一个group对象，然后可以添加block到该组里面，下面看下它的一些用法：</p>
+<h4 id="Dispatch-Group"><a href="#Dispatch-Group" class="headerlink" title="Dispatch Group"></a>Dispatch Group</h4><p>当我们想在gcd queue中所有的任务执行完毕之后做些特定事情的时候，也就是队列的同步问题，如果队列是串行的话，那将该操作最后添加到队列中即可，但如果队列是并行队列的话，这时候就可以利用dispatch_group来实现了，dispatch_group能很方便的解决同步的问题。dispatch_group_create可以创建一个group对象，然后可以添加block到该组里面，下面看下它的一些用法：</p>
 <ul>
 <li>dispatch_group_wait<br>dispatch_group_wait会同步地等待group中所有的block执行完毕后才继续执行,类似于dispatch barrier</li>
 </ul>
@@ -221,8 +224,7 @@ NSQualityOfServiceDefault优先级介于user-initiated 和 utility，当没有 Q
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">//&#22914;&#26524;dispatch source&#26159;&#26412;&#22320;&#21464;&#37327;&#65292;&#20250;&#34987;&#37322;&#25918;&#25481;&#65292;&#38656;&#35201;&#36825;&#20040;&#22768;&#26126;&#10;@property (nonatomic)dispatch_source_t timerSource;&#10;&#10;//&#20107;&#20214;handler&#30340;&#22788;&#29702;&#38431;&#21015;&#10;dispatch_queue_t queue = dispatch_queue_create(&#34;myqueue&#34;, NULL);&#10;&#10;//&#10;_timerSource = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue);&#10;&#10;//&#23450;&#26102;&#22120;&#38388;&#38548;&#26102;&#38388;&#10;uint64_t interval = 2 * NSEC_PER_SEC;&#10;//&#35774;&#32622;&#23450;&#26102;&#22120;&#20449;&#24687;&#10;dispatch_source_set_timer(_timerSource,DISPATCH_TIME_NOW, interval , 0);&#10;&#10;//&#35774;&#32622;&#20107;&#20214;&#30340;&#22788;&#29702;handler&#10;dispatch_source_set_event_handler(_timerSource, ^&#123;&#10;    NSLog(@&#34;receive time event&#34;);&#10;    //if (done) &#10;    //   dispatch_source_cancel(_timerSource); &#10;&#125;);&#10;//&#24320;&#22987;&#22788;&#29702;&#23450;&#26102;&#22120;&#20107;&#20214;&#65292;dispatch_suspend&#26242;&#20572;&#22788;&#29702;&#20107;&#20214;&#10;dispatch_resume(_timerSource);</span><br></pre></td></tr></table></figure>
 <p>定时器还可以通过NSTimer实现，不过NSTimer会跟runloop关联在一起，主线层默认有一个runloop，假如你nstimer是运行在子线程，就需要自己手动开启一个runloop，而且nstimer默认是在NSDefaultRunLoopMode模式下的，所以当runloop切换到其它模式nstimer就不会运行，需要手动将nstimer添加到NSRunLoopCommonModes模式下；而dispatch source timer不跟runloop关联，所以有些场景可以使用这种方法。</p>
 <p>本文总结了GCD的一些用法，不过有些API可能iOS8之后才可以用，如有还有什么可以补充的，欢迎提出～</p>
-<p>####部分参考</p>
-<ul>
+<h4 id="部分参考"><a href="#部分参考" class="headerlink" title="部分参考"></a>部分参考</h4><ul>
 <li>dispatch源码地址：<a href="http://libdispatch.macosforge.org" target="_blank" rel="external">http://libdispatch.macosforge.org</a></li>
 <li><a href="https://developer.apple.com/videos/play/wwdc2015-718/" target="_blank" rel="external">Building Responsive and Efficient Apps with GCD</a></li>
 <li><a href="https://developer.apple.com/library/prerelease/ios/documentation/Performance/Reference/GCD_libdispatch_Ref/" target="_blank" rel="external">Grand Central Dispatch (GCD) Reference</a></li>
@@ -300,7 +302,7 @@ NSQualityOfServiceDefault优先级介于user-initiated 和 utility，当没有 Q
     <aside id="sidebar" class="alignright">
   <div class="search">
   <form action="//google.com/search" method="get" accept-charset="utf-8">
-    <input type="text" name="q" results="0" placeholder="搜一下">
+    <input type="text" name="q" results="0" placeholder="搜尋">
     <i class="icon-search"></i>
     <input type="hidden" name="q" value="site:freemind-lj.github.io">
   </form>
@@ -308,7 +310,7 @@ NSQualityOfServiceDefault优先级介于user-initiated 和 utility，当没有 Q
 
   
 <div class="widget tag">
-  <h3 class="title">标签</h3>
+  <h3 class="title">標籤</h3>
   <ul class="entry">
   
     <li><a href="/tags/GCD/">GCD</a><small>2</small></li>
