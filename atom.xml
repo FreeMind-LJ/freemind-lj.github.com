@@ -697,7 +697,7 @@
     <link href="http://freemind-lj.github.io/2015/10/08/IM%E5%BC%80%E5%8F%91-1-ejabberd%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/"/>
     <id>http://freemind-lj.github.io/2015/10/08/IM开发-1-ejabberd服务器搭建/</id>
     <published>2015-10-08T10:12:50.000Z</published>
-    <updated>2016-02-15T03:15:19.000Z</updated>
+    <updated>2016-02-15T03:17:15.000Z</updated>
     
     <content type="html">&lt;p&gt;最近项目中需要集成IM功能，市面上有很多的第三方提供im服务，比如环信、融云等，但都有使用限制的地方，如果不使用第三方可以自己去实现一套IM系统，不过一个IM系统涉及到的东西比较多，开发难度较高。另一种选择是使用xmpp，xmpp的优点是有很多的开源实现，比如服务端的ejabberd、Openfire，iOS以及安卓端都很优秀的开源库可以使用，而且传输安全以及扩展性强等(环信也是基于xmpp)；同时也有一些缺点，比如不能传输二进制数据以及费流量等，有些地方需要去改进。&lt;br&gt;   下面记录如何使用XMPP来简单实现IM功能，在这之前需要先搭建本地服务器用于测试。&lt;/p&gt;
 &lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
@@ -752,7 +752,7 @@
 &lt;p&gt;在Adium会收到验证请求，点击接受双方互加好友，接着就可以进行im聊天了：&lt;/p&gt;
 &lt;center&gt;&lt;br&gt;&lt;img src=&quot;http://7xpjm0.com1.z0.glb.clouddn.com/%E5%A5%BD%E5%8F%8B%E6%B7%BB%E5%8A%A0.png&quot; alt=&quot;好友添加.png&quot;&gt;&lt;br&gt;&lt;br&gt;&lt;img src=&quot;http://7xpjm0.com1.z0.glb.clouddn.com/%E8%81%8A%E5%A4%A9IM.png&quot; alt=&quot;聊天.png&quot;&gt;&lt;br&gt;&lt;/center&gt;
 
-&lt;p&gt;这样我们确认本地的xmpp服务器是可用的，接下来就可以着手客户端的开发了，可以查看&lt;a href=&quot;http://www.jianshu.com/p/eb273cb8ac94&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;IM开发(2)-iOS客户端&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;这样我们确认本地的xmpp服务器是可用的，接下来就可以着手客户端的开发了，可以查看&lt;a href=&quot;http://freemind-lj.github.io/2015/10/20/IM%E5%BC%80%E5%8F%91-2-XMPP-iOS%E5%BC%80%E5%8F%91/&quot;&gt;IM开发(2)-iOS客户端&lt;/a&gt;&lt;/p&gt;
 </content>
     
     <summary type="html">
@@ -777,10 +777,10 @@
     <link href="http://freemind-lj.github.io/2015/09/09/iOS-app%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E7%9A%84%E9%82%A3%E4%BA%9B%E4%BA%8B-%E4%BA%8C/"/>
     <id>http://freemind-lj.github.io/2015/09/09/iOS-app性能优化的那些事-二/</id>
     <published>2015-09-09T07:16:28.000Z</published>
-    <updated>2016-02-15T02:12:25.000Z</updated>
+    <updated>2016-02-15T03:22:15.000Z</updated>
     
     <content type="html">&lt;p&gt;  这次我们来说说iOS app中滑动的那些事。iOS为了提高滑动的流畅感，特意在滑动的时候将runloop模式切换到UITrackingRunLoopMode，在这个过程中专心做跟滑动相关的工作，这也就是在滑动过程中为什么nstimer无法工作的原因，因为两个没在同一mode下面。但我们可能经常会遇到滑动不怎么流畅的情况，比如在项目中碰到在滑动tableview的时候不怎么顺畅，感觉有点不爽，即便是在测试中表现最好的5s(touch之类的感受更直观)。&lt;/p&gt;
-&lt;center&gt;&lt;br&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-a0302ed8a146efb8.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240&quot; alt=&quot;tableview 滑动不流畅&quot;&gt;&lt;br&gt;&lt;/center&gt;
+&lt;center&gt;&lt;br&gt;&lt;img src=&quot;http://7xpjm0.com1.z0.glb.clouddn.com/tableview%20%E6%BB%91%E5%8A%A8%E4%B8%8D%E6%B5%81%E7%95%85.png&quot; alt=&quot;tableview 滑动不流畅&quot;&gt;&lt;br&gt;&lt;/center&gt;
 
 &lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
 &lt;p&gt;  那碰到这种情况该怎么处理，分析图像动画性能主要用的是Core Animation这个组件，先简单介绍一下里面一些经常用到的选项：&lt;/p&gt;
@@ -793,7 +793,7 @@
 &lt;/ul&gt;
 &lt;hr&gt;
 &lt;p&gt;简单介绍完Core Animation的一些东西之后我们回过头来看看哪些问题会影响到图形的性能，下面这张图摘自WWDC2014(&lt;a href=&quot;https://developer.apple.com/videos/wwdc/2014/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Advanced Graphics and Animations for iOS Apps&lt;/a&gt;，这上面的一些分享非常有技术性)&lt;/p&gt;
-&lt;center&gt;&lt;br&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-58b359235a6d6b1e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240&quot; alt=&quot;performance investigation mindset.png&quot;&gt;&lt;br&gt;&lt;/center&gt;
+&lt;center&gt;&lt;br&gt;&lt;img src=&quot;http://7xpjm0.com1.z0.glb.clouddn.com/performance%20investigation%20mindset.png&quot; alt=&quot;performance investigation mindset.png&quot;&gt;&lt;br&gt;&lt;/center&gt;
 
 &lt;p&gt;当你碰到性能问题的时候，你可以思考一下：&lt;br&gt;&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&amp;#26159;&amp;#21542;&amp;#21463;&amp;#21040;CPU&amp;#25110;&amp;#32773;GPU&amp;#30340;&amp;#38480;&amp;#21046;&amp;#65311;&amp;#10;&amp;#26159;&amp;#21542;&amp;#26377;&amp;#19981;&amp;#24517;&amp;#35201;&amp;#30340;CPU&amp;#28210;&amp;#26579;&amp;#65311;&amp;#10;&amp;#26159;&amp;#21542;&amp;#26377;&amp;#22826;&amp;#22810;&amp;#30340;&amp;#31163;&amp;#23631;&amp;#28210;&amp;#26579;&amp;#25805;&amp;#20316;&amp;#65311;&amp;#10;&amp;#26159;&amp;#21542;&amp;#26377;&amp;#22826;&amp;#22810;&amp;#30340;&amp;#22270;&amp;#23618;&amp;#28151;&amp;#21512;&amp;#25805;&amp;#20316;&amp;#65311;&amp;#10;&amp;#26159;&amp;#21542;&amp;#26377;&amp;#22855;&amp;#24618;&amp;#30340;&amp;#22270;&amp;#29255;&amp;#26684;&amp;#24335;&amp;#25110;&amp;#32773;&amp;#23610;&amp;#23544;&amp;#65311;&amp;#10;&amp;#26159;&amp;#21542;&amp;#28041;&amp;#21450;&amp;#21040;&amp;#26114;&amp;#36149;&amp;#30340;view&amp;#25110;&amp;#32773;&amp;#25928;&amp;#26524;&amp;#65311;&amp;#10;view&amp;#30340;&amp;#23618;&amp;#27425;&amp;#32467;&amp;#26500;&amp;#26159;&amp;#21542;&amp;#21512;&amp;#29702;&amp;#65311;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
 &lt;p&gt;那么哪些是你最该开始考虑的方向呢？通常发生图形性能问题的时候，比如列表滑动不顺畅、动画卡顿等，大部分都是由于Offscreen Rendering(离屏渲染)或者blending导致的，因为这在动画的每一帧都会涉及到。&lt;/p&gt;
@@ -808,28 +808,28 @@
 &lt;li&gt;设置cornerRadius, masks, shadows,edge antialiasing等&lt;/li&gt;
 &lt;li&gt;设置layer.shouldRasterize ＝ YES&lt;/li&gt;
 &lt;/ul&gt;
-&lt;center&gt;&lt;br&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-001968c478e446d4.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240&quot; alt=&quot;渲染流程&quot;&gt;&lt;br&gt;&lt;/center&gt;
+&lt;center&gt;&lt;br&gt;&lt;img src=&quot;http://7xpjm0.com1.z0.glb.clouddn.com/%E6%B8%B2%E6%9F%93%E6%B5%81%E7%A8%8B.png&quot; alt=&quot;渲染流程&quot;&gt;&lt;br&gt;&lt;/center&gt;
 
 &lt;p&gt;offscreen-render对性能到底有什么影响？通常大家说的离屏渲染指的是GPU这块(当然CPU这块也会有影响，也需要消耗一定的资源)，比如修改了layer的阴影或者圆角，GPU需要做额外的渲染操作。通常GPU在做渲染的时候是很快的，但是涉及到offscreen-render的时候情况就可能有些不同，因为需要额外开辟一个新的缓冲区进行渲染，然后绘制到当前屏幕的过程需要做onscreen跟offscreen上下文之间的切换，这个过程的消耗会比较昂贵，涉及到OpenGL的pipeline跟barrier，而且offscreen-render在每一帧都会涉及到，因此处理不当肯定会对性能产生一定的影响，所以可以的话尽量减少offscreen-render的图层，查看哪些图层需要离屏渲染可以用Instruments的Core Animation工具进行检测，Color Offscreen-Rendered Yellow选项会将对应的图层标记为黄色。&lt;/p&gt;
 &lt;h3 id=&quot;Blending&quot;&gt;&lt;a href=&quot;#Blending&quot; class=&quot;headerlink&quot; title=&quot;Blending&quot;&gt;&lt;/a&gt;Blending&lt;/h3&gt;&lt;p&gt;假如最上层的view是不透明的，那直接使用这个view的对应颜色之就可以，但如果view是透明的，在计算像素的颜色值时就需要计算它下面图层，透明的视图越多，计算量就越大，因此也会对图形的性能产生一定的影响，所以可以的话也尽量减少透明图层的数目。&lt;/p&gt;
 &lt;h2 id=&quot;Demo&quot;&gt;&lt;a href=&quot;#Demo&quot; class=&quot;headerlink&quot; title=&quot;Demo&quot;&gt;&lt;/a&gt;Demo&lt;/h2&gt;&lt;p&gt;下面给出一个简单&lt;a href=&quot;https://github.com/FreeMind-LJ/OptimiseDemo&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;demo&lt;/a&gt;的优化过程，这个demo里面涉及到的问题是在实际项目中所碰到的，也就是最上面那张图里列表滑动不流畅情况—由阴影以及圆角导致的offscreen-render。&lt;br&gt;整个页面就是一个简单的tableview，其中头像为圆角，一个label有阴影效果，滑动的时候在iPod上帧率只有可怜的28FPS。&lt;/p&gt;
-&lt;center&gt;&lt;br&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-6e77bc984a1ade8a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/150&quot; alt=&quot;Color Offscreen-Rendered Yellow&quot;&gt;&lt;br&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-9523185e90a69c93.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1000&quot; alt=&quot;28FPS.png&quot;&gt;&lt;br&gt;&lt;/center&gt;
+&lt;center&gt;&lt;br&gt;&lt;img src=&quot;http://7xpjm0.com1.z0.glb.clouddn.com/Color%20Offscreen-Rendered%20Yellow.png&quot; alt=&quot;Color Offscreen-Rendered Yellow&quot;&gt;&lt;br&gt;&lt;img src=&quot;http://7xpjm0.com1.z0.glb.clouddn.com/28FPS.png&quot; alt=&quot;28FPS.png&quot;&gt;&lt;br&gt;&lt;/center&gt;
 
 &lt;p&gt;其中黄色的区域就是离屏渲染的地方，也就是含有圆角跟阴影的layer。&lt;/p&gt;
 &lt;h5 id=&quot;shadowPath&quot;&gt;&lt;a href=&quot;#shadowPath&quot; class=&quot;headerlink&quot; title=&quot;shadowPath&quot;&gt;&lt;/a&gt;shadowPath&lt;/h5&gt;&lt;p&gt;设置label的阴影效果可以通过：&lt;br&gt;&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;cell.sign.layer.shadowOffset = CGSizeMake(0, 2);&amp;#10;&amp;#160; &amp;#160; cell.sign.layer.shadowOpacity = 0.5;&amp;#10;&amp;#160; &amp;#160; cell.sign.layer.shadowColor = [UIColor blackColor].CGColor;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
 &lt;p&gt;但是你可以发现这会导致离屏渲染，一个简单的不需要离屏渲染的方法就是制定阴影的路径，也就是设置layer的shadowPath属性，通过instruments发现阴影的地方没有黄色了，帧率也提高到了40FPS：&lt;/p&gt;
 &lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;cell.sign.layer.shadowPath = [UIBezierPath&amp;#160; bezierPathWithRect:cell.sign.bounds].CGPath;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
-&lt;center&gt;&lt;br&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-03ad463233e11e7f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/150&quot; alt=&quot;设置shadowPath消除离屏渲染.png&quot;&gt;&lt;br&gt;&lt;/center&gt;
+&lt;center&gt;&lt;br&gt;&lt;img src=&quot;http://7xpjm0.com1.z0.glb.clouddn.com/%E8%AE%BE%E7%BD%AEshadowPath%E6%B6%88%E9%99%A4%E7%A6%BB%E5%B1%8F%E6%B8%B2%E6%9F%93.png&quot; alt=&quot;设置shadowPath消除离屏渲染.png&quot;&gt;&lt;br&gt;&lt;/center&gt;
 
 &lt;h5 id=&quot;rasterize&quot;&gt;&lt;a href=&quot;#rasterize&quot; class=&quot;headerlink&quot; title=&quot;rasterize&quot;&gt;&lt;/a&gt;rasterize&lt;/h5&gt;&lt;p&gt;对于圆角这种类似导致的性能问题，最简单的就是在列表中不要使用圆角，假如要使用圆角的话，一种最快提升性能的方式就是设置layer的shouldRasterize为YES：&lt;br&gt; &lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&amp;#160; &amp;#160; cell.layer.shouldRasterize = YES;&amp;#10;&amp;#160; &amp;#160; cell.layer.rasterizationScale = [UIScreen mainScreen].scale;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
 &lt;p&gt;虽然被Rasterize的图层也会引起离屏渲染，如下图所示，整个cell都被标示为黄色：&lt;/p&gt;
-&lt;center&gt;&lt;br&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-4bcc28216254d415.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/150&quot; alt=&quot;shouldRasterize.png&quot;&gt;&lt;br&gt;&lt;/center&gt;
+&lt;center&gt;&lt;br&gt;&lt;img src=&quot;http://7xpjm0.com1.z0.glb.clouddn.com/shouldRasterize.png&quot; alt=&quot;shouldRasterize.png&quot;&gt;&lt;br&gt;&lt;/center&gt;
 
 &lt;p&gt;layer设置shouldRasterize＝YES之后，会把被光栅化的图层保存成位图并缓存起来，其中圆角或者阴影之类的效果也是直接保存到位图当中，当需要渲染到屏幕上的时候只需要到缓存中去取对应的位图进行显示就行了，加快了整个渲染过程。可以通过勾选instruments core animation中的Color Hits Green and Misses Red选项来查看图层是否被缓存了，如果图层显示为绿色则表示已经被缓存起来了，也就是这个缓冲区的内容被复用了，不用在去重新创建缓冲区，反之则是用红色标示。如下图可以看到设置shouldRasterize之后，cell都被标示为绿色了，如果滑动过程中发现都是红色的证明就有问题了：&lt;/p&gt;
-&lt;center&gt;&lt;br&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-5fb556d65e7cbffc.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/150&quot; alt=&quot;cached.png&quot;&gt;&lt;br&gt;&lt;/center&gt;
+&lt;center&gt;&lt;br&gt;&lt;img src=&quot;http://7xpjm0.com1.z0.glb.clouddn.com/cached.png&quot; alt=&quot;cached.png&quot;&gt;&lt;br&gt;&lt;/center&gt;
 
 &lt;p&gt;再看看现在滑动的帧率：&lt;/p&gt;
-&lt;center&gt;&lt;br&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-ec49371b6a8f4662.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240&quot; alt=&quot;优化后.png&quot;&gt;&lt;br&gt;&lt;/center&gt;
+&lt;center&gt;&lt;br&gt;&lt;img src=&quot;http://7xpjm0.com1.z0.glb.clouddn.com/%E4%BC%98%E5%8C%96%E5%90%8E.png&quot; alt=&quot;优化后.png&quot;&gt;&lt;br&gt;&lt;/center&gt;
 
 &lt;p&gt;可以发现现在滚动的性能大大提高了，光栅化对于那些有很多子view嵌套在一起、view的层级复杂或者有很复杂特效效果的图层有很明显的提升，因为这些内容都被缓存到位图当中了。但是使用光栅化需要注意一些内容：&lt;/p&gt;
 &lt;ul&gt;
@@ -859,7 +859,7 @@
     <summary type="html">
     
       &lt;p&gt;  这次我们来说说iOS app中滑动的那些事。iOS为了提高滑动的流畅感，特意在滑动的时候将runloop模式切换到UITrackingRunLoopMode，在这个过程中专心做跟滑动相关的工作，这也就是在滑动过程中为什么nstimer无法工作的原因，因为两个没在同一mode下面。但我们可能经常会遇到滑动不怎么流畅的情况，比如在项目中碰到在滑动tableview的时候不怎么顺畅，感觉有点不爽，即便是在测试中表现最好的5s(touch之类的感受更直观)。&lt;/p&gt;
-&lt;center&gt;&lt;br&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-a0302ed8a146efb8.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240&quot; alt=&quot;tableview 滑动不流畅&quot;&gt;&lt;br&gt;&lt;/center&gt;
+&lt;center&gt;&lt;br&gt;&lt;img src=&quot;http://7xpjm0.com1.z0.glb.clouddn.com/tableview%20%E6%BB%91%E5%8A%A8%E4%B8%8D%E6%B5%81%E7%95%85.png&quot; alt=&quot;tableview 滑动不流畅&quot;&gt;&lt;br&gt;&lt;/center&gt;
     
     </summary>
     
@@ -877,18 +877,18 @@
     <link href="http://freemind-lj.github.io/2015/09/05/iOS-app%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E7%9A%84%E9%82%A3%E4%BA%9B%E4%BA%8B/"/>
     <id>http://freemind-lj.github.io/2015/09/05/iOS-app性能优化的那些事/</id>
     <published>2015-09-05T09:18:33.000Z</published>
-    <updated>2016-02-15T02:12:55.000Z</updated>
+    <updated>2016-02-15T03:23:48.000Z</updated>
     
     <content type="html">&lt;p&gt;  iPhone上面的应用一直都是以流畅的操作体验而著称，但是由于之前开发人员把注意力更多的放在开发功能上面，比较少去考虑性能的问题，可能这其中涉及到objective－c,c++跟lua，优化起来相对复杂一些，导致应用在比如touch等较低端的产品上，光从启动到进入页面就花了将近一分钟的时间，页面之间的切换没有那种很流畅的感觉，内存也居高不下，比较影响应用的用户体验，所以很有必要进行一些优化，下面记录一下我在优化的过程中的一些心得：&lt;/p&gt;
 &lt;h3 id=&quot;1-instruments&quot;&gt;&lt;a href=&quot;#1-instruments&quot; class=&quot;headerlink&quot; title=&quot;1 instruments&quot;&gt;&lt;/a&gt;1 instruments&lt;/h3&gt;&lt;p&gt;  在iOS上进行性能分析的时候，首先考虑借助instruments这个利器分析出问题出在哪，不要凭空想象，不然你可能把精力花在了1%的问题上，最后发现其实啥都没优化，比如要查看程序哪些部分最耗时，可以使用Time Profiler，要查看内存是否泄漏了，可以使用Leaks等。关于instruments网上有很多资料，作为一个合格iOS开发者，熟悉这个工具还是很有必要的。&lt;/p&gt;
 &lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
 &lt;h3 id=&quot;2-不要阻塞主线程&quot;&gt;&lt;a href=&quot;#2-不要阻塞主线程&quot; class=&quot;headerlink&quot; title=&quot;2 不要阻塞主线程&quot;&gt;&lt;/a&gt;2 不要阻塞主线程&lt;/h3&gt;&lt;p&gt;  在iOS里关于UIKit的操作都是放在主线程，因此如果主线程被阻塞住了，你的UI可能无法及时响应事件，给人一种卡顿的感觉。大多数阻塞主线程的情况是在主线程做IO操作，比如文件的读写，包含数据库、图片、json文本或者log日志等，尽量将这些操作放放到子线程(如果数据库有一次有较多的操作，记得采用事务来处理，性能相差还是挺大的)，或者在后台建立对应的dispatch queue来做这些操作，比如一个低级别的serial queue来负责log文件的记录等等。程序中如果你的代码逻辑是按照同步的逻辑来写的，尽量修改逻辑代码吧。。。&lt;/p&gt;
 &lt;h3 id=&quot;3-使用cache&quot;&gt;&lt;a href=&quot;#3-使用cache&quot; class=&quot;headerlink&quot; title=&quot;3 使用cache&quot;&gt;&lt;/a&gt;3 使用cache&lt;/h3&gt;&lt;p&gt;  一般为了提升用户体验，都会在应用中使用缓存，比如对于图片资源可以使用SDWebImage这个开源库，里面就实现了一个图片缓存的功能。参考SDWebImage的代码自己也可以实现缓存功能:&lt;/p&gt;
-&lt;center&gt;&lt;br&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-fdf0dd0b4a6e4077.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240&quot; alt=&quot;cache简单示意图&quot;&gt;&lt;br&gt;&lt;/center&gt;
+&lt;center&gt;&lt;br&gt;&lt;img src=&quot;http://7xpjm0.com1.z0.glb.clouddn.com/cache%E7%AE%80%E5%8D%95%E7%A4%BA%E6%84%8F%E5%9B%BE.png&quot; alt=&quot;cache简单示意图&quot;&gt;&lt;br&gt;&lt;/center&gt;
 
 &lt;p&gt;业务层根据资源的url向resourcemanager获取对应的资源，resourcemanager首先会到memorycache这边去获取资源，memorycache可以利用NSCache实现，因为NSCache首先是线程安全的，而且在收到内存警告的时候会自己释放对应的内存；如果memorycache没有对应的资源再去disk查找，disk也没有的话再去internet获取，获取到的话会更新到memorycache和disk中，具体可以去参考一下SDWebimage的实现细节。&lt;/p&gt;
 &lt;h3 id=&quot;4-减少程序启动过程中的任务&quot;&gt;&lt;a href=&quot;#4-减少程序启动过程中的任务&quot; class=&quot;headerlink&quot; title=&quot;4 减少程序启动过程中的任务&quot;&gt;&lt;/a&gt;4 减少程序启动过程中的任务&lt;/h3&gt;&lt;p&gt;当用户点击app的图标之后，程序应该尽可能快的进入到主页面，尽可能减少用户的等待时间，比如我们的应用程序在启动的时候会去做3d模型的渲染操作，完成之后在进入首页面展示，但其实我们可以先进入到主页面，将渲染3d的任务放到子线程去完成，缩短用户需要等待的时间。&lt;/p&gt;
-&lt;center&gt;&lt;br&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-e3db5218134ab8dd.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240&quot; alt=&quot;3d&quot;&gt;&lt;br&gt;&lt;/center&gt;
+&lt;center&gt;&lt;br&gt;&lt;img src=&quot;http://7xpjm0.com1.z0.glb.clouddn.com/3d.png&quot; alt=&quot;3d&quot;&gt;&lt;br&gt;&lt;/center&gt;
 
 &lt;h3 id=&quot;5-使用合适的数据结构&quot;&gt;&lt;a href=&quot;#5-使用合适的数据结构&quot; class=&quot;headerlink&quot; title=&quot;5 使用合适的数据结构&quot;&gt;&lt;/a&gt;5 使用合适的数据结构&lt;/h3&gt;&lt;p&gt;根据不同的业务场景来选择合适的数据结构，可能在数据量比较少的时候看不出什么区别，但是假如你存储的数据量比较大且数据结构比较复杂的话，这有可能会影响到你的程序性能。一般用的比较多的数据结构就是array，但我们知道它的查找复杂度是O(n)，因此假如需要快速的查找某个元素，可以使用map。可以参考下&lt;a href=&quot;https://developer.apple.com/library/ios/documentation/Cocoa/Conceptual/Collections/Collections.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt; &lt;a href=&quot;https://developer.apple.com/library/ios/#documentation/cocoa/conceptual/collections/Collections.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Apple Collections Programming Topics&lt;/a&gt; &lt;/a&gt;。&lt;/p&gt;
 &lt;h3 id=&quot;6-内存&quot;&gt;&lt;a href=&quot;#6-内存&quot; class=&quot;headerlink&quot; title=&quot;6 内存&quot;&gt;&lt;/a&gt;6 内存&lt;/h3&gt;&lt;p&gt;一般开发都使用的ARC，不太需要开发者去关注内存的创建和释放这块，但假如你使用的是MRC，并且跟其它语言混杂在一起(比如c++和lua)等的时候，如何确保内存正确释放就是你需要考虑的问题了。有时候一些内存泄漏instruments可能无法准确的分析出来，那么就需要自己去排查了，可以使用&lt;a href=&quot;http://www.jianshu.com/p/be1ddd8c699f&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;method swizzling&lt;/a&gt;方法来辅助我们排查内存泄漏的问题，确保程序的正确运行。&lt;/p&gt;
@@ -917,7 +917,7 @@
     <link href="http://freemind-lj.github.io/2015/08/26/ogre3D%E5%9C%A8Mac%E5%B9%B3%E5%8F%B0%E7%9A%84%E7%BC%96%E8%AF%91/"/>
     <id>http://freemind-lj.github.io/2015/08/26/ogre3D在Mac平台的编译/</id>
     <published>2015-08-26T11:25:10.000Z</published>
-    <updated>2016-02-15T01:26:37.000Z</updated>
+    <updated>2016-02-15T03:26:38.000Z</updated>
     
     <content type="html">&lt;p&gt;  本文主要介绍如何在Mac平台下编译一份可以在iOS上运行的ogre3d引擎的sdk，&lt;a href=&quot;http://www.ogre3d.org/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;OGRE&lt;/a&gt;简单来说就是一个图形引擎，并且也只是一个图形引擎，不像cocos2dx之类的游戏引擎，包括网络，声音和物理碰撞等组件，OGRE只专注于图形渲染这块，不过可以方便的结合其它组件来组成一个游戏引擎，具体可以自己去了解。&lt;/p&gt;
 &lt;hr&gt;
@@ -937,17 +937,17 @@
 &lt;ul&gt;
 &lt;li&gt;编译sdk&lt;br&gt;  在运行ogre工程之前，需要配置一些选项，点击Product → Scheme → Edit Scheme，分别设置ALL_BUILD和install target的Build Configuration选项为release，然后设置选择的target为ALL_BUILD。接下来就command+B开始编译，这个过程可能也需要花点时间；build成功之后，在选择install target，同样command＋B编译，完成之后你应该能发现有一个sdk目录，别忘了还需要把build目下的lib文件夹内容拷贝到sdk的lib文件夹下，这里面包含的是iOS运行时需要用到的一些静态库:&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-5954b0a64958b6f2.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240&quot; alt=&quot;sdk目录&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xpjm0.com1.z0.glb.clouddn.com/sdk%E7%9B%AE%E5%BD%95.png&quot; alt=&quot;sdk目录&quot;&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;创建iOS demo工程&lt;br&gt;  编译完sdk之后，我们就可以开始构建我们的iOS工程了，为了方便建立ogre工程，我们可以下载一个&lt;a href=&quot;http://sourceforge.net/projects/ogre/files/ogre-dependencies-mac/1.9/Ogre_Xcode4_Templates_20140408.pkg.zip/download&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Ogre_Xcode4_Templates&lt;/a&gt;，安装完之后能看到在创建Xcode工程时多了一个选项：&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-42ac6ac279224f41.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240&quot; alt=&quot;屏幕快照 2015-08-26 下午7.32.51.png&quot;&gt;&lt;br&gt;点击next便可以创建一个iOS的ogre工程了,可以看到模版帮我们创建了好些文件，包括OgreFramework和demoAPP等，想要运行还需要些配置。&lt;br&gt;打开Build Settings选择”+” add User-Defined Setting，新建OGRE_SDK_ROOT为sdk的路径：&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-eaca40598cae1625.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240&quot; alt=&quot;OGRE_SDK_ROOT路径&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xpjm0.com1.z0.glb.clouddn.com/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202015-08-26%20%E4%B8%8B%E5%8D%887.32.51.p.png&quot; alt=&quot;屏幕快照 2015-08-26 下午7.32.51.png&quot;&gt;&lt;br&gt;点击next便可以创建一个iOS的ogre工程了,可以看到模版帮我们创建了好些文件，包括OgreFramework和demoAPP等，想要运行还需要些配置。&lt;br&gt;打开Build Settings选择”+” add User-Defined Setting，新建OGRE_SDK_ROOT为sdk的路径：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xpjm0.com1.z0.glb.clouddn.com/OGRE_SDK_ROOT%E8%B7%AF%E5%BE%84.png&quot; alt=&quot;OGRE_SDK_ROOT路径&quot;&gt;&lt;/p&gt;
 &lt;p&gt;设置Header Search Paths:&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-63a4387554579269.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240&quot; alt=&quot;Header Search Paths&quot;&gt;&lt;br&gt;设置Library Search Paths:&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-c4bbd5775250e26a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240&quot; alt=&quot;Library Search Paths&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xpjm0.com1.z0.glb.clouddn.com/Header%20Search%20Paths.png&quot; alt=&quot;Header Search Paths&quot;&gt;&lt;br&gt;设置Library Search Paths:&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xpjm0.com1.z0.glb.clouddn.com/Library%20Search%20Paths.png&quot; alt=&quot;Library Search Paths&quot;&gt;&lt;/p&gt;
 &lt;p&gt;配置完这些内容后，点击运行应该就能看到在iPhone上出现了ogre3d的经典模型画面：&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-0efe81919dbb5f4a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240&quot; alt=&quot;ogre&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xpjm0.com1.z0.glb.clouddn.com/ogre.png&quot; alt=&quot;ogre&quot;&gt;&lt;/p&gt;
 &lt;p&gt;接下来就可以开始ogre引擎的研究之旅了。&lt;/p&gt;
 </content>
     
@@ -980,7 +980,7 @@
     <link href="http://freemind-lj.github.io/2015/07/21/git%E9%81%87%E5%88%B0%E7%9A%84%E4%B8%80%E4%BA%9B%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3/"/>
     <id>http://freemind-lj.github.io/2015/07/21/git遇到的一些问题解决/</id>
     <published>2015-07-21T07:27:01.000Z</published>
-    <updated>2016-02-15T01:27:52.000Z</updated>
+    <updated>2016-02-15T03:27:50.000Z</updated>
     
     <content type="html">&lt;p&gt;  最近在使用git clone代码的时候遇到了一些问题，现在记录一下：&lt;/p&gt;
 &lt;ul&gt;
@@ -992,7 +992,7 @@
 &lt;ul&gt;
 &lt;li&gt;fatal: The remote end hung up unexpectedly&lt;br&gt;在clone分支的时候可能会失败，比如early EOF：&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-61f6a5a1a1cf0a96.png?imageMogr2/auto-orient/strip|imageView2/2/w/1240&quot; alt=&quot;clone失败&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xpjm0.com1.z0.glb.clouddn.com/clone%E5%A4%B1%E8%B4%A5.png&quot; alt=&quot;clone失败&quot;&gt;&lt;/p&gt;
 &lt;p&gt;解决的办法是使用ssh协议去clone，而不是http协议。&lt;/p&gt;
 </content>
     
@@ -1127,7 +1127,7 @@
     <link href="http://freemind-lj.github.io/2015/06/11/Xcode%E4%B8%AD%E7%BB%9F%E8%AE%A1%E4%BB%A3%E7%A0%81%E8%A6%86%E7%9B%96%E7%8E%87/"/>
     <id>http://freemind-lj.github.io/2015/06/11/Xcode中统计代码覆盖率/</id>
     <published>2015-06-11T11:31:20.000Z</published>
-    <updated>2016-02-15T01:32:46.000Z</updated>
+    <updated>2016-02-15T03:30:28.000Z</updated>
     
     <content type="html">&lt;p&gt;  最近在项目里需要在单元测试时统计一下&lt;a href=&quot;http://www.cnblogs.com/coderzh/archive/2009/03/29/1424344.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;代码覆盖率&lt;/a&gt;，其实就是被用来作为测量单元测试的指标，看看测试的代码覆盖到多广的范围，下面介绍一下如何统计单元测试的代码覆盖率：&lt;/p&gt;
 &lt;h4 id=&quot;下载工具&quot;&gt;&lt;a href=&quot;#下载工具&quot; class=&quot;headerlink&quot; title=&quot;下载工具&quot;&gt;&lt;/a&gt;下载工具&lt;/h4&gt;&lt;p&gt;  主要采用&lt;a href=&quot;https://github.com/jonreid/XcodeCoverage&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;XcodeCoverage&lt;/a&gt;工具，它可以将代码覆盖的结果以html的形式展现，方便我们查看，可以采用pod的方式安装:&lt;br&gt;&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;pod &amp;#39;XcodeCoverage&amp;#39;, &amp;#39;~&amp;#62;1.0&amp;#39;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
@@ -1136,20 +1136,20 @@
 &lt;li&gt;设置 Build Settings&lt;br&gt;需要设置两个地方，找到 “Generate Test Coverage Files”和“Instrument Program Flow”两个选项，分别设置Debug下为YES：&lt;/li&gt;
 &lt;/ul&gt;
 &lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
-&lt;p&gt;![&lt;br&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-1b738a966be64129.png&quot; alt=&quot;屏幕快照 2015-06-11 下午5.47.01.png&quot;&gt;&lt;/p&gt;
+&lt;p&gt;![&lt;br&gt;&lt;img src=&quot;http://7xpjm0.com1.z0.glb.clouddn.com/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202015-06-11%20.jpeg&quot; alt=&quot;屏幕快照 2015-06-11 下午5.47.01.png&quot;&gt;&lt;/p&gt;
 &lt;p&gt;](&lt;a href=&quot;http://upload-images.jianshu.io/upload_images/458529-ad6665fef33cbe69.png&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://upload-images.jianshu.io/upload_images/458529-ad6665fef33cbe69.png&lt;/a&gt;)&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;设置 Build Phases&lt;br&gt;点击New Run Script Phase，编辑使其运行Pods/XcodeCoverage/exportenv.sh脚本：&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-c39a669f87c55f42.png&quot; alt=&quot;添加运行脚本&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xpjm0.com1.z0.glb.clouddn.com/%E6%B7%BB%E5%8A%A0%E8%BF%90%E8%A1%8C%E8%84%9A%E6%9C%AC.jpeg&quot; alt=&quot;添加运行脚本&quot;&gt;&lt;/p&gt;
 &lt;h4 id=&quot;RUN&quot;&gt;&lt;a href=&quot;#RUN&quot; class=&quot;headerlink&quot; title=&quot;RUN&quot;&gt;&lt;/a&gt;RUN&lt;/h4&gt;&lt;p&gt;工程配置完后，开始跑单元测试例。跑完测试例后，打开终端，cd进入到XcodeCoverage目录，运行如下脚本：&lt;br&gt;&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;./getcov --show&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
 &lt;p&gt;然后你就可以在浏览器中查看你的代码覆盖率结果。&lt;/p&gt;
 &lt;h4 id=&quot;example&quot;&gt;&lt;a href=&quot;#example&quot; class=&quot;headerlink&quot; title=&quot;example&quot;&gt;&lt;/a&gt;example&lt;/h4&gt;&lt;p&gt;下面假设你要测试一个getMaxNumber功能，代码如下：&lt;/p&gt;
 &lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;@implementation MaxNumber&amp;#10;&amp;#10;+(int)getMaxNumber:(int)a b:(int)b c:(int)c&amp;#10;&amp;#123;&amp;#10;    if(a &amp;#62; b)&amp;#123;&amp;#10;        if(a &amp;#62; c)&amp;#123;&amp;#10;            return a;&amp;#10;        &amp;#125;else&amp;#123;&amp;#10;            return c;&amp;#10;        &amp;#125;&amp;#10;    &amp;#125;else&amp;#123;&amp;#10;        if(b &amp;#62; c)&amp;#123;&amp;#10;            return b;&amp;#10;        &amp;#125;else&amp;#123;&amp;#10;            return c;&amp;#10;        &amp;#125;&amp;#10;    &amp;#125;&amp;#10;&amp;#125;&amp;#10;&amp;#10;@end&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
 &lt;p&gt;首先添加一个单元测试：&lt;/p&gt;
 &lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;-(void)testGetMax&amp;#10;&amp;#123;&amp;#10;    XCTAssertEqual(3, [MaxNumber getMaxNumber:1 b:2 c:3]);&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
-&lt;p&gt;运行完该测试例后，运行脚本./getcov –show，便可以看到如下结果：&lt;br&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-5f0438666b08c82f.png&quot; alt=&quot;不完全覆盖&quot;&gt;&lt;br&gt;其中的红色表示测试例没有覆盖到的地方。下面增加三个测试例&lt;br&gt;&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;-(void)testGetMax&amp;#10;&amp;#123;&amp;#10;    XCTAssertEqual(3, [MaxNumber getMaxNumber:1 b:2 c:3]);&amp;#10;    XCTAssertEqual(3, [MaxNumber getMaxNumber:2 b:1 c:3]);&amp;#10;    XCTAssertEqual(3, [MaxNumber getMaxNumber:3 b:2 c:1]);&amp;#10;    XCTAssertEqual(3, [MaxNumber getMaxNumber:1 b:3 c:2]);&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
-&lt;p&gt;测试例修改之后，需要先运行cleancov脚本(如果工程里面的代码修改了，需要clean product)，然后再运行脚本./getcov –show查看结果：&lt;br&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-67f3fbbc736e2b4b.png&quot; alt=&quot;完全覆盖&quot;&gt;&lt;br&gt;可以看出现在的测试代码已经覆盖到了该函数的所有代码。&lt;/p&gt;
+&lt;p&gt;运行完该测试例后，运行脚本./getcov –show，便可以看到如下结果：&lt;br&gt;&lt;img src=&quot;http://7xpjm0.com1.z0.glb.clouddn.com/%E4%B8%8D%E5%AE%8C%E5%85%A8%E8%A6%86%E7%9B%96.jpeg&quot; alt=&quot;不完全覆盖&quot;&gt;&lt;br&gt;其中的红色表示测试例没有覆盖到的地方。下面增加三个测试例&lt;br&gt;&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;-(void)testGetMax&amp;#10;&amp;#123;&amp;#10;    XCTAssertEqual(3, [MaxNumber getMaxNumber:1 b:2 c:3]);&amp;#10;    XCTAssertEqual(3, [MaxNumber getMaxNumber:2 b:1 c:3]);&amp;#10;    XCTAssertEqual(3, [MaxNumber getMaxNumber:3 b:2 c:1]);&amp;#10;    XCTAssertEqual(3, [MaxNumber getMaxNumber:1 b:3 c:2]);&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;测试例修改之后，需要先运行cleancov脚本(如果工程里面的代码修改了，需要clean product)，然后再运行脚本./getcov –show查看结果：&lt;br&gt;&lt;img src=&quot;http://7xpjm0.com1.z0.glb.clouddn.com/%E5%AE%8C%E5%85%A8%E8%A6%86%E7%9B%96.jpeg&quot; alt=&quot;完全覆盖&quot;&gt;&lt;br&gt;可以看出现在的测试代码已经覆盖到了该函数的所有代码。&lt;/p&gt;
 </content>
     
     <summary type="html">
@@ -1221,7 +1221,7 @@
     <link href="http://freemind-lj.github.io/2015/06/02/ios-runtime%E6%B5%85%E6%9E%90-%E4%BA%8C-%EF%BC%9A%E6%B6%88%E6%81%AF%E8%BD%AC%E5%8F%91/"/>
     <id>http://freemind-lj.github.io/2015/06/02/ios-runtime浅析-二-：消息转发/</id>
     <published>2015-06-02T06:34:48.000Z</published>
-    <updated>2016-02-15T01:35:42.000Z</updated>
+    <updated>2016-02-15T03:31:43.000Z</updated>
     
     <content type="html">&lt;p&gt;  如果你给一个对象发送它不认识的消息时，系统会抛出一个错误，但在错误抛出之前，运行时会给改对象发送forwardInvocation:消息，同时传递一个NSInvocation对象作为该消息的参数，NSInvocation对象包封装原始消息和对应的参数。你可以实现forwardInvocation:方法来对不能处理的消息做一些默认的处理，以避免程序崩溃，但正如该函数的名字一样，这个函数主要是用来将消息转发给其它对象。每一个对象都从NSObject类继承了forwardInvocation:方法，但在NSObject中，该方法只是简单的调用doesNotRecognizeSelector:，通过重写该方法你就可以利用forwardInvocation:将消息转发给其它对象。&lt;br&gt;  为了转发一个消息，forwardInvocation:需要做的事：&lt;/p&gt;
 &lt;ul&gt;
@@ -1231,7 +1231,7 @@
 &lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;- (void)forwardInvocation:(NSInvocation *)anInvocation&amp;#10;&amp;#123;&amp;#10;    if ([someOtherObject respondsToSelector:[anInvocation selector]])&amp;#10;        [anInvocation invokeWithTarget:someOtherObject];&amp;#10;    else&amp;#10;       [super forwardInvocation:anInvocation];&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
 &lt;p&gt;forwardInvocation:方法可以作为无法认识的消息的分发中心，将它们打包发给不同的接受者，或者作为一个中转站将所有消息发往同一个目的地。它可以将一个消息转换成另外的一个消息，或者只是单纯的把消息“吞下”，不对外响应和抛出错误，forwardInvocation:做什么取决于实现者。&lt;/p&gt;
 &lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
-&lt;h3 id=&quot;转发和多继承&quot;&gt;&lt;a href=&quot;#转发和多继承&quot; class=&quot;headerlink&quot; title=&quot;转发和多继承&quot;&gt;&lt;/a&gt;转发和多继承&lt;/h3&gt;&lt;p&gt;  转发有点像模仿继承，一个对象通过转发响应一个消息，看起来像是继承了其它类实现的方法。&lt;br&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-118ba17fd9465f82.png&quot; alt=&quot;转发&quot;&gt;&lt;br&gt;如上图所示，一个Warrior类的实例转发一条negotiate消息到Diplomat类的实例，使得Warrior看起来能够像Diplomat一样进行negotiate。&lt;br&gt;通过转发消息的对象从而从两个继承体系分支“继承”了方法：原本的继承分支和通过响应消息。在上面的例子中，Warrior看起来好像继承自Diplomat和它的父类。然而转发跟继承有一个重要的区别：继承将不同的功能集合到一个对象；而转发是将不同的功能分配给不同的对象，它将一个问题分解成小的对象，然后通过一种对消息发送者透明的方式把这些对象关联起来。&lt;br&gt;虽然转发能够模仿继承，但是NSObject类不会因为这两个困惑，类似 respondsToSelector: 和 isKindOfClass: 方法只会查看它的继承体系，不会去查看转发链，比如下面查看Warrior能否响应negotiate消息：&lt;br&gt;&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;if ( [aWarrior respondsToSelector:@selector(negotiate)] )&amp;#10;    ...&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
+&lt;h3 id=&quot;转发和多继承&quot;&gt;&lt;a href=&quot;#转发和多继承&quot; class=&quot;headerlink&quot; title=&quot;转发和多继承&quot;&gt;&lt;/a&gt;转发和多继承&lt;/h3&gt;&lt;p&gt;  转发有点像模仿继承，一个对象通过转发响应一个消息，看起来像是继承了其它类实现的方法。&lt;br&gt;&lt;img src=&quot;http://7xpjm0.com1.z0.glb.clouddn.com/%E8%BD%AC%E5%8F%91.jpeg&quot; alt=&quot;转发&quot;&gt;&lt;br&gt;如上图所示，一个Warrior类的实例转发一条negotiate消息到Diplomat类的实例，使得Warrior看起来能够像Diplomat一样进行negotiate。&lt;br&gt;通过转发消息的对象从而从两个继承体系分支“继承”了方法：原本的继承分支和通过响应消息。在上面的例子中，Warrior看起来好像继承自Diplomat和它的父类。然而转发跟继承有一个重要的区别：继承将不同的功能集合到一个对象；而转发是将不同的功能分配给不同的对象，它将一个问题分解成小的对象，然后通过一种对消息发送者透明的方式把这些对象关联起来。&lt;br&gt;虽然转发能够模仿继承，但是NSObject类不会因为这两个困惑，类似 respondsToSelector: 和 isKindOfClass: 方法只会查看它的继承体系，不会去查看转发链，比如下面查看Warrior能否响应negotiate消息：&lt;br&gt;&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;if ( [aWarrior respondsToSelector:@selector(negotiate)] )&amp;#10;    ...&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
 &lt;p&gt;答案永远是NO，即便它能够通过将该消息转发给Diplomat而响应该消息且不会抛出错误。&lt;br&gt;  同时在调用forwardInvocation:之前，需要先调用methodSignatureForSelector:获取指定selector的方法签名：&lt;br&gt;&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;- (NSMethodSignature*)methodSignatureForSelector:(SEL)selector&amp;#10;&amp;#123;&amp;#10;    NSMethodSignature* signature = [super methodSignatureForSelector:selector];&amp;#10;    if (!signature) &amp;#123;&amp;#10;       signature = [surrogate methodSignatureForSelector:selector];&amp;#10;    &amp;#125;&amp;#10;    return signature;&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
 &lt;p&gt;示例：&lt;br&gt;&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;@interface ForwardClass : NSObject &amp;#10;-(void)doSomethingElse;&amp;#10;@end&amp;#10;&amp;#10;@implementation ForwardClass&amp;#10;&amp;#10;-(void)doSomethingElse&amp;#10; &amp;#123;&amp;#10;    NSLog(@&amp;#34;doSomething was called on %@&amp;#34;, [self class]);&amp;#10;&amp;#125;&amp;#10;@end&amp;#10;&amp;#10;@interface SomeClass : NSObject &amp;#10;&amp;#123;&amp;#10;    id forwardClass;&amp;#10;&amp;#125;&amp;#10;&amp;#10;-(void)doSomething;&amp;#10;&amp;#10;@end&amp;#10;&amp;#10;@implementation SomeClass&amp;#10;&amp;#10;-(id)init&amp;#10; &amp;#123;&amp;#10;    if (self = [super init]) &amp;#123;&amp;#10;        forwardClass = [ForwardClass new];&amp;#10;    &amp;#125;&amp;#10;    return self;&amp;#10;&amp;#125;&amp;#10;&amp;#10;-(void)doSomething&amp;#10; &amp;#123;&amp;#10;    NSLog(@&amp;#34;doSomething was called on %@&amp;#34;, [self class]);&amp;#10;&amp;#125;&amp;#10;&amp;#10;-(void)forwardInvocation:(NSInvocation *)invocation&amp;#10; &amp;#123;&amp;#10;    if (! forwardClass) &amp;#123;&amp;#10;        [self doesNotRecognizeSelector: [invocation selector]];&amp;#10;    &amp;#125;&amp;#10;    [invocation invokeWithTarget: forwardClass];&amp;#10;&amp;#125;&amp;#10;&amp;#10;-(NSMethodSignature*)methodSignatureForSelector:(SEL)selector&amp;#10; &amp;#123;&amp;#10;    NSMethodSignature *signature = [super methodSignatureForSelector:selector];&amp;#10;    if (! signature) &amp;#123;&amp;#10;        //&amp;#29983;&amp;#25104;&amp;#26041;&amp;#27861;&amp;#31614;&amp;#21517;&amp;#10;        signature = [forwardClass methodSignatureForSelector:selector];&amp;#10;    &amp;#125;&amp;#10;    return signature;&amp;#10;&amp;#125;&amp;#10;&amp;#10;@end&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
 &lt;p&gt;现在给SomeClass对象发送doSomethingElse消息后程序不会crash了：&lt;br&gt;&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;id someClass = [SomeClass new];&amp;#10;[someClass doSomething];//ForwardTest[1291:56187] doSomething was called on SomeClass&amp;#10;[someClass doSomethingElse];// ForwardTest[1291:56187] doSomething was called on ForwardClass&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
@@ -1269,16 +1269,16 @@
     <link href="http://freemind-lj.github.io/2015/05/29/%E5%88%A9%E7%94%A8Charles%E5%88%86%E6%9E%90iOS-app%E7%9A%84%E7%BD%91%E7%BB%9C%E9%80%9A%E4%BF%A1/"/>
     <id>http://freemind-lj.github.io/2015/05/29/利用Charles分析iOS-app的网络通信/</id>
     <published>2015-05-29T06:36:11.000Z</published>
-    <updated>2016-02-15T01:59:10.000Z</updated>
+    <updated>2016-02-15T03:34:03.000Z</updated>
     
     <content type="html">&lt;p&gt;&lt;a href=&quot;http://www.charlesproxy.com/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Charles&lt;/a&gt;，一个非常方便的抓包工具，这次主要介绍一下如何利用Charles分析iOS应用的网络通信，以iOS应用NASA为例（最近对universe有点感兴趣），下面为app的模样：&lt;/p&gt;
-&lt;center&gt;&lt;br&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-a8ef64c58ff1f617.png&quot; alt=&quot;屏幕快照 2015-05-29 下午2.38.34.png&quot;&gt;&lt;br&gt;&lt;/center&gt;&lt;br&gt;里面可以查看一些跟太空相关的图片，分析一下如何获取这些图片，但需要手机连接到Mac共享的Wi-Fi上。&lt;br&gt;&lt;em&gt; 查看Mac的IP地址，比如我机器上的为：192.168.56.160;
-&lt;/em&gt; 打开iPhone设置，选择连接的Wi-Fi，设置HTTP代理，选择手动，并设置服务器的Mac的IP地址，端口设为8090;&lt;br&gt;&lt;center&gt;&lt;br&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-e3c8120ab009fec9.png&quot; alt=&quot;手机设置&quot;&gt;&lt;br&gt;&lt;/center&gt;
+&lt;center&gt;&lt;br&gt;&lt;img src=&quot;http://7xpjm0.com1.z0.glb.clouddn.com/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202015-05-29%20%E4%B8%8B%E5%8D%88.jpeg&quot; alt=&quot;屏幕快照 2015-05-29 下午2.38.34.png&quot;&gt;&lt;br&gt;&lt;/center&gt;&lt;br&gt;里面可以查看一些跟太空相关的图片，分析一下如何获取这些图片，但需要手机连接到Mac共享的Wi-Fi上。&lt;br&gt;&lt;em&gt; 查看Mac的IP地址，比如我机器上的为：192.168.56.160;
+&lt;/em&gt; 打开iPhone设置，选择连接的Wi-Fi，设置HTTP代理，选择手动，并设置服务器的Mac的IP地址，端口设为8090;&lt;br&gt;&lt;center&gt;&lt;br&gt;&lt;img src=&quot;http://7xpjm0.com1.z0.glb.clouddn.com/%E6%89%8B%E6%9C%BA%E8%AE%BE%E7%BD%AE.jpeg&quot; alt=&quot;手机设置&quot;&gt;&lt;br&gt;&lt;/center&gt;
 
 &lt;ul&gt;
 &lt;li&gt;打开Charles应用，选择菜单“Proxy”-&amp;gt;”Proxy Settings”，设置端口号8090，同时勾选”Enable transparent HTTP proxying” &lt;/li&gt;
 &lt;/ul&gt;
-&lt;center&gt;&lt;br&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-b2b75d1a503ee7b5.png&quot; alt=&quot;Charles设置&quot;&gt;&lt;br&gt;&lt;/center&gt;&lt;br&gt;* 打开NASA应用，Charles开始记录，进入app的Images选项：&lt;br&gt;&lt;br&gt;&lt;center&gt;&lt;br&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-db5d7079fb49c12e.png&quot; alt=&quot;Charles纪录结果&quot;&gt;&lt;br&gt;&lt;br&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-e72abf64693bc572.png&quot; alt=&quot;手机界面&quot;&gt;&lt;br&gt;&lt;/center&gt;
+&lt;center&gt;&lt;br&gt;&lt;img src=&quot;http://7xpjm0.com1.z0.glb.clouddn.com/Charles%E8%AE%BE%E7%BD%AE.jpeg&quot; alt=&quot;Charles设置&quot;&gt;&lt;br&gt;&lt;/center&gt;&lt;br&gt;* 打开NASA应用，Charles开始记录，进入app的Images选项：&lt;br&gt;&lt;br&gt;&lt;center&gt;&lt;br&gt;![Charles纪录结果]&lt;a href=&quot;http://7xpjm0.com1.z0.glb.clouddn.com/Charles%E7%BA%AA%E5%BD%95%E7%BB%93%E6%9E%9C.jpeg&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://7xpjm0.com1.z0.glb.clouddn.com/Charles%E7%BA%AA%E5%BD%95%E7%BB%93%E6%9E%9C.jpeg&lt;/a&gt;)&lt;br&gt;&lt;br&gt;&lt;img src=&quot;http://7xpjm0.com1.z0.glb.clouddn.com/%E6%89%8B%E6%9C%BA%E7%95%8C%E9%9D%A2.jpeg&quot; alt=&quot;手机界面&quot;&gt;&lt;br&gt;&lt;/center&gt;
 
 &lt;p&gt;通过Charles可以看出获取这张图片请求方式为：&lt;br&gt;&lt;a href=&quot;http://mobile.arc.nasa.gov/public/iexplore/images/useradded/320/norfolk_ast_2009316.jpg&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://mobile.arc.nasa.gov/public/iexplore/images/useradded/320/norfolk_ast_2009316.jpg&lt;/a&gt; ，其它的请求信息都可以在Charles中查看。所以假如你自己的应用想要显示NASA的一些图片，你就可以使用这些请求方式了，分析其它应用方法类似。&lt;/p&gt;
 </content>

@@ -89,7 +89,7 @@
     <div class="entry">
       
         <p>  这次我们来说说iOS app中滑动的那些事。iOS为了提高滑动的流畅感，特意在滑动的时候将runloop模式切换到UITrackingRunLoopMode，在这个过程中专心做跟滑动相关的工作，这也就是在滑动过程中为什么nstimer无法工作的原因，因为两个没在同一mode下面。但我们可能经常会遇到滑动不怎么流畅的情况，比如在项目中碰到在滑动tableview的时候不怎么顺畅，感觉有点不爽，即便是在测试中表现最好的5s(touch之类的感受更直观)。</p>
-<center><br><img src="http://upload-images.jianshu.io/upload_images/458529-a0302ed8a146efb8.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="tableview 滑动不流畅"><br></center>
+<center><br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/tableview%20%E6%BB%91%E5%8A%A8%E4%B8%8D%E6%B5%81%E7%95%85.png" alt="tableview 滑动不流畅"><br></center>
       
     </div>
     <footer>
@@ -249,7 +249,7 @@
 <ul>
 <li>fatal: The remote end hung up unexpectedly<br>在clone分支的时候可能会失败，比如early EOF：</li>
 </ul>
-<p><img src="http://upload-images.jianshu.io/upload_images/458529-61f6a5a1a1cf0a96.png?imageMogr2/auto-orient/strip|imageView2/2/w/1240" alt="clone失败"></p>
+<p><img src="http://7xpjm0.com1.z0.glb.clouddn.com/clone%E5%A4%B1%E8%B4%A5.png" alt="clone失败"></p>
 <p>解决的办法是使用ssh协议去clone，而不是http协议。</p>
 
       
@@ -548,13 +548,13 @@
     <div class="entry">
       
         <p><a href="http://www.charlesproxy.com/" target="_blank" rel="external">Charles</a>，一个非常方便的抓包工具，这次主要介绍一下如何利用Charles分析iOS应用的网络通信，以iOS应用NASA为例（最近对universe有点感兴趣），下面为app的模样：</p>
-<center><br><img src="http://upload-images.jianshu.io/upload_images/458529-a8ef64c58ff1f617.png" alt="屏幕快照 2015-05-29 下午2.38.34.png"><br></center><br>里面可以查看一些跟太空相关的图片，分析一下如何获取这些图片，但需要手机连接到Mac共享的Wi-Fi上。<br><em> 查看Mac的IP地址，比如我机器上的为：192.168.56.160;
-</em> 打开iPhone设置，选择连接的Wi-Fi，设置HTTP代理，选择手动，并设置服务器的Mac的IP地址，端口设为8090;<br><center><br><img src="http://upload-images.jianshu.io/upload_images/458529-e3c8120ab009fec9.png" alt="手机设置"><br></center>
+<center><br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202015-05-29%20%E4%B8%8B%E5%8D%88.jpeg" alt="屏幕快照 2015-05-29 下午2.38.34.png"><br></center><br>里面可以查看一些跟太空相关的图片，分析一下如何获取这些图片，但需要手机连接到Mac共享的Wi-Fi上。<br><em> 查看Mac的IP地址，比如我机器上的为：192.168.56.160;
+</em> 打开iPhone设置，选择连接的Wi-Fi，设置HTTP代理，选择手动，并设置服务器的Mac的IP地址，端口设为8090;<br><center><br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/%E6%89%8B%E6%9C%BA%E8%AE%BE%E7%BD%AE.jpeg" alt="手机设置"><br></center>
 
 <ul>
 <li>打开Charles应用，选择菜单“Proxy”-&gt;”Proxy Settings”，设置端口号8090，同时勾选”Enable transparent HTTP proxying” </li>
 </ul>
-<center><br><img src="http://upload-images.jianshu.io/upload_images/458529-b2b75d1a503ee7b5.png" alt="Charles设置"><br></center><br>* 打开NASA应用，Charles开始记录，进入app的Images选项：<br><br><center><br><img src="http://upload-images.jianshu.io/upload_images/458529-db5d7079fb49c12e.png" alt="Charles纪录结果"><br><br><img src="http://upload-images.jianshu.io/upload_images/458529-e72abf64693bc572.png" alt="手机界面"><br></center>
+<center><br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/Charles%E8%AE%BE%E7%BD%AE.jpeg" alt="Charles设置"><br></center><br>* 打开NASA应用，Charles开始记录，进入app的Images选项：<br><br><center><br>![Charles纪录结果]<a href="http://7xpjm0.com1.z0.glb.clouddn.com/Charles%E7%BA%AA%E5%BD%95%E7%BB%93%E6%9E%9C.jpeg" target="_blank" rel="external">http://7xpjm0.com1.z0.glb.clouddn.com/Charles%E7%BA%AA%E5%BD%95%E7%BB%93%E6%9E%9C.jpeg</a>)<br><br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/%E6%89%8B%E6%9C%BA%E7%95%8C%E9%9D%A2.jpeg" alt="手机界面"><br></center>
 
 <p>通过Charles可以看出获取这张图片请求方式为：<br><a href="http://mobile.arc.nasa.gov/public/iexplore/images/useradded/320/norfolk_ast_2009316.jpg" target="_blank" rel="external">http://mobile.arc.nasa.gov/public/iexplore/images/useradded/320/norfolk_ast_2009316.jpg</a> ，其它的请求信息都可以在Charles中查看。所以假如你自己的应用想要显示NASA的一些图片，你就可以使用这些请求方式了，分析其它应用方法类似。</p>
 

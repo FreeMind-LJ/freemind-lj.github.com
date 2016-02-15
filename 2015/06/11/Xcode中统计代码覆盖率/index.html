@@ -100,20 +100,20 @@
 <li>设置 Build Settings<br>需要设置两个地方，找到 “Generate Test Coverage Files”和“Instrument Program Flow”两个选项，分别设置Debug下为YES：</li>
 </ul>
 <a id="more"></a>
-<p>![<br><img src="http://upload-images.jianshu.io/upload_images/458529-1b738a966be64129.png" alt="屏幕快照 2015-06-11 下午5.47.01.png"></p>
+<p>![<br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202015-06-11%20.jpeg" alt="屏幕快照 2015-06-11 下午5.47.01.png"></p>
 <p>](<a href="http://upload-images.jianshu.io/upload_images/458529-ad6665fef33cbe69.png" target="_blank" rel="external">http://upload-images.jianshu.io/upload_images/458529-ad6665fef33cbe69.png</a>)</p>
 <ul>
 <li>设置 Build Phases<br>点击New Run Script Phase，编辑使其运行Pods/XcodeCoverage/exportenv.sh脚本：</li>
 </ul>
-<p><img src="http://upload-images.jianshu.io/upload_images/458529-c39a669f87c55f42.png" alt="添加运行脚本"></p>
+<p><img src="http://7xpjm0.com1.z0.glb.clouddn.com/%E6%B7%BB%E5%8A%A0%E8%BF%90%E8%A1%8C%E8%84%9A%E6%9C%AC.jpeg" alt="添加运行脚本"></p>
 <h4 id="RUN"><a href="#RUN" class="headerlink" title="RUN"></a>RUN</h4><p>工程配置完后，开始跑单元测试例。跑完测试例后，打开终端，cd进入到XcodeCoverage目录，运行如下脚本：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./getcov --show</span><br></pre></td></tr></table></figure></p>
 <p>然后你就可以在浏览器中查看你的代码覆盖率结果。</p>
 <h4 id="example"><a href="#example" class="headerlink" title="example"></a>example</h4><p>下面假设你要测试一个getMaxNumber功能，代码如下：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">@implementation MaxNumber&#10;&#10;+(int)getMaxNumber:(int)a b:(int)b c:(int)c&#10;&#123;&#10;    if(a &#62; b)&#123;&#10;        if(a &#62; c)&#123;&#10;            return a;&#10;        &#125;else&#123;&#10;            return c;&#10;        &#125;&#10;    &#125;else&#123;&#10;        if(b &#62; c)&#123;&#10;            return b;&#10;        &#125;else&#123;&#10;            return c;&#10;        &#125;&#10;    &#125;&#10;&#125;&#10;&#10;@end</span><br></pre></td></tr></table></figure>
 <p>首先添加一个单元测试：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-(void)testGetMax&#10;&#123;&#10;    XCTAssertEqual(3, [MaxNumber getMaxNumber:1 b:2 c:3]);&#10;&#125;</span><br></pre></td></tr></table></figure>
-<p>运行完该测试例后，运行脚本./getcov –show，便可以看到如下结果：<br><img src="http://upload-images.jianshu.io/upload_images/458529-5f0438666b08c82f.png" alt="不完全覆盖"><br>其中的红色表示测试例没有覆盖到的地方。下面增加三个测试例<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-(void)testGetMax&#10;&#123;&#10;    XCTAssertEqual(3, [MaxNumber getMaxNumber:1 b:2 c:3]);&#10;    XCTAssertEqual(3, [MaxNumber getMaxNumber:2 b:1 c:3]);&#10;    XCTAssertEqual(3, [MaxNumber getMaxNumber:3 b:2 c:1]);&#10;    XCTAssertEqual(3, [MaxNumber getMaxNumber:1 b:3 c:2]);&#10;&#125;</span><br></pre></td></tr></table></figure></p>
-<p>测试例修改之后，需要先运行cleancov脚本(如果工程里面的代码修改了，需要clean product)，然后再运行脚本./getcov –show查看结果：<br><img src="http://upload-images.jianshu.io/upload_images/458529-67f3fbbc736e2b4b.png" alt="完全覆盖"><br>可以看出现在的测试代码已经覆盖到了该函数的所有代码。</p>
+<p>运行完该测试例后，运行脚本./getcov –show，便可以看到如下结果：<br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/%E4%B8%8D%E5%AE%8C%E5%85%A8%E8%A6%86%E7%9B%96.jpeg" alt="不完全覆盖"><br>其中的红色表示测试例没有覆盖到的地方。下面增加三个测试例<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-(void)testGetMax&#10;&#123;&#10;    XCTAssertEqual(3, [MaxNumber getMaxNumber:1 b:2 c:3]);&#10;    XCTAssertEqual(3, [MaxNumber getMaxNumber:2 b:1 c:3]);&#10;    XCTAssertEqual(3, [MaxNumber getMaxNumber:3 b:2 c:1]);&#10;    XCTAssertEqual(3, [MaxNumber getMaxNumber:1 b:3 c:2]);&#10;&#125;</span><br></pre></td></tr></table></figure></p>
+<p>测试例修改之后，需要先运行cleancov脚本(如果工程里面的代码修改了，需要clean product)，然后再运行脚本./getcov –show查看结果：<br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/%E5%AE%8C%E5%85%A8%E8%A6%86%E7%9B%96.jpeg" alt="完全覆盖"><br>可以看出现在的测试代码已经覆盖到了该函数的所有代码。</p>
 
       
     </div>

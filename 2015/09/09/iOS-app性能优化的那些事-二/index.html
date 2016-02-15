@@ -90,7 +90,7 @@
     <div class="entry">
       
         <p>  这次我们来说说iOS app中滑动的那些事。iOS为了提高滑动的流畅感，特意在滑动的时候将runloop模式切换到UITrackingRunLoopMode，在这个过程中专心做跟滑动相关的工作，这也就是在滑动过程中为什么nstimer无法工作的原因，因为两个没在同一mode下面。但我们可能经常会遇到滑动不怎么流畅的情况，比如在项目中碰到在滑动tableview的时候不怎么顺畅，感觉有点不爽，即便是在测试中表现最好的5s(touch之类的感受更直观)。</p>
-<center><br><img src="http://upload-images.jianshu.io/upload_images/458529-a0302ed8a146efb8.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="tableview 滑动不流畅"><br></center>
+<center><br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/tableview%20%E6%BB%91%E5%8A%A8%E4%B8%8D%E6%B5%81%E7%95%85.png" alt="tableview 滑动不流畅"><br></center>
 
 <a id="more"></a>
 <p>  那碰到这种情况该怎么处理，分析图像动画性能主要用的是Core Animation这个组件，先简单介绍一下里面一些经常用到的选项：</p>
@@ -103,7 +103,7 @@
 </ul>
 <hr>
 <p>简单介绍完Core Animation的一些东西之后我们回过头来看看哪些问题会影响到图形的性能，下面这张图摘自WWDC2014(<a href="https://developer.apple.com/videos/wwdc/2014/" target="_blank" rel="external">Advanced Graphics and Animations for iOS Apps</a>，这上面的一些分享非常有技术性)</p>
-<center><br><img src="http://upload-images.jianshu.io/upload_images/458529-58b359235a6d6b1e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="performance investigation mindset.png"><br></center>
+<center><br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/performance%20investigation%20mindset.png" alt="performance investigation mindset.png"><br></center>
 
 <p>当你碰到性能问题的时候，你可以思考一下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#26159;&#21542;&#21463;&#21040;CPU&#25110;&#32773;GPU&#30340;&#38480;&#21046;&#65311;&#10;&#26159;&#21542;&#26377;&#19981;&#24517;&#35201;&#30340;CPU&#28210;&#26579;&#65311;&#10;&#26159;&#21542;&#26377;&#22826;&#22810;&#30340;&#31163;&#23631;&#28210;&#26579;&#25805;&#20316;&#65311;&#10;&#26159;&#21542;&#26377;&#22826;&#22810;&#30340;&#22270;&#23618;&#28151;&#21512;&#25805;&#20316;&#65311;&#10;&#26159;&#21542;&#26377;&#22855;&#24618;&#30340;&#22270;&#29255;&#26684;&#24335;&#25110;&#32773;&#23610;&#23544;&#65311;&#10;&#26159;&#21542;&#28041;&#21450;&#21040;&#26114;&#36149;&#30340;view&#25110;&#32773;&#25928;&#26524;&#65311;&#10;view&#30340;&#23618;&#27425;&#32467;&#26500;&#26159;&#21542;&#21512;&#29702;&#65311;</span><br></pre></td></tr></table></figure></p>
 <p>那么哪些是你最该开始考虑的方向呢？通常发生图形性能问题的时候，比如列表滑动不顺畅、动画卡顿等，大部分都是由于Offscreen Rendering(离屏渲染)或者blending导致的，因为这在动画的每一帧都会涉及到。</p>
@@ -118,28 +118,28 @@
 <li>设置cornerRadius, masks, shadows,edge antialiasing等</li>
 <li>设置layer.shouldRasterize ＝ YES</li>
 </ul>
-<center><br><img src="http://upload-images.jianshu.io/upload_images/458529-001968c478e446d4.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="渲染流程"><br></center>
+<center><br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/%E6%B8%B2%E6%9F%93%E6%B5%81%E7%A8%8B.png" alt="渲染流程"><br></center>
 
 <p>offscreen-render对性能到底有什么影响？通常大家说的离屏渲染指的是GPU这块(当然CPU这块也会有影响，也需要消耗一定的资源)，比如修改了layer的阴影或者圆角，GPU需要做额外的渲染操作。通常GPU在做渲染的时候是很快的，但是涉及到offscreen-render的时候情况就可能有些不同，因为需要额外开辟一个新的缓冲区进行渲染，然后绘制到当前屏幕的过程需要做onscreen跟offscreen上下文之间的切换，这个过程的消耗会比较昂贵，涉及到OpenGL的pipeline跟barrier，而且offscreen-render在每一帧都会涉及到，因此处理不当肯定会对性能产生一定的影响，所以可以的话尽量减少offscreen-render的图层，查看哪些图层需要离屏渲染可以用Instruments的Core Animation工具进行检测，Color Offscreen-Rendered Yellow选项会将对应的图层标记为黄色。</p>
 <h3 id="Blending"><a href="#Blending" class="headerlink" title="Blending"></a>Blending</h3><p>假如最上层的view是不透明的，那直接使用这个view的对应颜色之就可以，但如果view是透明的，在计算像素的颜色值时就需要计算它下面图层，透明的视图越多，计算量就越大，因此也会对图形的性能产生一定的影响，所以可以的话也尽量减少透明图层的数目。</p>
 <h2 id="Demo"><a href="#Demo" class="headerlink" title="Demo"></a>Demo</h2><p>下面给出一个简单<a href="https://github.com/FreeMind-LJ/OptimiseDemo" target="_blank" rel="external">demo</a>的优化过程，这个demo里面涉及到的问题是在实际项目中所碰到的，也就是最上面那张图里列表滑动不流畅情况—由阴影以及圆角导致的offscreen-render。<br>整个页面就是一个简单的tableview，其中头像为圆角，一个label有阴影效果，滑动的时候在iPod上帧率只有可怜的28FPS。</p>
-<center><br><img src="http://upload-images.jianshu.io/upload_images/458529-6e77bc984a1ade8a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/150" alt="Color Offscreen-Rendered Yellow"><br><img src="http://upload-images.jianshu.io/upload_images/458529-9523185e90a69c93.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1000" alt="28FPS.png"><br></center>
+<center><br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/Color%20Offscreen-Rendered%20Yellow.png" alt="Color Offscreen-Rendered Yellow"><br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/28FPS.png" alt="28FPS.png"><br></center>
 
 <p>其中黄色的区域就是离屏渲染的地方，也就是含有圆角跟阴影的layer。</p>
 <h5 id="shadowPath"><a href="#shadowPath" class="headerlink" title="shadowPath"></a>shadowPath</h5><p>设置label的阴影效果可以通过：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cell.sign.layer.shadowOffset = CGSizeMake(0, 2);&#10;&#160; &#160; cell.sign.layer.shadowOpacity = 0.5;&#10;&#160; &#160; cell.sign.layer.shadowColor = [UIColor blackColor].CGColor;</span><br></pre></td></tr></table></figure></p>
 <p>但是你可以发现这会导致离屏渲染，一个简单的不需要离屏渲染的方法就是制定阴影的路径，也就是设置layer的shadowPath属性，通过instruments发现阴影的地方没有黄色了，帧率也提高到了40FPS：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cell.sign.layer.shadowPath = [UIBezierPath&#160; bezierPathWithRect:cell.sign.bounds].CGPath;</span><br></pre></td></tr></table></figure>
-<center><br><img src="http://upload-images.jianshu.io/upload_images/458529-03ad463233e11e7f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/150" alt="设置shadowPath消除离屏渲染.png"><br></center>
+<center><br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/%E8%AE%BE%E7%BD%AEshadowPath%E6%B6%88%E9%99%A4%E7%A6%BB%E5%B1%8F%E6%B8%B2%E6%9F%93.png" alt="设置shadowPath消除离屏渲染.png"><br></center>
 
 <h5 id="rasterize"><a href="#rasterize" class="headerlink" title="rasterize"></a>rasterize</h5><p>对于圆角这种类似导致的性能问题，最简单的就是在列表中不要使用圆角，假如要使用圆角的话，一种最快提升性能的方式就是设置layer的shouldRasterize为YES：<br> <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#160; &#160; cell.layer.shouldRasterize = YES;&#10;&#160; &#160; cell.layer.rasterizationScale = [UIScreen mainScreen].scale;</span><br></pre></td></tr></table></figure></p>
 <p>虽然被Rasterize的图层也会引起离屏渲染，如下图所示，整个cell都被标示为黄色：</p>
-<center><br><img src="http://upload-images.jianshu.io/upload_images/458529-4bcc28216254d415.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/150" alt="shouldRasterize.png"><br></center>
+<center><br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/shouldRasterize.png" alt="shouldRasterize.png"><br></center>
 
 <p>layer设置shouldRasterize＝YES之后，会把被光栅化的图层保存成位图并缓存起来，其中圆角或者阴影之类的效果也是直接保存到位图当中，当需要渲染到屏幕上的时候只需要到缓存中去取对应的位图进行显示就行了，加快了整个渲染过程。可以通过勾选instruments core animation中的Color Hits Green and Misses Red选项来查看图层是否被缓存了，如果图层显示为绿色则表示已经被缓存起来了，也就是这个缓冲区的内容被复用了，不用在去重新创建缓冲区，反之则是用红色标示。如下图可以看到设置shouldRasterize之后，cell都被标示为绿色了，如果滑动过程中发现都是红色的证明就有问题了：</p>
-<center><br><img src="http://upload-images.jianshu.io/upload_images/458529-5fb556d65e7cbffc.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/150" alt="cached.png"><br></center>
+<center><br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/cached.png" alt="cached.png"><br></center>
 
 <p>再看看现在滑动的帧率：</p>
-<center><br><img src="http://upload-images.jianshu.io/upload_images/458529-ec49371b6a8f4662.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="优化后.png"><br></center>
+<center><br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/%E4%BC%98%E5%8C%96%E5%90%8E.png" alt="优化后.png"><br></center>
 
 <p>可以发现现在滚动的性能大大提高了，光栅化对于那些有很多子view嵌套在一起、view的层级复杂或者有很复杂特效效果的图层有很明显的提升，因为这些内容都被缓存到位图当中了。但是使用光栅化需要注意一些内容：</p>
 <ul>
