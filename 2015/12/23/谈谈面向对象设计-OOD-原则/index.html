@@ -1,99 +1,328 @@
-<!DOCTYPE HTML>
-<html>
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion">
 <head>
-  <meta charset="utf-8">
-  
-  <title>谈谈面向对象设计(OOD)原则 | 树下的老男孩</title>
-  <meta name="author" content="树下的老男孩">
-  
-  <meta name="description" content="拥有一把锤子未必能成为建筑师
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  <link href="//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="面向对象设计," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="树下的老男孩" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0" />
+
+
+
+
+
+
+<meta name="description" content="拥有一把锤子未必能成为建筑师
 
   最近在项目开发过程中碰到了一些问题，发现在每波迭代开发过程中，经常需要去修改之前的代码，虽然出现这样的情形很正常，新的需求必然会带来新的功能新的设计，导致之前的代码受到影响。记得看过一个笑话：
 
 “杀一个程序员不需要用枪，改三次需求就可以了”
 
-  其实需求设计是一个方面，另外我们作为设计开发人员有时候也需要去反省，反省一下代码的设计是否合理，为什么新功能的在原有代码上扩展会那么难，为什么我们的代码这么不稳定，牵一发而动全身？">
-  
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  其实需求设计是一个方面，另外我们作为设计开发人员有时候也需要去反省，反省一下代码的设计是否合理，为什么新功能的在原">
+<meta property="og:type" content="article">
+<meta property="og:title" content="谈谈面向对象设计(OOD)原则">
+<meta property="og:url" content="http://freemind-lj.github.io/2015/12/23/谈谈面向对象设计-OOD-原则/index.html">
+<meta property="og:site_name" content="树下的老男孩">
+<meta property="og:description" content="拥有一把锤子未必能成为建筑师
 
-  <meta property="og:title" content="谈谈面向对象设计(OOD)原则"/>
-  <meta property="og:site_name" content="树下的老男孩"/>
+  最近在项目开发过程中碰到了一些问题，发现在每波迭代开发过程中，经常需要去修改之前的代码，虽然出现这样的情形很正常，新的需求必然会带来新的功能新的设计，导致之前的代码受到影响。记得看过一个笑话：
 
-  
-    <meta property="og:image" content="undefined"/>
-  
+“杀一个程序员不需要用枪，改三次需求就可以了”
 
-  <link href="/favicon.png" rel="icon">
-  <link rel="alternate" href="/atom.xml" title="树下的老男孩" type="application/atom+xml">
-  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
-  <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
-  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
-  <script src="/js/jquery.min.js"></script>
-  
-<script type="text/javascript">
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  其实需求设计是一个方面，另外我们作为设计开发人员有时候也需要去反省，反省一下代码的设计是否合理，为什么新功能的在原">
+<meta property="og:image" content="http://7xpjm0.com1.z0.glb.clouddn.com/%E5%8D%95%E4%B8%80%E8%81%8C%E8%B4%A3.png">
+<meta property="og:image" content="http://7xpjm0.com1.z0.glb.clouddn.com/%E5%BC%80%E9%97%AD%E5%8E%9F%E5%88%99.png">
+<meta property="og:image" content="http://7xpjm0.com1.z0.glb.clouddn.com/%E9%B2%B8%E9%B1%BC%E7%BB%A7%E6%89%BF%E8%87%AA%E9%B1%BC%E7%B1%BB.png">
+<meta property="og:image" content="http://7xpjm0.com1.z0.glb.clouddn.com/%E4%B8%8D%E6%BB%A1%E8%B6%B3ISP%E5%8E%9F%E5%88%99.png">
+<meta property="og:image" content="http://7xpjm0.com1.z0.glb.clouddn.com/%E6%BB%A1%E8%B6%B3ISP%E5%8E%9F%E5%88%99.png">
+<meta property="og:image" content="http://7xpjm0.com1.z0.glb.clouddn.com/%E9%92%88%E5%AF%B9%E6%8E%A5%E5%8F%A3%E7%BC%96%E7%A8%8B.png">
+<meta property="og:updated_time" content="2016-02-15T02:59:52.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="谈谈面向对象设计(OOD)原则">
+<meta name="twitter:description" content="拥有一把锤子未必能成为建筑师
 
-  ga('create', 'UA-45019001-1', 'topdna.org');
-  ga('send', 'pageview');
+  最近在项目开发过程中碰到了一些问题，发现在每波迭代开发过程中，经常需要去修改之前的代码，虽然出现这样的情形很正常，新的需求必然会带来新的功能新的设计，导致之前的代码受到影响。记得看过一个笑话：
 
+“杀一个程序员不需要用枪，改三次需求就可以了”
+
+  其实需求设计是一个方面，另外我们作为设计开发人员有时候也需要去反省，反省一下代码的设计是否合理，为什么新功能的在原">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
 </script>
 
-
+  <title> 谈谈面向对象设计(OOD)原则 | 树下的老男孩 </title>
 </head>
 
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
 
-<body>
-  <!--[if lte IE 8]> <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'> <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode"><img src="http://storage.ie6countdown.com/assets/100/images/banners/warning_bar_0027_Simplified Chinese.jpg" border="0" height="42" width="820" alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today." style='margin-left:auto;margin-right:auto;display: block;'/></a></div> <![endif]-->
-  <header id="header" class="inner"><div class="alignleft">
-  <h1><a href="/">树下的老男孩</a></h1>
-  <h2><a href="/">工匠之行，在行动中体悟修行的乐趣</a></h2>
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?13f1b84fb89c93c6c9b314ad1c03d8d0";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">树下的老男孩</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">工匠之行，在行动中体悟修行的乐趣</p>
 </div>
-<nav id="main-nav" class="alignright">
-  <ul>
-    
-      <li><a href="/">首页</a></li>
-    
-      <li><a href="/categories/tech/">技术</a></li>
-    
-      <li><a href="/categories/others/">其它</a></li>
-    
-      <li><a href="/archives">归档</a></li>
-    
-  </ul>
-  <div class="clearfix"></div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tech">
+          <a href="/categories/tech/" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br />
+            
+            技术
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-others">
+          <a href="/categories/others/" rel="section">
+            
+              <i class="menu-item-icon fa fa-question-circle fa-fw"></i> <br />
+            
+            其它
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+      
+      
+    </ul>
+  
+
+  
 </nav>
-<div class="clearfix"></div></header>
-  <div id="content" class="inner">
-    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
-  
-    <div class="gallery">
-  <div class="photoset">
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
     
-      <img src="">
-    
-  </div>
-  <div class="control">
-    <div class="prev"></div>
-    <div class="next"></div>
-  </div>
-</div>
+
   
-  <div class="post-content">
-    <header>
-      
-        <time datetime="2015-12-23T09:46:39.000Z"><a href="/2015/12/23/谈谈面向对象设计-OOD-原则/">2015-12-23</a></time>
-      
-      
-  
-    <h1 class="title">谈谈面向对象设计(OOD)原则</h1>
   
 
-    </header>
-    <div class="entry">
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                谈谈面向对象设计(OOD)原则
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2015-12-23T17:46:39+08:00" content="2015-12-23">
+              2015-12-23
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/tech/" itemprop="url" rel="index">
+                    <span itemprop="name">tech</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2015/12/23/谈谈面向对象设计-OOD-原则/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2015/12/23/谈谈面向对象设计-OOD-原则/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
       
         <blockquote>
 <p><em>拥有一把锤子未必能成为建筑师</em></p>
@@ -168,194 +397,449 @@
 
       
     </div>
-    <footer>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/面向对象设计/" rel="tag">#面向对象设计</a>
+          
+        </div>
       
 
-        
-          <div class="alignleft post-nav">
-            <em>上一篇: </em><a href="/2016/01/07/细说-synchronized和dispatch-once/">细说@synchronized和dispatch_once</a>
-          </div>
-        
-        
-          <div class="alignright post-nav">
-            <em>下一篇: </em><a href="/2015/12/16/有意义的命名/">有意义的命名</a>
-          </div>
-          <div class="clearfix"></div>
-        
-
-        
-          <div class="copyright">
-            
-              <span class="claim">版权声明：自由转载-非商用-保持署名  树下的老男孩</span>
-            
-            
-              <span class="from-link">
-                <em>本文链接地址:</em>
-                <a href="/2015/12/23/谈谈面向对象设计-OOD-原则/">
-                  http://freemind-lj.github.io/2015/12/23/谈谈面向对象设计-OOD-原则/
-                </a>
-              </span>
-            
-          </div>
-        
-        
-  
-  <div class="categories">
-    <a href="/categories/tech/">tech</a>
-  </div>
-
-        
-  
-  <div class="tags">
-    <a href="/tags/面向对象设计/">面向对象设计</a>
-  </div>
-
-        
       
-      <div class="clearfix"></div>
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/12/16/有意义的命名/" rel="next" title="有意义的命名">
+                <i class="fa fa-chevron-left"></i> 有意义的命名
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/01/07/细说-synchronized和dispatch-once/" rel="prev" title="细说@synchronized和dispatch_once">
+                细说@synchronized和dispatch_once <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
     </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
   </div>
-</article>
 
 
-<!-- Duoshuo Comment BEGIN -->
-<div class="ds-thread"></div>
-<script type="text/javascript">
-  var duoshuoQuery = {short_name: 'treeboy' };
-  (function() {
-      var ds = document.createElement('script');
-      ds.type = 'text/javascript';
-      ds.async = true;
-      ds.src = 'http://static.duoshuo.com/embed.js';
-      ds.charset = 'UTF-8';
-      (document.getElementsByTagName('head')[0] 
-      || document.getElementsByTagName('body')[0]).appendChild(ds);
-  })();
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2015/12/23/谈谈面向对象设计-OOD-原则/"
+           data-title="谈谈面向对象设计(OOD)原则" data-url="http://freemind-lj.github.io/2015/12/23/谈谈面向对象设计-OOD-原则/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/default_avatar.jpg"
+               alt="树下的老男孩" />
+          <p class="site-author-name" itemprop="name">树下的老男孩</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">26</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+          
+          
+            <div class="site-state-item site-state-categories">
+              
+                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-name">分类</span>
+              
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#“比设计模式更重要的是设计原则”"><span class="nav-number">1.</span> <span class="nav-text">“比设计模式更重要的是设计原则”</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#单一职责原则：Single-Responsibility-Principle"><span class="nav-number"></span> <span class="nav-text">单一职责原则：Single Responsibility Principle</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#里氏替代原则：Liskov-Substitution-Principle"><span class="nav-number"></span> <span class="nav-text">里氏替代原则：Liskov Substitution Principle</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#接口隔离原则：Interface-Segregation-Principle"><span class="nav-number"></span> <span class="nav-text">接口隔离原则：Interface Segregation Principle</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#依赖倒置原则：Dependence-Inversion-Principle"><span class="nav-number"></span> <span class="nav-text">依赖倒置原则：Dependence Inversion Principle</span></a></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2015 - 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">树下的老男孩</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  
+
+
+  
+
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=0.5.0"></script>
+
+
+
+  
+  
+<script type="text/javascript" src="/js/src/scrollspy.js?v=0.5.0"></script>
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
 </script>
-<!-- Duoshuo Comment END -->
-</div></div>
-    <aside id="sidebar" class="alignright">
-  <div class="search">
-  <form action="//google.com/search" method="get" accept-charset="utf-8">
-    <input type="text" name="q" results="0" placeholder="搜尋">
-    <i class="icon-search"></i>
-    <input type="hidden" name="q" value="site:freemind-lj.github.io">
-  </form>
-</div>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = NexT.utils.escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    NexT.motion.middleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+
+      if (CONFIG.sidebar === 'post') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          NexT.utils.displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
 
   
-<div class="widget tag">
-  <h3 class="title">標籤</h3>
-  <ul class="entry">
-  
-    <li><a href="/tags/GCD/">GCD</a><small>2</small></li>
-  
-    <li><a href="/tags/IM/">IM</a><small>2</small></li>
-  
-    <li><a href="/tags/OGRE/">OGRE</a><small>1</small></li>
-  
-    <li><a href="/tags/SDWebimage/">SDWebimage</a><small>2</small></li>
-  
-    <li><a href="/tags/XMPP/">XMPP</a><small>2</small></li>
-  
-    <li><a href="/tags/charles/">charles</a><small>1</small></li>
-  
-    <li><a href="/tags/iOS开发/">iOS开发</a><small>17</small></li>
-  
-    <li><a href="/tags/runtime/">runtime</a><small>3</small></li>
-  
-    <li><a href="/tags/代码整洁之道/">代码整洁之道</a><small>2</small></li>
-  
-    <li><a href="/tags/性能优化/">性能优化</a><small>2</small></li>
-  
-    <li><a href="/tags/测试/">测试</a><small>1</small></li>
-  
-    <li><a href="/tags/源码剖析/">源码剖析</a><small>1</small></li>
-  
-    <li><a href="/tags/源码解析/">源码解析</a><small>2</small></li>
-  
-    <li><a href="/tags/面向对象设计/">面向对象设计</a><small>1</small></li>
-  
-  </ul>
-</div>
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
 
 
   
-<div class="widget tag">
-  <h3 class="title">最新文章</h3>
-  <ul class="entry">
-    
-      <li>
-        <a href="/2016/02/02/iOS应用程序间共享数据/">iOS应用程序间共享数据</a>
-      </li>
-    
-      <li>
-        <a href="/2016/01/07/细说-synchronized和dispatch-once/">细说@synchronized和dispatch_once</a>
-      </li>
-    
-      <li>
-        <a href="/2015/12/23/谈谈面向对象设计-OOD-原则/">谈谈面向对象设计(OOD)原则</a>
-      </li>
-    
-      <li>
-        <a href="/2015/12/16/有意义的命名/">有意义的命名</a>
-      </li>
-    
-      <li>
-        <a href="/2015/12/14/整洁代码/">整洁代码</a>
-      </li>
-    
-      <li>
-        <a href="/2015/11/24/开源许可证的一些区别/">开源许可证的一些区别</a>
-      </li>
-    
-      <li>
-        <a href="/2015/11/20/关于GCD开发的一些事儿/">关于GCD开发的一些事儿</a>
-      </li>
-    
-      <li>
-        <a href="/2015/11/02/NSOperation和NSOperationQueue的一些事儿/">NSOperation和NSOperationQueue的一些事儿</a>
-      </li>
-    
-      <li>
-        <a href="/2015/10/20/IM开发-2-XMPP-iOS开发/">IM开发(2)-XMPP iOS开发</a>
-      </li>
-    
-      <li>
-        <a href="/2015/10/08/IM开发-1-ejabberd服务器搭建/">IM开发(1)-ejabberd服务器搭建</a>
-      </li>
-    
-      <li>
-        <a href="/2015/09/09/iOS-app性能优化的那些事-二/">iOS app性能优化的那些事(二)</a>
-      </li>
-    
-      <li>
-        <a href="/2015/09/05/iOS-app性能优化的那些事/">iOS app性能优化的那些事</a>
-      </li>
-    
-  </ul>
-</div>
 
-</aside>
-    <div class="clearfix"></div>
-  </div>
-  <div id="go-pg-top"><i class="icon-arrow-up"></i></div>
-  <footer id="footer" class="inner"><div class="alignleft">
   
-  &copy; 2016 树下的老男孩
+    
   
-</div>
-<div class="clearfix"></div></footer>
-  <script src="/js/jquery.imagesloaded.min.js"></script>
-<script src="/js/gallery.js"></script>
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"treeboy"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+  
 
 
 
 
-<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
-<script src="/fancybox/jquery.fancybox.pack.js"></script>
-<script type="text/javascript" charset="utf-8" src="/js/page.js"></script>
+
+  
+  
+
+  
+  
+
 
 </body>
-
 </html>
