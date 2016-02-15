@@ -117,18 +117,15 @@ CMake安装首先要先安装cmake，安装方法可以参考网上的信息，�
 <ul>
 <li>编译sdk<br>  在运行ogre工程之前，需要配置一些选项，点击Product → Scheme → Edit Scheme，分别设置ALL_BUILD和install target的Build Configuration选项为release，然后设置选择的target为ALL_BUILD。接下来就command+B开始编译，这个过程可能也需要花点时间；build成功之后，在选择install target，同样command＋B编译，完成之后你应该能发现有一个sdk目录，别忘了还需要把build目下的lib文件夹内容拷贝到sdk的lib文件夹下，这里面包含的是iOS运行时需要用到的一些静态库:</li>
 </ul>
-<p><img src="http://7xpjm0.com1.z0.glb.clouddn.com/sdk%E7%9B%AE%E5%BD%95.png" alt="sdk目录"></p>
+<p><center><br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/sdk%E7%9B%AE%E5%BD%95.png" alt="sdk目录"><br></center></p>
 <ul>
 <li>创建iOS demo工程<br>  编译完sdk之后，我们就可以开始构建我们的iOS工程了，为了方便建立ogre工程，我们可以下载一个<a href="http://sourceforge.net/projects/ogre/files/ogre-dependencies-mac/1.9/Ogre_Xcode4_Templates_20140408.pkg.zip/download" target="_blank" rel="external">Ogre_Xcode4_Templates</a>，安装完之后能看到在创建Xcode工程时多了一个选项：</li>
 </ul>
-<p><img src="http://7xpjm0.com1.z0.glb.clouddn.com/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202015-08-26%20%E4%B8%8B%E5%8D%887.32.51.p.png" alt="屏幕快照 2015-08-26 下午7.32.51.png"><br>点击next便可以创建一个iOS的ogre工程了,可以看到模版帮我们创建了好些文件，包括OgreFramework和demoAPP等，想要运行还需要些配置。<br>打开Build Settings选择”+” add User-Defined Setting，新建OGRE_SDK_ROOT为sdk的路径：</p>
-<p><img src="http://7xpjm0.com1.z0.glb.clouddn.com/OGRE_SDK_ROOT%E8%B7%AF%E5%BE%84.png" alt="OGRE_SDK_ROOT路径"></p>
-<p>设置Header Search Paths:</p>
-<p><img src="http://7xpjm0.com1.z0.glb.clouddn.com/Header%20Search%20Paths.png" alt="Header Search Paths"><br>设置Library Search Paths:</p>
-<p><img src="http://7xpjm0.com1.z0.glb.clouddn.com/Library%20Search%20Paths.png" alt="Library Search Paths"></p>
-<p>配置完这些内容后，点击运行应该就能看到在iPhone上出现了ogre3d的经典模型画面：</p>
-<p><img src="http://7xpjm0.com1.z0.glb.clouddn.com/ogre.png" alt="ogre"></p>
-<p>接下来就可以开始ogre引擎的研究之旅了。</p>
+<p><center><br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202015-08-26%20%E4%B8%8B%E5%8D%887.32.51.p.png" alt="屏幕快照 2015-08-26 下午7.32.51.png"><br></center><br>点击next便可以创建一个iOS的ogre工程了,可以看到模版帮我们创建了好些文件，包括OgreFramework和demoAPP等，想要运行还需要些配置。<br>打开Build Settings选择”+” add User-Defined Setting，新建OGRE_SDK_ROOT为sdk的路径：</p>
+<p><center><br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/OGRE_SDK_ROOT%E8%B7%AF%E5%BE%84.png" alt="OGRE_SDK_ROOT路径"><br></center><br>设置Header Search Paths:</p>
+<p><center><br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/Header%20Search%20Paths.png" alt="Header Search Paths"><br></center><br>设置Library Search Paths:</p>
+<p><center><br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/Library%20Search%20Paths.png" alt="Library Search Paths"><br></center><br>配置完这些内容后，点击运行应该就能看到在iPhone上出现了ogre3d的经典模型画面：</p>
+<p><center><br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/ogre.png" alt="ogre"><br></center><br>接下来就可以开始ogre引擎的研究之旅了。</p>
 
       
     </div>
