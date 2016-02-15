@@ -1,0 +1,455 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>第 3 页 | 树下的老男孩</title>
+  <meta name="author" content="树下的老男孩">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  
+  <meta property="og:site_name" content="树下的老男孩"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="树下的老男孩" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  <script src="/js/jquery.min.js"></script>
+  
+<script type="text/javascript">
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-45019001-1', 'topdna.org');
+  ga('send', 'pageview');
+
+</script>
+
+
+</head>
+
+
+<body>
+  <!--[if lte IE 8]> <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'> <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode"><img src="http://storage.ie6countdown.com/assets/100/images/banners/warning_bar_0027_Simplified Chinese.jpg" border="0" height="42" width="820" alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today." style='margin-left:auto;margin-right:auto;display: block;'/></a></div> <![endif]-->
+  <header id="header" class="inner"><div class="alignleft">
+  <h1><a href="/">树下的老男孩</a></h1>
+  <h2><a href="/">工匠之行，在行动中体悟修行的乐趣</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">首页</a></li>
+    
+      <li><a href="/categories/tech/">技术</a></li>
+    
+      <li><a href="/categories/others/">其它</a></li>
+    
+      <li><a href="/archives">归档</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div></header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper">
+  <article class="post">
+  
+    <div class="gallery">
+  <div class="photoset">
+    
+      <img src="">
+    
+  </div>
+  <div class="control">
+    <div class="prev"></div>
+    <div class="next"></div>
+  </div>
+</div>
+  
+  <div class="post-content">
+    <header>
+      
+        <time datetime="2015-05-25T14:37:20.000Z"><a href="/2015/05/25/ios-runtime浅析-：消息传递与动态解析/">2015-05-25</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2015/05/25/ios-runtime浅析-：消息传递与动态解析/">ios runtime浅析(-)：消息传递与动态解析</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>  在object-c中，消息直到运行的时候才会绑定对应的实现，编译器将消息表达式：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[receiver message]</span><br></pre></td></tr></table></figure></p>
+<p>   转换成对objc_msgSend消息传递函数的调用:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">objc_msgSend(receiver, selector&#65289;//or objc_msgSend(receiver, selector, arg1, arg2, ...)</span><br></pre></td></tr></table></figure></p>
+<p>该函数包含消息的接受者、函数的名称以及对应的参数。该消息传递函数首先去receiver类寻找selector所对应的实现，接着调用该实现并传递对应的参数，最后返回函数的返回值。objc_msgSend函数由编译器生成的，自己在代码中不能直接调用该函数。</p>
+<p>消息传递的关键在于每个类结构都有两个重要的元素：</p>
+<ul>
+<li>指向父类的指针；</li>
+<li>类的分发表( dispatch table)，该表包含selector的名称及对应实现函数的地址；</li>
+</ul>
+<p>消息传递的过程：当给一个对象发送消息的时候，消息传递函数首先根据对象的isa指针找到类的结构，然后在其分发表中寻找对应的selector，如果找到的话就调用对应的实现；如果找不到则会根据super class指针去其父类寻找，如果父类还找不到，会接着去父类的父类中寻找，直到NSObject类为止。<br>为了加速消息传递的过程，运行时系统会缓存用到过的selector，每个类都有一个单独的cache，它可以缓存继承或自己定义的方法。在根据selector名字搜索分发表之前，消息路由会首先检查receiver类的cache是否已经缓存对应的selector，如果有的话就直接调用对应的实现。</p>
+      
+    </div>
+    <footer>
+      
+        
+          <div class="alignleft">
+            <a href="/2015/05/25/ios-runtime浅析-：消息传递与动态解析/#more" class="more-link">Read More</a>
+          </div>
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+  <article class="post">
+  
+    <div class="gallery">
+  <div class="photoset">
+    
+      <img src="">
+    
+  </div>
+  <div class="control">
+    <div class="prev"></div>
+    <div class="next"></div>
+  </div>
+</div>
+  
+  <div class="post-content">
+    <header>
+      
+        <time datetime="2015-05-21T11:38:32.000Z"><a href="/2015/05/21/iOS-block浅析/">2015-05-21</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2015/05/21/iOS-block浅析/">iOS block浅析</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>iOS开发中经常会使用block结合gcd来完成多线程编程，block也属于对象，主要有三种类型:<br>1、 _NSConcreteStackBlock ，存储在栈上；<br>2、_NSConcreteGlobalBlock，存储在程序的数据区域(text段)；<br>3、_NSConcreteMallocBlock，存储在堆上。<br>下面分别介绍一下这三种类型的block，block在arc和非arc的模式下会有些需要注意的地方：</p>
+<ul>
+<li>NSGlobalBlock：在block内部没有引用任何外部变量</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">void (^globalBlock) () = ^ () &#123;&#10;      NSLog(@&#34;global block&#34;);&#10;&#125;;&#10;NSLog(@&#34;%@&#34;, globalBlock);//&#60;__NSGlobalBlock__: 0x1096e20c0&#62;</span><br></pre></td></tr></table></figure>
+<p>对NSGlobalBlock的retain、copy、release操作都无效。</p>
+<ul>
+<li>NSStackBlock：在block内部引用外部变量<br>先讨论下MRC模式：</li>
+</ul>
+      
+    </div>
+    <footer>
+      
+        
+          <div class="alignleft">
+            <a href="/2015/05/21/iOS-block浅析/#more" class="more-link">Read More</a>
+          </div>
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+  <article class="post">
+  
+    <div class="gallery">
+  <div class="photoset">
+    
+      <img src="">
+    
+  </div>
+  <div class="control">
+    <div class="prev"></div>
+    <div class="next"></div>
+  </div>
+</div>
+  
+  <div class="post-content">
+    <header>
+      
+        <time datetime="2015-05-19T13:39:42.000Z"><a href="/2015/05/19/iOS持续集成：命令行创建工程/">2015-05-19</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2015/05/19/iOS持续集成：命令行创建工程/">iOS持续集成：命令行创建工程</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>  在开发iOS应用的时候，大部分都是直接采用Xcode进行开发，但有时候需要用命令行来创建工程，比如最近在做ci的持续集成，就只能通过命令行的方式，这时候就需要了解一下工程文件的构成。我们知道工程文件的相关信息保存在project.pbxproj，因此可以通过脚本创建出pbxproj文件，完成基础工程的创建。</p>
+<h2 id="pbxproj"><a href="#pbxproj" class="headerlink" title="pbxproj"></a>pbxproj</h2><p>  下面介绍一下pbxproj文件，可以拖动.xcodeproj文件到文本编辑器，如sublime，查看pbxproj文件的组成方式，主要包括：</p>
+<ul>
+<li>PBXBuildFile PBXFileReference<br>这两个section保存中工程文件相关的信息:包含文件的类型，路径，名称等</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/* Begin PBXBuildFile section */&#10;    F60CC2A114D4EA0500A005E4 /* SocketOperation.m in Sources */ = &#123;isa = PBXBuildFile; fileRef = F60CC2A014D4EA0500A005E4 /* SocketOperation.m */; &#125;;&#10;/* End PBXBuildFile section */&#10;&#10;/* Begin PBXFileReference section *&#10;&#9;F60CC2A014D4EA0500A005E4 /* SocketOperation.m */ = &#123;isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SocketOperation.m; sourceTree = &#34;&#60;group&#62;&#34;; &#125;;&#10;/* End PBXFileReference section */</span><br></pre></td></tr></table></figure>
+      
+    </div>
+    <footer>
+      
+        
+          <div class="alignleft">
+            <a href="/2015/05/19/iOS持续集成：命令行创建工程/#more" class="more-link">Read More</a>
+          </div>
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+  <article class="post">
+  
+    <div class="gallery">
+  <div class="photoset">
+    
+      <img src="">
+    
+  </div>
+  <div class="control">
+    <div class="prev"></div>
+    <div class="next"></div>
+  </div>
+</div>
+  
+  <div class="post-content">
+    <header>
+      
+        <time datetime="2015-05-10T08:29:07.000Z"><a href="/2015/05/10/SDWebImage源码剖析（二）/">2015-05-10</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2015/05/10/SDWebImage源码剖析（二）/">SDWebImage源码剖析（二）</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>SDWebImageCache管理着SDWebImage的缓存，其中内存缓存采用NSCache，同时会创建一个ioQueue负责对硬盘的读写，并且会添加观察者，在收到内存警告、关闭或进入后台时完成对应的处理:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- (id)init &#123;&#10;     _memCache = [[NSCache alloc] init];&#10;     _ioQueue = dispatch_queue_create(&#34;com.hackemist.SDWebImageCache&#34;, DISPATCH_QUEUE_SERIAL);&#10;     //&#25910;&#21040;&#20869;&#23384;&#35686;&#21578;&#26102;&#65292;&#28165;&#38500;NSCache&#65306;[self.memCache removeAllObjects];&#10;     [[NSNotificationCenter defaultCenter] addObserver:self&#10;                                                 selector:@selector(clearMemory)&#10;                                              name:UIApplicationDidReceiveMemoryWarningNotification&#10;                                                   object:nil];&#10;      //&#31243;&#24207;&#20851;&#38381;&#26102;&#65292;&#20250;&#23545;&#30828;&#30424;&#25991;&#20214;&#20570;&#19968;&#20123;&#22788;&#29702;&#10;      [[NSNotificationCenter defaultCenter] addObserver:self&#10;                                                 selector:@selector(cleanDisk)&#10;                                                     name:UIApplicationWillTerminateNotification&#10;                                                   object:nil];&#10;      //&#31243;&#24207;&#36827;&#20837;&#21518;&#21488;&#26102;&#65292;&#20063;&#20250;&#36827;&#34892;&#30828;&#30424;&#25991;&#20214;&#22788;&#29702;&#10;      [[NSNotificationCenter defaultCenter] addObserver:self&#10;                                                 selector:@selector(backgroundCleanDisk)&#10;                                                     name:UIApplicationDidEnterBackgroundNotification&#10;                                                   object:nil];&#10;&#125;</span><br></pre></td></tr></table></figure>
+      
+    </div>
+    <footer>
+      
+        
+          <div class="alignleft">
+            <a href="/2015/05/10/SDWebImage源码剖析（二）/#more" class="more-link">Read More</a>
+          </div>
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+  <article class="post">
+  
+    <div class="gallery">
+  <div class="photoset">
+    
+      <img src="">
+    
+  </div>
+  <div class="control">
+    <div class="prev"></div>
+    <div class="next"></div>
+  </div>
+</div>
+  
+  <div class="post-content">
+    <header>
+      
+        <time datetime="2015-05-10T04:15:45.000Z"><a href="/2015/05/10/SDWebImage源码剖析（－）/">2015-05-10</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2015/05/10/SDWebImage源码剖析（－）/">SDWebImage源码剖析（－）</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>  在开发项目的过程中会用到很多第三方库，比如AFNetWorking,SDWebImage,FMDB等，但一直都没去好好的研究一下，最近刚好项目不是太紧，闲下来可以给自己充充电，先研究一下SDWebImage的底层实现，源码地址：<a href="https://github.com/rs/SDWebImage">SDWebImage</a><br>  先介绍一下SDWebImage，我们使用较多的是它提供的UIImageView分类，支持从远程服务器下载并缓存图片。自从iOS5.0开始，NSURLCache也可以处理磁盘缓存，那么SDWebImage的优势在哪？首先NSURLCache是缓存原始数据(raw data)到磁盘或内存，因此每次使用的时候需要将原始数据转换成具体的对象，如UIImage等，这会导致额外的数据解析以及内存占用等，而SDWebImage则是缓存UIImage对象在内存，缓存在NSCache中，同时直接保存压缩过的图片到磁盘中；还有一个问题是当你第一次在UIImageView中使用image对象的时候，图片的解码是在主线程中运行的！而SDWebImage会强制将解码操作放到子线程中。下图是SDWebImage简单的类图关系：</p>
+      
+    </div>
+    <footer>
+      
+        
+          <div class="alignleft">
+            <a href="/2015/05/10/SDWebImage源码剖析（－）/#more" class="more-link">Read More</a>
+          </div>
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+<ul class="page-direction" id="page-direction">
+    <li><a class="page-prev icon-chevron-sign-left" href="javascript:;" title="上一页"></a></li>
+    <li><a class="page-next icon-chevron-sign-right" href="javascript:;" title="下一页"></a></li>
+</ul>
+
+    <nav id="page-list" class="page-list"><a class="extend prev" rel="prev" href="/page/2/">Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span></nav>
+
+<nav id="pagination">
+  
+    <a href="/page/2/" class="alignleft prev">上一页</a>
+  
+  
+  <div class="clearfix"></div>
+</nav></div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="text" name="q" results="0" placeholder="搜一下">
+    <i class="icon-search"></i>
+    <input type="hidden" name="q" value="site:freemind-lj.github.io">
+  </form>
+</div>
+
+  
+<div class="widget tag">
+  <h3 class="title">标签</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/GCD/">GCD</a><small>2</small></li>
+  
+    <li><a href="/tags/IM/">IM</a><small>2</small></li>
+  
+    <li><a href="/tags/OGRE/">OGRE</a><small>1</small></li>
+  
+    <li><a href="/tags/SDWebimage/">SDWebimage</a><small>2</small></li>
+  
+    <li><a href="/tags/XMPP/">XMPP</a><small>2</small></li>
+  
+    <li><a href="/tags/charles/">charles</a><small>1</small></li>
+  
+    <li><a href="/tags/iOS开发/">iOS开发</a><small>16</small></li>
+  
+    <li><a href="/tags/runtime/">runtime</a><small>3</small></li>
+  
+    <li><a href="/tags/代码整洁之道/">代码整洁之道</a><small>2</small></li>
+  
+    <li><a href="/tags/性能优化/">性能优化</a><small>2</small></li>
+  
+    <li><a href="/tags/测试/">测试</a><small>1</small></li>
+  
+    <li><a href="/tags/源码剖析/">源码剖析</a><small>1</small></li>
+  
+    <li><a href="/tags/源码解析/">源码解析</a><small>2</small></li>
+  
+    <li><a href="/tags/面向对象设计/">面向对象设计</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">最新文章</h3>
+  <ul class="entry">
+    
+      <li>
+        <a href="/2016/02/02/iOS应用程序间共享数据/">iOS应用程序间共享数据</a>
+      </li>
+    
+      <li>
+        <a href="/2016/01/07/细说-synchronized和dispatch-once/">细说@synchronized和dispatch_once</a>
+      </li>
+    
+      <li>
+        <a href="/2015/12/23/谈谈面向对象设计-OOD-原则/">谈谈面向对象设计(OOD)原则</a>
+      </li>
+    
+      <li>
+        <a href="/2015/12/16/有意义的命名/">有意义的命名</a>
+      </li>
+    
+      <li>
+        <a href="/2015/12/14/整洁代码/">整洁代码</a>
+      </li>
+    
+      <li>
+        <a href="/2015/11/24/开源许可证的一些区别/">开源许可证的一些区别</a>
+      </li>
+    
+      <li>
+        <a href="/2015/11/20/关于GCD开发的一些事儿/">关于GCD开发的一些事儿</a>
+      </li>
+    
+      <li>
+        <a href="/2015/11/02/NSOperation和NSOperationQueue的一些事儿/">NSOperation和NSOperationQueue的一些事儿</a>
+      </li>
+    
+      <li>
+        <a href="/2015/10/20/IM开发-2-XMPP-iOS开发/">IM开发(2)-XMPP iOS开发</a>
+      </li>
+    
+      <li>
+        <a href="/2015/10/08/IM开发-1-ejabberd服务器搭建/">IM开发(1)-ejabberd服务器搭建</a>
+      </li>
+    
+      <li>
+        <a href="/2015/09/09/iOS-app性能优化的那些事-二/">iOS app性能优化的那些事(二)</a>
+      </li>
+    
+      <li>
+        <a href="/2015/09/05/iOS-app性能优化的那些事/">iOS app性能优化的那些事</a>
+      </li>
+    
+  </ul>
+</div>
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <div id="go-pg-top"><i class="icon-arrow-up"></i></div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2016 树下的老男孩
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript" charset="utf-8" src="/js/page.js"></script>
+
+</body>
+
+</html>

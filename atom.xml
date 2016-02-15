@@ -853,180 +853,396 @@
   </entry>
   
   <entry>
-    <title>SDWebImage源码剖析（二）</title>
-    <link href="http://freemind-lj.github.io/2015/05/10/SDWebImage%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90%EF%BC%88%E4%BA%8C%EF%BC%89/"/>
-    <id>http://freemind-lj.github.io/2015/05/10/SDWebImage源码剖析（二）/</id>
-    <published>2015-05-10T08:29:07.000Z</published>
-    <updated>2016-02-14T08:32:12.000Z</updated>
+    <title>ogre3D在Mac平台的编译</title>
+    <link href="http://freemind-lj.github.io/2015/08/26/ogre3D%E5%9C%A8Mac%E5%B9%B3%E5%8F%B0%E7%9A%84%E7%BC%96%E8%AF%91/"/>
+    <id>http://freemind-lj.github.io/2015/08/26/ogre3D在Mac平台的编译/</id>
+    <published>2015-08-26T11:25:10.000Z</published>
+    <updated>2016-02-15T01:26:37.000Z</updated>
     
-    <content type="html">&lt;p&gt;SDWebImageCache管理着SDWebImage的缓存，其中内存缓存采用NSCache，同时会创建一个ioQueue负责对硬盘的读写，并且会添加观察者，在收到内存警告、关闭或进入后台时完成对应的处理:&lt;/p&gt;
-&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;- (id)init &amp;#123;&amp;#10;     _memCache = [[NSCache alloc] init];&amp;#10;     _ioQueue = dispatch_queue_create(&amp;#34;com.hackemist.SDWebImageCache&amp;#34;, DISPATCH_QUEUE_SERIAL);&amp;#10;     //&amp;#25910;&amp;#21040;&amp;#20869;&amp;#23384;&amp;#35686;&amp;#21578;&amp;#26102;&amp;#65292;&amp;#28165;&amp;#38500;NSCache&amp;#65306;[self.memCache removeAllObjects];&amp;#10;     [[NSNotificationCenter defaultCenter] addObserver:self&amp;#10;                                                 selector:@selector(clearMemory)&amp;#10;                                              name:UIApplicationDidReceiveMemoryWarningNotification&amp;#10;                                                   object:nil];&amp;#10;      //&amp;#31243;&amp;#24207;&amp;#20851;&amp;#38381;&amp;#26102;&amp;#65292;&amp;#20250;&amp;#23545;&amp;#30828;&amp;#30424;&amp;#25991;&amp;#20214;&amp;#20570;&amp;#19968;&amp;#20123;&amp;#22788;&amp;#29702;&amp;#10;      [[NSNotificationCenter defaultCenter] addObserver:self&amp;#10;                                                 selector:@selector(cleanDisk)&amp;#10;                                                     name:UIApplicationWillTerminateNotification&amp;#10;                                                   object:nil];&amp;#10;      //&amp;#31243;&amp;#24207;&amp;#36827;&amp;#20837;&amp;#21518;&amp;#21488;&amp;#26102;&amp;#65292;&amp;#20063;&amp;#20250;&amp;#36827;&amp;#34892;&amp;#30828;&amp;#30424;&amp;#25991;&amp;#20214;&amp;#22788;&amp;#29702;&amp;#10;      [[NSNotificationCenter defaultCenter] addObserver:self&amp;#10;                                                 selector:@selector(backgroundCleanDisk)&amp;#10;                                                     name:UIApplicationDidEnterBackgroundNotification&amp;#10;                                                   object:nil];&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
-&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
-&lt;h3 id=&quot;查询图片&quot;&gt;&lt;a href=&quot;#查询图片&quot; class=&quot;headerlink&quot; title=&quot;查询图片&quot;&gt;&lt;/a&gt;查询图片&lt;/h3&gt;&lt;p&gt;每次向SDWebImageCache索取图片的时候，会先根据图片URL对应的key值先检查内存中是否有对应的图片，如果有则直接返回；如果没有则在ioQueue中去硬盘中查找，其中文件名是是根据URL生成的MD5值，找到之后先将图片缓存在内存中，然后在把图片返回：&lt;br&gt;&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;- (NSOperation *)queryDiskCacheForKey:(NSString *)key done:(SDWebImageQueryCompletedBlock)doneBlock &amp;#123;&amp;#10;    /*...*/&amp;#10;    // &amp;#39318;&amp;#20808;&amp;#26597;&amp;#25214;&amp;#20869;&amp;#23384;&amp;#32531;&amp;#23384;&amp;#10;    UIImage *image = [self imageFromMemoryCacheForKey:key];&amp;#10;    if (image) &amp;#123;&amp;#10;        doneBlock(image, SDImageCacheTypeMemory);&amp;#10;        return nil;&amp;#10;    &amp;#125;&amp;#10;    //&amp;#30828;&amp;#30424;&amp;#26597;&amp;#25214;&amp;#10;    NSOperation *operation = [NSOperation new];&amp;#10;    dispatch_async(self.ioQueue, ^&amp;#123;&amp;#10;        //&amp;#21019;&amp;#24314;&amp;#33258;&amp;#21160;&amp;#37322;&amp;#25918;&amp;#27744;&amp;#65292;&amp;#20869;&amp;#23384;&amp;#21450;&amp;#26102;&amp;#37322;&amp;#25918;&amp;#10;        @autoreleasepool &amp;#123;&amp;#10;            UIImage *diskImage = [self diskImageForKey:key];&amp;#10;            if (diskImage) &amp;#123;&amp;#10;                CGFloat cost = diskImage.size.height * diskImage.size.width * diskImage.scale * diskImage.scale;&amp;#10;                //&amp;#32531;&amp;#23384;&amp;#21040;NSCache&amp;#20013;&amp;#10;                [self.memCache setObject:diskImage forKey:key cost:cost];&amp;#10;            &amp;#125;&amp;#10;            dispatch_async(dispatch_get_main_queue(), ^&amp;#123;&amp;#10;                doneBlock(diskImage, SDImageCacheTypeDisk);&amp;#10;            &amp;#125;);&amp;#10;        &amp;#125;&amp;#10;    &amp;#125;);&amp;#10;    return operation;&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
-&lt;p&gt;在硬盘查询的时候，会在后台将NSData转成UIImage，并完成相关的解码工作:&lt;br&gt;&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;- (UIImage *)diskImageForKey:(NSString *)key &amp;#123;&amp;#10;    NSData *data = [self diskImageDataBySearchingAllPathsForKey:key];&amp;#10;    if (data) &amp;#123;&amp;#10;        UIImage *image = [UIImage sd_imageWithData:data];&amp;#10;        image = [self scaledImageForKey:key image:image];&amp;#10;        if (self.shouldDecompressImages) &amp;#123;&amp;#10;            image = [UIImage decodedImageWithImage:image];&amp;#10;        &amp;#125;&amp;#10;        return image;&amp;#10;    &amp;#125;&amp;#10;    else &amp;#123;&amp;#10;        return nil;&amp;#10;    &amp;#125;&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
-&lt;h3 id=&quot;保存图片&quot;&gt;&lt;a href=&quot;#保存图片&quot; class=&quot;headerlink&quot; title=&quot;保存图片&quot;&gt;&lt;/a&gt;保存图片&lt;/h3&gt;&lt;p&gt;当下载完图片后，会先将图片保存到NSCache中，并把图片像素大小作为该对象的cost值，同时如果需要保存到硬盘，会先判断图片的格式，PNG或者JPEG，并保存对应的NSData到缓存路径中，文件名为URL的MD5值：&lt;br&gt;&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;- (NSString *)cachedFileNameForKey:(NSString *)key &amp;#123;&amp;#10;    //&amp;#26681;&amp;#25454;key&amp;#29983;&amp;#25104;&amp;#23545;&amp;#24212;&amp;#30340;MD5&amp;#20540;&amp;#20316;&amp;#20026;&amp;#25991;&amp;#20214;&amp;#21517;&amp;#10;    const char *str = [key UTF8String];&amp;#10;    if (str == NULL) &amp;#123;&amp;#10;        str = &amp;#34;&amp;#34;;&amp;#10;    &amp;#125;&amp;#10;    unsigned char r[CC_MD5_DIGEST_LENGTH];&amp;#10;    CC_MD5(str, (CC_LONG)strlen(str), r);&amp;#10;    NSString *filename = [NSString stringWithFormat:@&amp;#34;%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x&amp;#34;,&amp;#10;                                                    r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7], r[8], r[9], r[10], r[11], r[12], r[13], r[14], r[15]];&amp;#10;&amp;#10;    return filename;&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
-&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;- (void)storeImage:(UIImage *)image recalculateFromImage:(BOOL)recalculate imageData:(NSData *)imageData forKey:(NSString *)key toDisk:(BOOL)toDisk &amp;#10;&amp;#123;&amp;#10;    //&amp;#20445;&amp;#23384;&amp;#21040;NSCache&amp;#65292;cost&amp;#20026;&amp;#20687;&amp;#32032;&amp;#20540;&amp;#10;&amp;#160; &amp;#160; [self.memCache setObject:image forKey:key cost:image.size.height * image.size.width * image.scale * image.scale];&amp;#10;&amp;#160; &amp;#160; if (toDisk) &amp;#123;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; dispatch_async(self.ioQueue, ^&amp;#123;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; NSData *data = imageData;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; if (image &amp;#38;&amp;#38; (recalculate || !data)) &amp;#123;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160;//&amp;#21028;&amp;#26029;&amp;#22270;&amp;#29255;&amp;#26684;&amp;#24335;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; BOOL imageIsPng = YES;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; // &amp;#26597;&amp;#30475;imagedata&amp;#30340;&amp;#21069;&amp;#32512;&amp;#26159;&amp;#21542;&amp;#26159;PNG&amp;#30340;&amp;#21069;&amp;#32512;&amp;#26684;&amp;#24335;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; if ([imageData length] &amp;#62;= [kPNGSignatureData length]) &amp;#123;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; imageIsPng = ImageDataHasPNGPreffix(imageData);&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#125;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; if (imageIsPng) &amp;#123;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; data = UIImagePNGRepresentation(image);&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#125;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; else &amp;#123;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; data = UIImageJPEGRepresentation(image, (CGFloat)1.0);&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#125;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#125;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; if (data) &amp;#123;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; if (![_fileManager fileExistsAtPath:_diskCachePath]) &amp;#123;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; [_fileManager createDirectoryAtPath:_diskCachePath withIntermediateDirectories:YES attributes:nil error:NULL];&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#125;&amp;#10;                //&amp;#20445;&amp;#23384;data&amp;#21040;&amp;#25351;&amp;#23450;&amp;#30340;&amp;#36335;&amp;#24452;&amp;#20013;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; [_fileManager createFileAtPath:[self defaultCachePathForKey:key] contents:data attributes:nil];&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#125;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#125;);&amp;#10;&amp;#160; &amp;#160; &amp;#125;&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
-&lt;h3 id=&quot;硬盘文件的管理&quot;&gt;&lt;a href=&quot;#硬盘文件的管理&quot; class=&quot;headerlink&quot; title=&quot;硬盘文件的管理&quot;&gt;&lt;/a&gt;硬盘文件的管理&lt;/h3&gt;&lt;p&gt;在程序退出或者进入后台时，会出图片文件进行管理，具体的策略：&lt;/p&gt;
+    <content type="html">&lt;p&gt;  本文主要介绍如何在Mac平台下编译一份可以在iOS上运行的ogre3d引擎的sdk，&lt;a href=&quot;http://www.ogre3d.org/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;OGRE&lt;/a&gt;简单来说就是一个图形引擎，并且也只是一个图形引擎，不像cocos2dx之类的游戏引擎，包括网络，声音和物理碰撞等组件，OGRE只专注于图形渲染这块，不过可以方便的结合其它组件来组成一个游戏引擎，具体可以自己去了解。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h4 id=&quot;编译OGRE3d&quot;&gt;&lt;a href=&quot;#编译OGRE3d&quot; class=&quot;headerlink&quot; title=&quot;编译OGRE3d&quot;&gt;&lt;/a&gt;编译OGRE3d&lt;/h4&gt;&lt;p&gt;首先创建一个文件夹用于放置OGRE3D项目，这个可以随便指定，比如放置在桌面:&lt;br&gt;&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;mkdir /Users/LJ/Desktop/OGREBuild&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;清除过期的文件，默认一星期 &lt;/li&gt;
-&lt;li&gt;如果设置了最大缓存，并且当前缓存的文件超过了这个限制，则删除最旧的文件，直到当前缓存文件的大小为最大缓存大小的一半&lt;/li&gt;
-&lt;/ul&gt;
-&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;- (void)cleanDiskWithCompletionBlock:(SDWebImageNoParamsBlock)completionBlock &amp;#123;&amp;#10;    dispatch_async(self.ioQueue, ^&amp;#123;&amp;#10;        NSURL *diskCacheURL = [NSURL fileURLWithPath:self.diskCachePath isDirectory:YES];&amp;#10;        NSArray *resourceKeys = @[NSURLIsDirectoryKey, NSURLContentModificationDateKey, NSURLTotalFileAllocatedSizeKey];&amp;#10;&amp;#10;        // This enumerator prefetches useful properties for our cache files.&amp;#10;        NSDirectoryEnumerator *fileEnumerator = [_fileManager enumeratorAtURL:diskCacheURL&amp;#10;                                                   includingPropertiesForKeys:resourceKeys&amp;#10;                                                                      options:NSDirectoryEnumerationSkipsHiddenFiles&amp;#10;                                                                 errorHandler:NULL];&amp;#10;&amp;#10;        NSDate *expirationDate = [NSDate dateWithTimeIntervalSinceNow:-self.maxCacheAge];&amp;#10;        NSMutableDictionary *cacheFiles = [NSMutableDictionary dictionary];&amp;#10;        NSUInteger currentCacheSize = 0;&amp;#10;&amp;#10;        // Enumerate all of the files in the cache directory.  This loop has two purposes:&amp;#10;        //&amp;#10;        //  1. Removing files that are older than the expiration date.&amp;#10;        //  2. Storing file attributes for the size-based cleanup pass.&amp;#10;        NSMutableArray *urlsToDelete = [[NSMutableArray alloc] init];&amp;#10;        for (NSURL *fileURL in fileEnumerator) &amp;#123;&amp;#10;            NSDictionary *resourceValues = [fileURL resourceValuesForKeys:resourceKeys error:NULL];&amp;#10;&amp;#10;            // Skip directories.&amp;#10;            if ([resourceValues[NSURLIsDirectoryKey] boolValue]) &amp;#123;&amp;#10;                continue;&amp;#10;            &amp;#125;&amp;#10;&amp;#10;            // Remove files that are older than the expiration date;&amp;#10;            NSDate *modificationDate = resourceValues[NSURLContentModificationDateKey];&amp;#10;            if ([[modificationDate laterDate:expirationDate] isEqualToDate:expirationDate]) &amp;#123;&amp;#10;                [urlsToDelete addObject:fileURL];&amp;#10;                continue;&amp;#10;            &amp;#125;&amp;#10;&amp;#10;            // Store a reference to this file and account for its total size.&amp;#10;            NSNumber *totalAllocatedSize = resourceValues[NSURLTotalFileAllocatedSizeKey];&amp;#10;            currentCacheSize += [totalAllocatedSize unsignedIntegerValue];&amp;#10;            [cacheFiles setObject:resourceValues forKey:fileURL];&amp;#10;        &amp;#125;&amp;#10;        &amp;#10;        for (NSURL *fileURL in urlsToDelete) &amp;#123;&amp;#10;            [_fileManager removeItemAtURL:fileURL error:nil];&amp;#10;        &amp;#125;&amp;#10;&amp;#10;        // If our remaining disk cache exceeds a configured maximum size, perform a second&amp;#10;        // size-based cleanup pass.  We delete the oldest files first.&amp;#10;        if (self.maxCacheSize &amp;#62; 0 &amp;#38;&amp;#38; currentCacheSize &amp;#62; self.maxCacheSize) &amp;#123;&amp;#10;            // Target half of our maximum cache size for this cleanup pass.&amp;#10;            const NSUInteger desiredCacheSize = self.maxCacheSize / 2;&amp;#10;&amp;#10;            // Sort the remaining cache files by their last modification time (oldest first).&amp;#10;            NSArray *sortedFiles = [cacheFiles keysSortedByValueWithOptions:NSSortConcurrent&amp;#10;                                                            usingComparator:^NSComparisonResult(id obj1, id obj2) &amp;#123;&amp;#10;                                                                return [obj1[NSURLContentModificationDateKey] compare:obj2[NSURLContentModificationDateKey]];&amp;#10;                                                            &amp;#125;];&amp;#10;&amp;#10;            // Delete files until we fall below our desired cache size.&amp;#10;            for (NSURL *fileURL in sortedFiles) &amp;#123;&amp;#10;                if ([_fileManager removeItemAtURL:fileURL error:nil]) &amp;#123;&amp;#10;                    NSDictionary *resourceValues = cacheFiles[fileURL];&amp;#10;                    NSNumber *totalAllocatedSize = resourceValues[NSURLTotalFileAllocatedSizeKey];&amp;#10;                    currentCacheSize -= [totalAllocatedSize unsignedIntegerValue];&amp;#10;&amp;#10;                    if (currentCacheSize &amp;#60; desiredCacheSize) &amp;#123;&amp;#10;                        break;&amp;#10;                    &amp;#125;&amp;#10;                &amp;#125;&amp;#10;            &amp;#125;&amp;#10;        &amp;#125;&amp;#10;        if (completionBlock) &amp;#123;&amp;#10;            dispatch_async(dispatch_get_main_queue(), ^&amp;#123;&amp;#10;                completionBlock();&amp;#10;            &amp;#125;);&amp;#10;        &amp;#125;&amp;#10;    &amp;#125;);&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
-&lt;h3 id=&quot;总结&quot;&gt;&lt;a href=&quot;#总结&quot; class=&quot;headerlink&quot; title=&quot;总结&quot;&gt;&lt;/a&gt;总结&lt;/h3&gt;&lt;ul&gt;
-&lt;li&gt;接口设计简单&lt;br&gt;通常我们使用较多的UIImageView分类：&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;[self.imageView sd_setImageWithURL:[NSURL URLWithString:@&amp;#34;url&amp;#34;]&amp;#10;                  placeholderImage:[UIImage imageNamed:@&amp;#34;placeholder&amp;#34;]];&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;li&gt;下载Ogre3d依赖&lt;br&gt;编译ogre需要首先下载相关的依赖库，由于我们想要编译的是运行在iOS上面的，所以选择现在iOS相关的依赖库,下载地址：&lt;a href=&quot;http://sourceforge.net/projects/ogre/files/ogre-dependencies-mac/1.9/Ogre_iOS_7.0_Dependencies_20140315.dmg/download&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;iOSDependencies&lt;/a&gt;，打开dmg将里面的文件夹拖到OGREBuild文件夹里面；&lt;/li&gt;
+&lt;li&gt;下载ogre3d源码&lt;br&gt;这里我使用的是1.9版本的代码，可以使用下面的命令克隆对应的源码(要先安装Mercurial)：&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;hg clone https://bitbucket.org/sinbad/ogre ogre3d&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;一个简单的接口将其中复杂的实现细节全部隐藏：简单就是美。&lt;/p&gt;
+&lt;p&gt;最后面是指定下载的文件夹名字，文件大小500M左右，下载过程比较缓慢，可以到网盘里面下载：&lt;a href=&quot;http://pan.baidu.com/s/1hqyE8tu&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;ogre3d&lt;/a&gt;，同样把该文件夹放到OGREBuild里面；&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;采用NSCache作为内存缓&lt;/li&gt;
-&lt;li&gt;耗时较长的请求，都采用异步形式，在回调函数块中处理请求结果&lt;/li&gt;
-&lt;li&gt;NSOperation和NSOperationQueue：可以取消任务处理队列中的任务，设置最大并发数，设置operation之间的依赖关系。&lt;/li&gt;
-&lt;li&gt;图片缓存清理的策略&lt;/li&gt;
-&lt;li&gt;dispatch_barrier_sync：前面的任务执行结束后它才执行，而且它后面的任务要等它执行完成之后才会执行。&lt;/li&gt;
-&lt;li&gt;使用weak self  strong self 防止retain circle&lt;/li&gt;
-&lt;li&gt;如果子线程进需要不断处理一些事件，那么设置一个Run Loop是最好的处理方式&lt;/li&gt;
+&lt;li&gt;CMake安装&lt;br&gt;首先要先安装cmake，安装方法可以参考网上的信息，打开控制台，在ogre3d里面创建一个build文件夹，然后运行cmake命令：&lt;/li&gt;
+&lt;/ul&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;lujbdeAir:ogre LJ$ mkdir build&amp;#10;lujbdeAir:ogre LJ$ cd build&amp;#10;lujbdeAir:build LJ$&amp;#160;cmake -DCMAKE_CXX_FLAGS=&amp;#34;$&amp;#123;CMAKE_CXX_FLAGS&amp;#125; -v -stdlib=libc++ -std=c++11&amp;#34;&amp;#10; -D BOOST_ROOT=/Users/LJ/Desktop/OGREBuild/iOSDependencies/include/boost &amp;#10; -D BOOST_INCLUDEDIR=/Users/LJ/Desktop/OGREBuild/iOSDependencies/include/boost &amp;#10; -D BOOST_LIBRARYDIR=/Users/LJ/Desktop/OGREBuild/iOSDependencies/lib&amp;#10; -D OGRE_DEPENDENCIES_DIR=/Users/LJ/Desktop/OGREBuild/iOSDependencies -D OGRE_STATIC=1&amp;#10; -D OGRE_BUILD_SAMPLES=0 -D OGRE_BUILD_PLATFORM_APPLE_IOS=1 -G Xcode ..&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;简单介绍一下cmake里面的参数：&lt;br&gt;DCMAKE_CXX_FLAGS的值表示支持c++11；BOOST_ROOT，BOOST_INCLUDEDIR，BOOST_LIBRARYDIR，OGRE_DEPENDENCIES_DIR分别对应boost库和依赖库的路径；OGRE_STATIC=1表示我们构建的是静态库，OGRE_BUILD_SAMPLES表示是否需要构建sample工程，由于我们只想要build对应的sdk，所以将该值设为0表示不构建sample；同时我们的目标是构建iOS版本的sdk，所以需要设置OGRE_BUILD_PLATFORM_APPLE_IOS＝1。&lt;br&gt;  运行完之后能看到在build文件夹下有个OGRE工程，点击OGRE.xcodeproj就可以开始编译我们的sdk了。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;编译sdk&lt;br&gt;  在运行ogre工程之前，需要配置一些选项，点击Product → Scheme → Edit Scheme，分别设置ALL_BUILD和install target的Build Configuration选项为release，然后设置选择的target为ALL_BUILD。接下来就command+B开始编译，这个过程可能也需要花点时间；build成功之后，在选择install target，同样command＋B编译，完成之后你应该能发现有一个sdk目录，别忘了还需要把build目下的lib文件夹内容拷贝到sdk的lib文件夹下，这里面包含的是iOS运行时需要用到的一些静态库:&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-5954b0a64958b6f2.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240&quot; alt=&quot;sdk目录&quot;&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;创建iOS demo工程&lt;br&gt;  编译完sdk之后，我们就可以开始构建我们的iOS工程了，为了方便建立ogre工程，我们可以下载一个&lt;a href=&quot;http://sourceforge.net/projects/ogre/files/ogre-dependencies-mac/1.9/Ogre_Xcode4_Templates_20140408.pkg.zip/download&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Ogre_Xcode4_Templates&lt;/a&gt;，安装完之后能看到在创建Xcode工程时多了一个选项：&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-42ac6ac279224f41.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240&quot; alt=&quot;屏幕快照 2015-08-26 下午7.32.51.png&quot;&gt;&lt;br&gt;点击next便可以创建一个iOS的ogre工程了,可以看到模版帮我们创建了好些文件，包括OgreFramework和demoAPP等，想要运行还需要些配置。&lt;br&gt;打开Build Settings选择”+” add User-Defined Setting，新建OGRE_SDK_ROOT为sdk的路径：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-eaca40598cae1625.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240&quot; alt=&quot;OGRE_SDK_ROOT路径&quot;&gt;&lt;/p&gt;
+&lt;p&gt;设置Header Search Paths:&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-63a4387554579269.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240&quot; alt=&quot;Header Search Paths&quot;&gt;&lt;br&gt;设置Library Search Paths:&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-c4bbd5775250e26a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240&quot; alt=&quot;Library Search Paths&quot;&gt;&lt;/p&gt;
+&lt;p&gt;配置完这些内容后，点击运行应该就能看到在iPhone上出现了ogre3d的经典模型画面：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-0efe81919dbb5f4a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240&quot; alt=&quot;ogre&quot;&gt;&lt;/p&gt;
+&lt;p&gt;接下来就可以开始ogre引擎的研究之旅了。&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;  本文主要介绍如何在Mac平台下编译一份可以在iOS上运行的ogre3d引擎的sdk，&lt;a href=&quot;http://www.ogre3d.org/&quot;&gt;OGRE&lt;/a&gt;简单来说就是一个图形引擎，并且也只是一个图形引擎，不像cocos2dx之类的游戏引擎，包括网络，声音和物理碰撞等组件，OGRE只专注于图形渲染这块，不过可以方便的结合其它组件来组成一个游戏引擎，具体可以自己去了解。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h4 id=&quot;编译OGRE3d&quot;&gt;&lt;a href=&quot;#编译OGRE3d&quot; class=&quot;headerlink&quot; title=&quot;编译OGRE3d&quot;&gt;&lt;/a&gt;编译OGRE3d&lt;/h4&gt;&lt;p&gt;首先创建一个文件夹用于放置OGRE3D项目，这个可以随便指定，比如放置在桌面:&lt;br&gt;&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;mkdir /Users/LJ/Desktop/OGREBuild&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;下载Ogre3d依赖&lt;br&gt;编译ogre需要首先下载相关的依赖库，由于我们想要编译的是运行在iOS上面的，所以选择现在iOS相关的依赖库,下载地址：&lt;a href=&quot;http://sourceforge.net/projects/ogre/files/ogre-dependencies-mac/1.9/Ogre_iOS_7.0_Dependencies_20140315.dmg/download&quot;&gt;iOSDependencies&lt;/a&gt;，打开dmg将里面的文件夹拖到OGREBuild文件夹里面；&lt;/li&gt;
+&lt;li&gt;下载ogre3d源码&lt;br&gt;这里我使用的是1.9版本的代码，可以使用下面的命令克隆对应的源码(要先安装Mercurial)：&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;hg clone https://bitbucket.org/sinbad/ogre ogre3d&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;最后面是指定下载的文件夹名字，文件大小500M左右，下载过程比较缓慢，可以到网盘里面下载：&lt;a href=&quot;http://pan.baidu.com/s/1hqyE8tu&quot;&gt;ogre3d&lt;/a&gt;，同样把该文件夹放到OGREBuild里面；&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;CMake安装&lt;br&gt;首先要先安装cmake，安装方法可以参考网上的信息，打开控制台，在ogre3d里面创建一个build文件夹，然后运行cmake命令：&lt;/li&gt;
+&lt;/ul&gt;
+    
+    </summary>
+    
+      <category term="others" scheme="http://freemind-lj.github.io/categories/others/"/>
+    
+    
+      <category term="OGRE" scheme="http://freemind-lj.github.io/tags/OGRE/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>git遇到的一些问题解决</title>
+    <link href="http://freemind-lj.github.io/2015/07/21/git%E9%81%87%E5%88%B0%E7%9A%84%E4%B8%80%E4%BA%9B%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3/"/>
+    <id>http://freemind-lj.github.io/2015/07/21/git遇到的一些问题解决/</id>
+    <published>2015-07-21T07:27:01.000Z</published>
+    <updated>2016-02-15T01:27:52.000Z</updated>
+    
+    <content type="html">&lt;p&gt;  最近在使用git clone代码的时候遇到了一些问题，现在记录一下：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;只拉取最新版本&lt;br&gt;因为要clone的代码多达4、5个G，在加上里面的分支以及历史太多，因此直接用git clone 命令去克隆的时候经常导致服务端内存爆满，clone不下来。如果不需要去关注以前的版本，可以只clone最新的版本，使用如下命令：&lt;/li&gt;
+&lt;/ul&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;git clone --depth=1 git://serverRepo myRepo&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;这样就只拉取默认分支的最新版本。如果想获取某个具体的分支，可以使用branch 命令，拉取某个分支的最新版本代码，比如要获取release/1.6.0分支的代码 :&lt;/p&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;git clone -b release/1.6.0 --depth=1 git://serverRepo myRepo&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;ul&gt;
+&lt;li&gt;fatal: The remote end hung up unexpectedly&lt;br&gt;在clone分支的时候可能会失败，比如early EOF：&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-61f6a5a1a1cf0a96.png?imageMogr2/auto-orient/strip|imageView2/2/w/1240&quot; alt=&quot;clone失败&quot;&gt;&lt;/p&gt;
+&lt;p&gt;解决的办法是使用ssh协议去clone，而不是http协议。&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;  最近在使用git clone代码的时候遇到了一些问题，现在记录一下：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;只拉取最新版本&lt;br&gt;因为要clone的代码多达4、5个G，在加上里面的分支以及历史太多，因此直接用git clone 命令去克隆的时候经常导致服务端内存爆满，clone不下
+    
+    </summary>
+    
+      <category term="others" scheme="http://freemind-lj.github.io/categories/others/"/>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>iOS开发之－－ DNS解析(网络切换的问题解决)</title>
+    <link href="http://freemind-lj.github.io/2015/06/18/iOS%E5%BC%80%E5%8F%91%E4%B9%8B%EF%BC%8D%EF%BC%8D-DNS%E8%A7%A3%E6%9E%90-%E7%BD%91%E7%BB%9C%E5%88%87%E6%8D%A2%E7%9A%84%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3/"/>
+    <id>http://freemind-lj.github.io/2015/06/18/iOS开发之－－-DNS解析-网络切换的问题解决/</id>
+    <published>2015-06-18T08:28:20.000Z</published>
+    <updated>2016-02-15T01:44:19.000Z</updated>
+    
+    <content type="html">&lt;p&gt;  上次提到过由于电信的问题需要自己手动去解析dns，&lt;a href=&quot;http://www.jianshu.com/p/7c89b8c5482a&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;这里&lt;/a&gt;介绍的是如何拦截&lt;br&gt;每一个请求做解析，但是没有说具体的解析方法，下面简单的记录一下：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;res_query方法&lt;/li&gt;
+&lt;/ul&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;int res_query(char *domain_name, int class, int type, char *answer_buffer, int answer_buffer_length)&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;这是比较常见的系统调用，使用该方法的时候需要在Xcode中添加libresolv.dylib，然后包含resolv.h头文件即可，具体代码如下：&lt;/p&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;unsigned char res[512];&amp;#10;int nBytesRead = 0;&amp;#10;&amp;#10;//&amp;#35843;&amp;#29992;&amp;#31995;&amp;#32479;&amp;#26041;&amp;#27861;&amp;#10;nBytesRead = res_query(&amp;#34;www.baidu.com&amp;#34;, ns_c_in, ns_t_a, res, sizeof(res));&amp;#10;&amp;#10;ns_msg handle;&amp;#10;ns_initparse(res, nBytesRead, &amp;#38;handle);&amp;#10;&amp;#10;NSMutableArray *ipList = nil;&amp;#10;int msg_count = ns_msg_count(handle, ns_s_an);&amp;#10;if (msg_count &amp;#62; 0) &amp;#123;&amp;#10;    ipList = [[NSMutableArray alloc] initWithCapacity:msg_count];&amp;#10;    for(int rrnum = 0; rrnum &amp;#60; msg_count; rrnum++) &amp;#123;&amp;#10;        ns_rr rr;&amp;#10;        &amp;#10;        //&amp;#35299;&amp;#26512;&amp;#32467;&amp;#26524;&amp;#10;        if(ns_parserr(&amp;#38;handle, ns_s_an, rrnum, &amp;#38;rr) == 0) &amp;#123;&amp;#10;            char ip1[16];&amp;#10;            strcpy(ip1, inet_ntoa(*(struct in_addr *)ns_rr_rdata(rr)));&amp;#10;            NSString *ipString = [[NSString alloc] initWithCString:ip1 encoding:NSASCIIStringEncoding];&amp;#10;            if (![ipString isEqualToString:@&amp;#34;&amp;#34;]) &amp;#123;&amp;#10;                &amp;#10;                //&amp;#23558;&amp;#25552;&amp;#21462;&amp;#21040;&amp;#30340;IP&amp;#22320;&amp;#22336;&amp;#25918;&amp;#21040;&amp;#25968;&amp;#32452;&amp;#20013;&amp;#10;                [ipList addObject:ipString];&amp;#10;            &amp;#125;&amp;#10;        &amp;#125;&amp;#10;    &amp;#125;&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;然而该方法有一个问题，在网络从2/3G和WI-FI之间切换的时候，该方法经常不能正常工作，或者需要等待较长的时间，&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;gethostbyname&lt;/li&gt;
+&lt;/ul&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;struct hostent *gethostbyname(const char *hostName);&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt; 具体代码如下：&lt;br&gt;&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;struct hostent *host = gethostbyname(&amp;#34;www.google.com.hk&amp;#34;);&amp;#10;&amp;#10;struct in_addr **list = (struct in_addr **)host-&amp;#62;h_addr_list;&amp;#10;&amp;#10;//&amp;#33719;&amp;#21462;IP&amp;#22320;&amp;#22336;&amp;#10;NSString *ip= [NSString stringWithCString:inet_ntoa(*list[0]) encoding:NSUTF8StringEncoding];&amp;#10;&amp;#10;NSLog(@&amp;#34;ip address is : %@&amp;#34;,ip);&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;该方法在碰到切换网络的时候，出现失败的情况比上面的方法好多了，但偶尔也还是会出现，是时候采用苹果自己的方法了。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;CFHostStartInfoResolution&lt;/li&gt;
+&lt;/ul&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;Boolean CFHostStartInfoResolution (CFHostRef theHost, CFHostInfoType info, CFStreamError *error);&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;具体实现方法如下:&lt;/p&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;Boolean result,bResolved;&amp;#10;CFHostRef hostRef;&amp;#10;CFArrayRef addresses = NULL;&amp;#10;&amp;#10;CFStringRef hostNameRef = CFStringCreateWithCString(kCFAllocatorDefault, &amp;#34;www.google.com.hk&amp;#34;, kCFStringEncodingASCII);&amp;#10;&amp;#10;hostRef = CFHostCreateWithName(kCFAllocatorDefault, hostNameRef);&amp;#10;if (hostRef) &amp;#123;&amp;#10;    result = CFHostStartInfoResolution(hostRef, kCFHostAddresses, NULL);&amp;#10;    if (result == TRUE) &amp;#123;&amp;#10;        addresses = CFHostGetAddressing(hostRef, &amp;#38;result);&amp;#10;    &amp;#125;&amp;#10;&amp;#125;&amp;#10;bResolved = result == TRUE ? true : false;&amp;#10;&amp;#10;if(bResolved)&amp;#10;&amp;#123;&amp;#10;    struct sockaddr_in* remoteAddr;&amp;#10;    for(int i = 0; i &amp;#60; CFArrayGetCount(addresses); i++)&amp;#10;    &amp;#123;&amp;#10;        CFDataRef saData = (CFDataRef)CFArrayGetValueAtIndex(addresses, i);&amp;#10;        remoteAddr = (struct sockaddr_in*)CFDataGetBytePtr(saData);&amp;#10;        &amp;#10;        if(remoteAddr != NULL)&amp;#10;        &amp;#123;&amp;#10;            //&amp;#33719;&amp;#21462;IP&amp;#22320;&amp;#22336;&amp;#10;            char ip[16];&amp;#10;            strcpy(ip, inet_ntoa(remoteAddr-&amp;#62;sin_addr));&amp;#10;        &amp;#125;&amp;#10;    &amp;#125;&amp;#10;&amp;#125;&amp;#10;CFRelease(hostNameRef);&amp;#10;CFRelease(hostRef);&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;具体的demo可以到&lt;a href=&quot;https://github.com/FreeMind-LJ/DNSTest&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;这里&lt;/a&gt;看看&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;  上次提到过由于电信的问题需要自己手动去解析dns，&lt;a href=&quot;http://www.jianshu.com/p/7c89b8c5482a&quot;&gt;这里&lt;/a&gt;介绍的是如何拦截&lt;br&gt;每一个请求做解析，但是没有说具体的解析方法，下面简单的记录一下：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;res_query方法&lt;/li&gt;
+&lt;/ul&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;int res_query(char *domain_name, int class, int type, char *answer_buffer, int answer_buffer_length)&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;这是比较常见的系统调用，使用该方法的时候需要在Xcode中添加libresolv.dylib，然后包含resolv.h头文件即可，具体代码如下：&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="tech" scheme="http://freemind-lj.github.io/categories/tech/"/>
+    
+    
+      <category term="iOS开发" scheme="http://freemind-lj.github.io/tags/iOS%E5%BC%80%E5%8F%91/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>iOS开发之--- NSURLProtocol</title>
+    <link href="http://freemind-lj.github.io/2015/06/16/iOS%E5%BC%80%E5%8F%91%E4%B9%8B-NSURLProtocol/"/>
+    <id>http://freemind-lj.github.io/2015/06/16/iOS开发之-NSURLProtocol/</id>
+    <published>2015-06-16T03:29:55.000Z</published>
+    <updated>2016-02-15T01:30:58.000Z</updated>
+    
+    <content type="html">&lt;p&gt;  最近在项目里由于电信那边发生dns发生域名劫持，因此需要手动将URL请求的域名重定向到指定的IP地址，但是由于请求可能是通过NSURLConnection,NSURLSession或者AFNetworking等方式，因此要想统一进行处理，一开始是想通过Method Swizzling去hook cfnetworking底层方法，后来发现其实有个更好的方法–NSURLProtocol。&lt;/p&gt;
+&lt;h2 id=&quot;NSURLProtocol&quot;&gt;&lt;a href=&quot;#NSURLProtocol&quot; class=&quot;headerlink&quot; title=&quot;NSURLProtocol&quot;&gt;&lt;/a&gt;NSURLProtocol&lt;/h2&gt;&lt;p&gt;  NSURLProtocol能够让你去重新定义苹果的&lt;a href=&quot;https://developer.apple.com/library/ios/documentation/Cocoa/Conceptual/URLLoadingSystem/URLLoadingSystem.html#//apple_ref/doc/uid/10000165-BCICJDHA&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;URL加载系统&lt;/a&gt; (URL Loading System)的行为，URL Loading System里有许多类用于处理URL请求，比如NSURL，NSURLRequest，NSURLConnection和NSURLSession等，当URL Loading System使用NSURLRequest去获取资源的时候，它会创建一个NSURLProtocol子类的实例，你不应该直接实例化一个NSURLProtocol，NSURLProtocol看起来像是一个协议，但其实这是一个类，而且必须使用该类的子类，并且需要被注册。&lt;/p&gt;
+&lt;h2 id=&quot;使用场景&quot;&gt;&lt;a href=&quot;#使用场景&quot; class=&quot;headerlink&quot; title=&quot;使用场景&quot;&gt;&lt;/a&gt;使用场景&lt;/h2&gt;&lt;p&gt;  不管你是通过UIWebView, NSURLConnection 或者第三方库 (AFNetworking, MKNetworkKit等)，他们都是基于NSURLConnection或者 NSURLSession实现的，因此你可以通过NSURLProtocol做自定义的操作。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;重定向网络请求&lt;/li&gt;
+&lt;li&gt;忽略网络请求，使用本地缓存&lt;/li&gt;
+&lt;li&gt;自定义网络请求的返回结果&lt;/li&gt;
+&lt;li&gt;一些全局的网络请求设置&lt;/li&gt;
+&lt;/ul&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;h2 id=&quot;拦截网络请求&quot;&gt;&lt;a href=&quot;#拦截网络请求&quot; class=&quot;headerlink&quot; title=&quot;拦截网络请求&quot;&gt;&lt;/a&gt;拦截网络请求&lt;/h2&gt;&lt;h4 id=&quot;子类化NSURLProtocol并注册&quot;&gt;&lt;a href=&quot;#子类化NSURLProtocol并注册&quot; class=&quot;headerlink&quot; title=&quot;子类化NSURLProtocol并注册&quot;&gt;&lt;/a&gt;子类化NSURLProtocol并注册&lt;/h4&gt;&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;@interface CustomURLProtocol : NSURLProtocol&amp;#10;@end&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;然后在application:didFinishLaunchingWithOptions:方法中注册该CustomURLProtocol，一旦注册完毕后，它就有机会来处理所有交付给URL Loading system的网络请求。&lt;br&gt;&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions &amp;#123;&amp;#10;    //&amp;#27880;&amp;#20876;protocol&amp;#10;    [NSURLProtocol registerClass:[CustomURLProtocol class]];&amp;#10;    return YES;&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
+&lt;h4 id=&quot;实现CustomURLProtocol&quot;&gt;&lt;a href=&quot;#实现CustomURLProtocol&quot; class=&quot;headerlink&quot; title=&quot;实现CustomURLProtocol&quot;&gt;&lt;/a&gt;实现CustomURLProtocol&lt;/h4&gt;&lt;p&gt;注册好了之后，现在可以开始实现NSURLProtocol的一些方法：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;+canInitWithRequest:&lt;br&gt;这个方法主要是说明你是否打算处理对应的request，如果不打算处理，返回NO，URL Loading System会使用系统默认的行为去处理；如果打算处理，返回YES，然后你就需要处理该请求的所有东西，包括获取请求数据并返回给 URL Loading System。网络数据可以简单的通过NSURLConnection去获取，而且每个NSURLProtocol对象都有一个NSURLProtocolClient实例，可以通过该client将获取到的数据返回给URL Loading System。&lt;br&gt;这里有个需要注意的地方，想象一下，当你去加载一个URL资源的时候，URL Loading System会询问CustomURLProtocol是否能处理该请求，你返回YES，然后URL Loading System会创建一个CustomURLProtocol实例然后调用NSURLConnection去获取数据，然而这也会调用URL Loading System，而你在+canInitWithRequest:中又总是返回YES，这样URL Loading System又会创建一个CustomURLProtocol实例导致无限循环。我们应该保证每个request只被处理一次，可以通过+setProperty:forKey:inRequest:标示那些已经处理过的request，然后在+canInitWithRequest:中查询该request是否已经处理过了，如果是则返回NO。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;+ (BOOL)canInitWithRequest:(NSURLRequest *)request&amp;#10;&amp;#123;&amp;#10;  //&amp;#21482;&amp;#22788;&amp;#29702;http&amp;#21644;https&amp;#35831;&amp;#27714;&amp;#10;    NSString *scheme = [[request URL] scheme];&amp;#10;    if ( ([scheme caseInsensitiveCompare:@&amp;#34;http&amp;#34;] == NSOrderedSame ||&amp;#10;     [scheme caseInsensitiveCompare:@&amp;#34;https&amp;#34;] == NSOrderedSame))&amp;#10;    &amp;#123;&amp;#10;        //&amp;#30475;&amp;#30475;&amp;#26159;&amp;#21542;&amp;#24050;&amp;#32463;&amp;#22788;&amp;#29702;&amp;#36807;&amp;#20102;&amp;#65292;&amp;#38450;&amp;#27490;&amp;#26080;&amp;#38480;&amp;#24490;&amp;#29615;&amp;#10;        if ([NSURLProtocol propertyForKey:URLProtocolHandledKey inRequest:request]) &amp;#123;&amp;#10;            return NO;&amp;#10;        &amp;#125;&amp;#10;        &amp;#10;        return YES;&amp;#10;    &amp;#125;&amp;#10;    return NO;&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;ul&gt;
+&lt;li&gt;+canonicalRequestForRequest:&lt;br&gt;通常该方法你可以简单的直接返回request，但也可以在这里修改request，比如添加header，修改host等，并返回一个新的request，这是一个抽象方法，子类必须实现。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;+ (NSURLRequest *) canonicalRequestForRequest:(NSURLRequest *)request &amp;#123;&amp;#10;    NSMutableURLRequest *mutableReqeust = [request mutableCopy];&amp;#10;    mutableReqeust = [self redirectHostInRequset:mutableReqeust];&amp;#10;    return mutableReqeust;&amp;#10;&amp;#125;&amp;#10;&amp;#10;+(NSMutableURLRequest*)redirectHostInRequset:(NSMutableURLRequest*)request&amp;#10;&amp;#123;&amp;#10;    if ([request.URL host].length == 0) &amp;#123;&amp;#10;        return request;&amp;#10;    &amp;#125;&amp;#10;    &amp;#10;    NSString *originUrlString = [request.URL absoluteString];&amp;#10;    NSString *originHostString = [request.URL host];&amp;#10;    NSRange hostRange = [originUrlString rangeOfString:originHostString];&amp;#10;    if (hostRange.location == NSNotFound) &amp;#123;&amp;#10;        return request;&amp;#10;    &amp;#125;&amp;#10;    //&amp;#23450;&amp;#21521;&amp;#21040;bing&amp;#25628;&amp;#32034;&amp;#20027;&amp;#39029;&amp;#10;    NSString *ip = @&amp;#34;cn.bing.com&amp;#34;;&amp;#10;    &amp;#10;    // &amp;#26367;&amp;#25442;&amp;#22495;&amp;#21517;&amp;#10;    NSString *urlString = [originUrlString stringByReplacingCharactersInRange:hostRange withString:ip];&amp;#10;    NSURL *url = [NSURL URLWithString:urlString];&amp;#10;    request.URL = url;&amp;#10;&amp;#10;    return request;&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;ul&gt;
+&lt;li&gt;+requestIsCacheEquivalent:toRequest:&lt;br&gt;主要判断两个request是否相同，如果相同的话可以使用缓存数据，通常只需要调用父类的实现。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;+ (BOOL)requestIsCacheEquivalent:(NSURLRequest *)a toRequest:(NSURLRequest *)b&amp;#10;&amp;#123;&amp;#10;    return [super requestIsCacheEquivalent:a toRequest:b];&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;ul&gt;
+&lt;li&gt;-startLoading  -stopLoading&lt;br&gt;这两个方法主要是开始和取消相应的request，而且需要标示那些已经处理过的request。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;- (void)startLoading&amp;#10;&amp;#123;&amp;#10;    NSMutableURLRequest *mutableReqeust = [[self request] mutableCopy];&amp;#10;    //&amp;#26631;&amp;#31034;&amp;#25913;request&amp;#24050;&amp;#32463;&amp;#22788;&amp;#29702;&amp;#36807;&amp;#20102;&amp;#65292;&amp;#38450;&amp;#27490;&amp;#26080;&amp;#38480;&amp;#24490;&amp;#29615;&amp;#10;    [NSURLProtocol setProperty:@YES forKey:URLProtocolHandledKey inRequest:mutableReqeust];&amp;#10;    self.connection = [NSURLConnection connectionWithRequest:mutableReqeust delegate:self];&amp;#10;&amp;#125;&amp;#10;&amp;#10;- (void)stopLoading&amp;#10;&amp;#123;&amp;#10;    [self.connection cancel];&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;ul&gt;
+&lt;li&gt;NSURLConnectionDataDelegate方法&lt;br&gt;在处理网络请求的时候会调用到该代理方法，我们需要将收到的消息通过client返回给URL Loading System。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;- (void) connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response &amp;#123;&amp;#10;    [self.client URLProtocol:self didReceiveResponse:response cacheStoragePolicy:NSURLCacheStorageNotAllowed];&amp;#10;&amp;#125;&amp;#10;&amp;#10;- (void) connection:(NSURLConnection *)connection didReceiveData:(NSData *)data &amp;#123;&amp;#10;    [self.client URLProtocol:self didLoadData:data];&amp;#10;&amp;#125;&amp;#10;&amp;#10;- (void) connectionDidFinishLoading:(NSURLConnection *)connection &amp;#123;&amp;#10;    [self.client URLProtocolDidFinishLoading:self];&amp;#10;&amp;#125;&amp;#10;&amp;#10;- (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error &amp;#123;&amp;#10;    [self.client URLProtocol:self didFailWithError:error];&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;现在你已经可以截取request并做你想做的事了，这里有个&lt;a href=&quot;https://github.com/FreeMind-LJ/NSURLProtocolExample&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;demo&lt;/a&gt;可以参考一下，截取request并重新定向到新的地址，具体dns解析方法可以参看&lt;a href=&quot;http://www.jianshu.com/p/d945454e3abc&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;DNS解析)&lt;/a&gt; ，如有不对，欢迎指正，哈～&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;  最近在项目里由于电信那边发生dns发生域名劫持，因此需要手动将URL请求的域名重定向到指定的IP地址，但是由于请求可能是通过NSURLConnection,NSURLSession或者AFNetworking等方式，因此要想统一进行处理，一开始是想通过Method Swizzling去hook cfnetworking底层方法，后来发现其实有个更好的方法–NSURLProtocol。&lt;/p&gt;
+&lt;h2 id=&quot;NSURLProtocol&quot;&gt;&lt;a href=&quot;#NSURLProtocol&quot; class=&quot;headerlink&quot; title=&quot;NSURLProtocol&quot;&gt;&lt;/a&gt;NSURLProtocol&lt;/h2&gt;&lt;p&gt;  NSURLProtocol能够让你去重新定义苹果的&lt;a href=&quot;https://developer.apple.com/library/ios/documentation/Cocoa/Conceptual/URLLoadingSystem/URLLoadingSystem.html#//apple_ref/doc/uid/10000165-BCICJDHA&quot;&gt;URL加载系统&lt;/a&gt; (URL Loading System)的行为，URL Loading System里有许多类用于处理URL请求，比如NSURL，NSURLRequest，NSURLConnection和NSURLSession等，当URL Loading System使用NSURLRequest去获取资源的时候，它会创建一个NSURLProtocol子类的实例，你不应该直接实例化一个NSURLProtocol，NSURLProtocol看起来像是一个协议，但其实这是一个类，而且必须使用该类的子类，并且需要被注册。&lt;/p&gt;
+&lt;h2 id=&quot;使用场景&quot;&gt;&lt;a href=&quot;#使用场景&quot; class=&quot;headerlink&quot; title=&quot;使用场景&quot;&gt;&lt;/a&gt;使用场景&lt;/h2&gt;&lt;p&gt;  不管你是通过UIWebView, NSURLConnection 或者第三方库 (AFNetworking, MKNetworkKit等)，他们都是基于NSURLConnection或者 NSURLSession实现的，因此你可以通过NSURLProtocol做自定义的操作。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;重定向网络请求&lt;/li&gt;
+&lt;li&gt;忽略网络请求，使用本地缓存&lt;/li&gt;
+&lt;li&gt;自定义网络请求的返回结果&lt;/li&gt;
+&lt;li&gt;一些全局的网络请求设置&lt;/li&gt;
+&lt;/ul&gt;
+    
+    </summary>
+    
+      <category term="tech" scheme="http://freemind-lj.github.io/categories/tech/"/>
+    
+    
+      <category term="iOS开发" scheme="http://freemind-lj.github.io/tags/iOS%E5%BC%80%E5%8F%91/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Xcode中统计代码覆盖率</title>
+    <link href="http://freemind-lj.github.io/2015/06/11/Xcode%E4%B8%AD%E7%BB%9F%E8%AE%A1%E4%BB%A3%E7%A0%81%E8%A6%86%E7%9B%96%E7%8E%87/"/>
+    <id>http://freemind-lj.github.io/2015/06/11/Xcode中统计代码覆盖率/</id>
+    <published>2015-06-11T11:31:20.000Z</published>
+    <updated>2016-02-15T01:32:46.000Z</updated>
+    
+    <content type="html">&lt;p&gt;  最近在项目里需要在单元测试时统计一下&lt;a href=&quot;http://www.cnblogs.com/coderzh/archive/2009/03/29/1424344.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;代码覆盖率&lt;/a&gt;，其实就是被用来作为测量单元测试的指标，看看测试的代码覆盖到多广的范围，下面介绍一下如何统计单元测试的代码覆盖率：&lt;/p&gt;
+&lt;h4 id=&quot;下载工具&quot;&gt;&lt;a href=&quot;#下载工具&quot; class=&quot;headerlink&quot; title=&quot;下载工具&quot;&gt;&lt;/a&gt;下载工具&lt;/h4&gt;&lt;p&gt;  主要采用&lt;a href=&quot;https://github.com/jonreid/XcodeCoverage&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;XcodeCoverage&lt;/a&gt;工具，它可以将代码覆盖的结果以html的形式展现，方便我们查看，可以采用pod的方式安装:&lt;br&gt;&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;pod &amp;#39;XcodeCoverage&amp;#39;, &amp;#39;~&amp;#62;1.0&amp;#39;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
+&lt;h4 id=&quot;工程配置&quot;&gt;&lt;a href=&quot;#工程配置&quot; class=&quot;headerlink&quot; title=&quot;工程配置&quot;&gt;&lt;/a&gt;工程配置&lt;/h4&gt;&lt;p&gt;pod安装后需要配置工程：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;设置 Build Settings&lt;br&gt;需要设置两个地方，找到 “Generate Test Coverage Files”和“Instrument Program Flow”两个选项，分别设置Debug下为YES：&lt;/li&gt;
+&lt;/ul&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;p&gt;![&lt;br&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-1b738a966be64129.png&quot; alt=&quot;屏幕快照 2015-06-11 下午5.47.01.png&quot;&gt;&lt;/p&gt;
+&lt;p&gt;](&lt;a href=&quot;http://upload-images.jianshu.io/upload_images/458529-ad6665fef33cbe69.png&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://upload-images.jianshu.io/upload_images/458529-ad6665fef33cbe69.png&lt;/a&gt;)&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;设置 Build Phases&lt;br&gt;点击New Run Script Phase，编辑使其运行Pods/XcodeCoverage/exportenv.sh脚本：&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-c39a669f87c55f42.png&quot; alt=&quot;添加运行脚本&quot;&gt;&lt;/p&gt;
+&lt;h4 id=&quot;RUN&quot;&gt;&lt;a href=&quot;#RUN&quot; class=&quot;headerlink&quot; title=&quot;RUN&quot;&gt;&lt;/a&gt;RUN&lt;/h4&gt;&lt;p&gt;工程配置完后，开始跑单元测试例。跑完测试例后，打开终端，cd进入到XcodeCoverage目录，运行如下脚本：&lt;br&gt;&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;./getcov --show&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;然后你就可以在浏览器中查看你的代码覆盖率结果。&lt;/p&gt;
+&lt;h4 id=&quot;example&quot;&gt;&lt;a href=&quot;#example&quot; class=&quot;headerlink&quot; title=&quot;example&quot;&gt;&lt;/a&gt;example&lt;/h4&gt;&lt;p&gt;下面假设你要测试一个getMaxNumber功能，代码如下：&lt;/p&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;@implementation MaxNumber&amp;#10;&amp;#10;+(int)getMaxNumber:(int)a b:(int)b c:(int)c&amp;#10;&amp;#123;&amp;#10;    if(a &amp;#62; b)&amp;#123;&amp;#10;        if(a &amp;#62; c)&amp;#123;&amp;#10;            return a;&amp;#10;        &amp;#125;else&amp;#123;&amp;#10;            return c;&amp;#10;        &amp;#125;&amp;#10;    &amp;#125;else&amp;#123;&amp;#10;        if(b &amp;#62; c)&amp;#123;&amp;#10;            return b;&amp;#10;        &amp;#125;else&amp;#123;&amp;#10;            return c;&amp;#10;        &amp;#125;&amp;#10;    &amp;#125;&amp;#10;&amp;#125;&amp;#10;&amp;#10;@end&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;首先添加一个单元测试：&lt;/p&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;-(void)testGetMax&amp;#10;&amp;#123;&amp;#10;    XCTAssertEqual(3, [MaxNumber getMaxNumber:1 b:2 c:3]);&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;运行完该测试例后，运行脚本./getcov –show，便可以看到如下结果：&lt;br&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-5f0438666b08c82f.png&quot; alt=&quot;不完全覆盖&quot;&gt;&lt;br&gt;其中的红色表示测试例没有覆盖到的地方。下面增加三个测试例&lt;br&gt;&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;-(void)testGetMax&amp;#10;&amp;#123;&amp;#10;    XCTAssertEqual(3, [MaxNumber getMaxNumber:1 b:2 c:3]);&amp;#10;    XCTAssertEqual(3, [MaxNumber getMaxNumber:2 b:1 c:3]);&amp;#10;    XCTAssertEqual(3, [MaxNumber getMaxNumber:3 b:2 c:1]);&amp;#10;    XCTAssertEqual(3, [MaxNumber getMaxNumber:1 b:3 c:2]);&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;测试例修改之后，需要先运行cleancov脚本(如果工程里面的代码修改了，需要clean product)，然后再运行脚本./getcov –show查看结果：&lt;br&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-67f3fbbc736e2b4b.png&quot; alt=&quot;完全覆盖&quot;&gt;&lt;br&gt;可以看出现在的测试代码已经覆盖到了该函数的所有代码。&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;  最近在项目里需要在单元测试时统计一下&lt;a href=&quot;http://www.cnblogs.com/coderzh/archive/2009/03/29/1424344.html&quot;&gt;代码覆盖率&lt;/a&gt;，其实就是被用来作为测量单元测试的指标，看看测试的代码覆盖到多广的范围，下面介绍一下如何统计单元测试的代码覆盖率：&lt;/p&gt;
+&lt;h4 id=&quot;下载工具&quot;&gt;&lt;a href=&quot;#下载工具&quot; class=&quot;headerlink&quot; title=&quot;下载工具&quot;&gt;&lt;/a&gt;下载工具&lt;/h4&gt;&lt;p&gt;  主要采用&lt;a href=&quot;https://github.com/jonreid/XcodeCoverage&quot;&gt;XcodeCoverage&lt;/a&gt;工具，它可以将代码覆盖的结果以html的形式展现，方便我们查看，可以采用pod的方式安装:&lt;br&gt;&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;pod &amp;#39;XcodeCoverage&amp;#39;, &amp;#39;~&amp;#62;1.0&amp;#39;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
+&lt;h4 id=&quot;工程配置&quot;&gt;&lt;a href=&quot;#工程配置&quot; class=&quot;headerlink&quot; title=&quot;工程配置&quot;&gt;&lt;/a&gt;工程配置&lt;/h4&gt;&lt;p&gt;pod安装后需要配置工程：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;设置 Build Settings&lt;br&gt;需要设置两个地方，找到 “Generate Test Coverage Files”和“Instrument Program Flow”两个选项，分别设置Debug下为YES：&lt;/li&gt;
+&lt;/ul&gt;
+    
+    </summary>
+    
+      <category term="others" scheme="http://freemind-lj.github.io/categories/others/"/>
+    
+    
+      <category term="测试" scheme="http://freemind-lj.github.io/tags/%E6%B5%8B%E8%AF%95/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>ios runtime浅析(三)：Method Swizzling</title>
+    <link href="http://freemind-lj.github.io/2015/06/05/ios-runtime%E6%B5%85%E6%9E%90-%E4%B8%89-%EF%BC%9AMethod-Swizzling/"/>
+    <id>http://freemind-lj.github.io/2015/06/05/ios-runtime浅析-三-：Method-Swizzling/</id>
+    <published>2015-06-05T15:33:10.000Z</published>
+    <updated>2016-02-15T01:34:25.000Z</updated>
+    
+    <content type="html">&lt;p&gt;  看到nshipster 的&lt;a href=&quot;https://github.com/AFNetworking/AFNetworking/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Method Swizzling&lt;/a&gt;这篇不错的文章还没翻译，就补充一下，没有逐字翻译，关于&lt;a href=&quot;http://nshipster.cn/associated-objects/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;associated objects&lt;/a&gt;已经有翻译了，大家也可以去了解一下。&lt;br&gt;  method swizzling也许是runtime中最有争议的技术，它的作用就是改变已经存在selector的实现，之所以可以这样是因为方法调用可以在运行时改变：通过改变类的分发表( dispatch table，该表包含selector的名称及对应实现函数的地址)里selector和实现之间的对应关系。&lt;br&gt;  举个例子，比如你想记录一个iOS应用里每个view controller显示的次数：可以在每个view controller添加记录的代码，但这会导致大量的重复代码；通过继承也是一个方法，但需要同时创建UIViewController, UITableViewController, UINavigationController及其它中view controller的子类，同样也会产生许多重复的代码出现。&lt;br&gt;  幸运的是，在UIViewController的category使用method swizzling：&lt;/p&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;#import &amp;#60;objc/runtime.h&amp;#62;&amp;#10;&amp;#10;@implementation UIViewController (Tracking)&amp;#10;&amp;#10;+ (void)load &amp;#123;&amp;#10;    static dispatch_once_t onceToken;&amp;#10;    dispatch_once(&amp;#38;onceToken, ^&amp;#123;&amp;#10;        Class class = [self class];&amp;#10;&amp;#10;        SEL originalSelector = @selector(viewWillAppear:);&amp;#10;        SEL swizzledSelector = @selector(xxx_viewWillAppear:);&amp;#10;&amp;#10;        Method originalMethod = class_getInstanceMethod(class, originalSelector);&amp;#10;        Method swizzledMethod = class_getInstanceMethod(class, swizzledSelector);&amp;#10;&amp;#10;        // &amp;#22914;&amp;#26524; swizzling &amp;#30340;&amp;#26159;&amp;#31867;&amp;#26041;&amp;#27861;, &amp;#37319;&amp;#29992;&amp;#22914;&amp;#19979;&amp;#30340;&amp;#26041;&amp;#24335;:&amp;#10;        // Class class = object_getClass((id)self);&amp;#10;        // ...&amp;#10;        // Method originalMethod = class_getClassMethod(class, originalSelector);&amp;#10;        // Method swizzledMethod = class_getClassMethod(class, swizzledSelector);&amp;#10;        &amp;#10;        //&amp;#20132;&amp;#25442;&amp;#23454;&amp;#29616;&amp;#10;        method_exchangeImplementations(originalMethod, swizzledMethod);&amp;#10;    &amp;#125;);&amp;#10;&amp;#125;&amp;#10;&amp;#10;#pragma mark - Method Swizzling&amp;#10;&amp;#10;- (void)xxx_viewWillAppear:(BOOL)animated &amp;#123;&amp;#10;    [self xxx_viewWillAppear:animated];&amp;#10;    NSLog(@&amp;#34;viewWillAppear: %@&amp;#34;, self);&amp;#10;&amp;#125;&amp;#10;&amp;#10;@end&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;  现在，当一个UIViewController或者其子类的实例调用viewWillAppear:方法时，就会打印出一条记录。假如要在在view controller的生命周期，view的绘制或者Foundation的网络协议栈注入一些自定的行为，method swizzling也许是你应该考虑的一个方向。&lt;/p&gt;
+&lt;p&gt;下面是使用method swizzling应该注意的点：&lt;/p&gt;
+&lt;h3 id=&quot;load-vs-initialize&quot;&gt;&lt;a href=&quot;#load-vs-initialize&quot; class=&quot;headerlink&quot; title=&quot;+load vs. +initialize&quot;&gt;&lt;/a&gt;+load vs. +initialize&lt;/h3&gt;&lt;h6 id=&quot;Swizzling应该只在load方法中使用&quot;&gt;&lt;a href=&quot;#Swizzling应该只在load方法中使用&quot; class=&quot;headerlink&quot; title=&quot;Swizzling应该只在load方法中使用&quot;&gt;&lt;/a&gt;Swizzling应该只在load方法中使用&lt;/h6&gt;&lt;p&gt;oc会在运行时自动调用每个类的两个方法，+load 会在类初始化加载的时候调用；+initialize方法会在程序调用类的第一个实例或者类方法的时候调用。这两个方法都是可选的，只会在实现的时候才去调用。由于method swizzling会影响到全局的状态，因此最小化竞争条件的出现变得很重要，+load方法能够确保在类的初始化时候调用，这能够保证改变应用行为的一致性，而+initialize在执行时并不提供这种保证，实际上，如果没有直接给这个类发送消息，该方法可能都不会调用到。&lt;/p&gt;
+&lt;h3 id=&quot;dispatch-once&quot;&gt;&lt;a href=&quot;#dispatch-once&quot; class=&quot;headerlink&quot; title=&quot;dispatch_once&quot;&gt;&lt;/a&gt;dispatch_once&lt;/h3&gt;&lt;h4 id=&quot;Swizzling应该只在dispatch-once中完成&quot;&gt;&lt;a href=&quot;#Swizzling应该只在dispatch-once中完成&quot; class=&quot;headerlink&quot; title=&quot;Swizzling应该只在dispatch_once中完成&quot;&gt;&lt;/a&gt;Swizzling应该只在dispatch_once中完成&lt;/h4&gt;&lt;p&gt;如上，由于swizzling会改变全局状态，所以我们需要在运行时采取一些预防措施。原子性就是其中的一种预防措施，因为它能保证不管有多少个线程，代码只会执行一次。GCD的dispatch_once 能够满足这种需求，因此在method swizzling应该将其作为最佳的实践方式。&lt;/p&gt;
+&lt;h3 id=&quot;选择器，方法和实现&quot;&gt;&lt;a href=&quot;#选择器，方法和实现&quot; class=&quot;headerlink&quot; title=&quot;选择器，方法和实现&quot;&gt;&lt;/a&gt;选择器，方法和实现&lt;/h3&gt;&lt;p&gt;在oc中，选择器、方法和实现是运行时的特殊方面，虽然在一般情况下，这些术语是用在消息发送的过程中。&lt;br&gt;下面是Apple对它们的几个描述：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;选择器(Selector-typedef struct objc_selector *SEL )：用于在运行时表示一个方法的名称，一个方法选择器就是一个C字符串，在运行时会被注册或者映射，选择器是由编译器生成的，并在类被加载的时候由运行时自动进行映射。&lt;/li&gt;
+&lt;li&gt;方法(Method-typedef struct objc_method *Method)：在类的定义中代表一个方法的类型。&lt;/li&gt;
+&lt;li&gt;实现(Implementation- typedef id (*IMP)(id, SEL, …))：这是一个指向方法实现函数起始地址的指针，这个函数的第一个参数是指向self的指针，第二个参数是方法选择器，然后是方法的参数。&lt;br&gt;理解它们之间关系的最好方式是：一个类维护着一张分发表(dispatch table)，用来解析运行时发来的消息；该表的每个入口是一个方法(Method)，其中的key就是选择器(SEL)，对应一个实现(IMP)，即一个指向底层c函数的指针。&lt;br&gt;swizzle 一个方法就是改变类的分发表，使它在解析消息的时候，将一个选择器selector对应到别的实现，并且将该选择器对应的原始实现关联到新的选择器中。&lt;h3 id=&quot;调用-cmd&quot;&gt;&lt;a href=&quot;#调用-cmd&quot; class=&quot;headerlink&quot; title=&quot;调用 _cmd&quot;&gt;&lt;/a&gt;调用 _cmd&lt;/h3&gt;看起来下面的代码可能导致无限循环：&lt;/li&gt;
+&lt;/ul&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;- (void)xxx_viewWillAppear:(BOOL)animated &amp;#123;&amp;#10;    [self xxx_viewWillAppear:animated];&amp;#10;    NSLog(@&amp;#34;viewWillAppear: %@&amp;#34;, NSStringFromClass([self class]));&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;可奇怪的是，它并不会。在swizzling的过程中，xxx_viewWillAppear:已经被重新指向UIViewController 的原始实现-viewWillAppear:，但是如果我们在这个方法中调用viewWillAppear:则会导致无限循环。&lt;/p&gt;
+&lt;h3 id=&quot;注意事项&quot;&gt;&lt;a href=&quot;#注意事项&quot; class=&quot;headerlink&quot; title=&quot;注意事项&quot;&gt;&lt;/a&gt;注意事项&lt;/h3&gt;&lt;p&gt;通常认为Swizzling是一个比较危险的技术，容易产生不可预料的行为和无法预见的后果，但只要遵循以下几个注意事项，其实method swizzlin还是相对安全的。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;总是调用一个方法的原始实现(除非你有足够好的理由不这么做):API提供了输入和输出的约定，但其中的实现却是黑盒。Swizzling 一个方法但不去调用其原始实现，可能造成私有状态的底层假设被打破，影响程序的其它部分。&lt;/li&gt;
+&lt;li&gt;避免冲突: 给category方法加前缀，确保不会跟其它依赖的代码产生冲突。&lt;/li&gt;
+&lt;li&gt;知道到底发生啥了：简单的复制粘贴swizzling 代码，而不清楚其如何工作不仅非常危险，而且浪费了好多深入学习objective-c运行时的机会，可以通过查看 &lt;a href=&quot;https://developer.apple.com/library/mac/documentation/Cocoa/Reference/ObjCRuntimeRef/Reference/reference.html#//apple_ref/c/func/method_getImplementation&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Objective-C Runtime Reference&lt;/a&gt; 和&lt;objc runtime.h=&quot;&quot;&gt;头文件了解其中的一些来龙去脉。&lt;/objc&gt;&lt;/li&gt;
+&lt;li&gt;小心的处理：不管你在swizzling Foundation、UIKit或者其它内建framework方法时多么的充满自信，必须清楚在下一个版本这些可能都改变了，所以为了不出差错，还是需要多花点心思的。&lt;/li&gt;
 &lt;/ul&gt;
 </content>
     
     <summary type="html">
     
-      &lt;p&gt;SDWebImageCache管理着SDWebImage的缓存，其中内存缓存采用NSCache，同时会创建一个ioQueue负责对硬盘的读写，并且会添加观察者，在收到内存警告、关闭或进入后台时完成对应的处理:&lt;/p&gt;
-&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;- (id)init &amp;#123;&amp;#10;     _memCache = [[NSCache alloc] init];&amp;#10;     _ioQueue = dispatch_queue_create(&amp;#34;com.hackemist.SDWebImageCache&amp;#34;, DISPATCH_QUEUE_SERIAL);&amp;#10;     //&amp;#25910;&amp;#21040;&amp;#20869;&amp;#23384;&amp;#35686;&amp;#21578;&amp;#26102;&amp;#65292;&amp;#28165;&amp;#38500;NSCache&amp;#65306;[self.memCache removeAllObjects];&amp;#10;     [[NSNotificationCenter defaultCenter] addObserver:self&amp;#10;                                                 selector:@selector(clearMemory)&amp;#10;                                              name:UIApplicationDidReceiveMemoryWarningNotification&amp;#10;                                                   object:nil];&amp;#10;      //&amp;#31243;&amp;#24207;&amp;#20851;&amp;#38381;&amp;#26102;&amp;#65292;&amp;#20250;&amp;#23545;&amp;#30828;&amp;#30424;&amp;#25991;&amp;#20214;&amp;#20570;&amp;#19968;&amp;#20123;&amp;#22788;&amp;#29702;&amp;#10;      [[NSNotificationCenter defaultCenter] addObserver:self&amp;#10;                                                 selector:@selector(cleanDisk)&amp;#10;                                                     name:UIApplicationWillTerminateNotification&amp;#10;                                                   object:nil];&amp;#10;      //&amp;#31243;&amp;#24207;&amp;#36827;&amp;#20837;&amp;#21518;&amp;#21488;&amp;#26102;&amp;#65292;&amp;#20063;&amp;#20250;&amp;#36827;&amp;#34892;&amp;#30828;&amp;#30424;&amp;#25991;&amp;#20214;&amp;#22788;&amp;#29702;&amp;#10;      [[NSNotificationCenter defaultCenter] addObserver:self&amp;#10;                                                 selector:@selector(backgroundCleanDisk)&amp;#10;                                                     name:UIApplicationDidEnterBackgroundNotification&amp;#10;                                                   object:nil];&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+      &lt;p&gt;  看到nshipster 的&lt;a href=&quot;https://github.com/AFNetworking/AFNetworking/&quot;&gt;Method Swizzling&lt;/a&gt;这篇不错的文章还没翻译，就补充一下，没有逐字翻译，关于&lt;a href=&quot;http://nshipster.cn/associated-objects/&quot;&gt;associated objects&lt;/a&gt;已经有翻译了，大家也可以去了解一下。&lt;br&gt;  method swizzling也许是runtime中最有争议的技术，它的作用就是改变已经存在selector的实现，之所以可以这样是因为方法调用可以在运行时改变：通过改变类的分发表( dispatch table，该表包含selector的名称及对应实现函数的地址)里selector和实现之间的对应关系。&lt;br&gt;  举个例子，比如你想记录一个iOS应用里每个view controller显示的次数：可以在每个view controller添加记录的代码，但这会导致大量的重复代码；通过继承也是一个方法，但需要同时创建UIViewController, UITableViewController, UINavigationController及其它中view controller的子类，同样也会产生许多重复的代码出现。&lt;br&gt;  幸运的是，在UIViewController的category使用method swizzling：&lt;/p&gt;
     
     </summary>
     
       <category term="tech" scheme="http://freemind-lj.github.io/categories/tech/"/>
     
     
-      <category term="SDWebimage" scheme="http://freemind-lj.github.io/tags/SDWebimage/"/>
+      <category term="iOS开发" scheme="http://freemind-lj.github.io/tags/iOS%E5%BC%80%E5%8F%91/"/>
     
-      <category term="源码解析" scheme="http://freemind-lj.github.io/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/"/>
+      <category term="runtime" scheme="http://freemind-lj.github.io/tags/runtime/"/>
     
   </entry>
   
   <entry>
-    <title>SDWebImage源码剖析（－）</title>
-    <link href="http://freemind-lj.github.io/2015/05/10/SDWebImage%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90%EF%BC%88%EF%BC%8D%EF%BC%89/"/>
-    <id>http://freemind-lj.github.io/2015/05/10/SDWebImage源码剖析（－）/</id>
-    <published>2015-05-10T04:15:45.000Z</published>
-    <updated>2016-02-14T10:06:23.000Z</updated>
+    <title>ios runtime浅析(二)：消息转发</title>
+    <link href="http://freemind-lj.github.io/2015/06/02/ios-runtime%E6%B5%85%E6%9E%90-%E4%BA%8C-%EF%BC%9A%E6%B6%88%E6%81%AF%E8%BD%AC%E5%8F%91/"/>
+    <id>http://freemind-lj.github.io/2015/06/02/ios-runtime浅析-二-：消息转发/</id>
+    <published>2015-06-02T06:34:48.000Z</published>
+    <updated>2016-02-15T01:35:42.000Z</updated>
     
-    <content type="html">&lt;p&gt;  在开发项目的过程中会用到很多第三方库，比如AFNetWorking,SDWebImage,FMDB等，但一直都没去好好的研究一下，最近刚好项目不是太紧，闲下来可以给自己充充电，先研究一下SDWebImage的底层实现，源码地址：&lt;a href=&quot;https://github.com/rs/SDWebImage&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;SDWebImage&lt;/a&gt;&lt;br&gt;  先介绍一下SDWebImage，我们使用较多的是它提供的UIImageView分类，支持从远程服务器下载并缓存图片。自从iOS5.0开始，NSURLCache也可以处理磁盘缓存，那么SDWebImage的优势在哪？首先NSURLCache是缓存原始数据(raw data)到磁盘或内存，因此每次使用的时候需要将原始数据转换成具体的对象，如UIImage等，这会导致额外的数据解析以及内存占用等，而SDWebImage则是缓存UIImage对象在内存，缓存在NSCache中，同时直接保存压缩过的图片到磁盘中；还有一个问题是当你第一次在UIImageView中使用image对象的时候，图片的解码是在主线程中运行的！而SDWebImage会强制将解码操作放到子线程中。下图是SDWebImage简单的类图关系：&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-c1788a3eb9134b64.png&quot; alt=&quot;SDWebImage.png&quot;&gt;&lt;/p&gt;
-&lt;p&gt;下面从UIImageView的图片加载开始看起，Let’s go!&lt;/p&gt;
+    <content type="html">&lt;p&gt;  如果你给一个对象发送它不认识的消息时，系统会抛出一个错误，但在错误抛出之前，运行时会给改对象发送forwardInvocation:消息，同时传递一个NSInvocation对象作为该消息的参数，NSInvocation对象包封装原始消息和对应的参数。你可以实现forwardInvocation:方法来对不能处理的消息做一些默认的处理，以避免程序崩溃，但正如该函数的名字一样，这个函数主要是用来将消息转发给其它对象。每一个对象都从NSObject类继承了forwardInvocation:方法，但在NSObject中，该方法只是简单的调用doesNotRecognizeSelector:，通过重写该方法你就可以利用forwardInvocation:将消息转发给其它对象。&lt;br&gt;  为了转发一个消息，forwardInvocation:需要做的事：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;确定消息该往哪发&lt;/li&gt;
+&lt;li&gt;同时发送对应的原始参数&lt;br&gt;消息可以通过invokeWithTarget:方法发送：&lt;/li&gt;
+&lt;/ul&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;- (void)forwardInvocation:(NSInvocation *)anInvocation&amp;#10;&amp;#123;&amp;#10;    if ([someOtherObject respondsToSelector:[anInvocation selector]])&amp;#10;        [anInvocation invokeWithTarget:someOtherObject];&amp;#10;    else&amp;#10;       [super forwardInvocation:anInvocation];&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;forwardInvocation:方法可以作为无法认识的消息的分发中心，将它们打包发给不同的接受者，或者作为一个中转站将所有消息发往同一个目的地。它可以将一个消息转换成另外的一个消息，或者只是单纯的把消息“吞下”，不对外响应和抛出错误，forwardInvocation:做什么取决于实现者。&lt;/p&gt;
 &lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
-&lt;p&gt;首先我们在给UIImageView设置图片的时候会调用方法：&lt;br&gt;&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;- (void)sd_setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
-&lt;p&gt;其中url为远程图片的地址，而placeholder为预显示的图片。&lt;br&gt;其实还可以添加一些额外的参数，比如图片选项SDWebImageOptions&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;
-typedef NS_OPTIONS(NSUInteger, SDWebImageOptions) {
-    SDWebImageRetryFailed = 1 &lt;&lt; 0,//下载失败了会再次尝试下载
-    WebImageLowPriority = 1 &lt;&lt; 1,//当UIScrollView等正在滚动时，延迟下载图片（放置scrollView滚动卡）
-    SDWebImageCacheMemoryOnly = 1 &lt;&lt; 2,//只缓存到内存中
-    SDWebImageProgressiveDownload = 1 &lt;&lt; 3,// 图片会边下边显示
-    SDWebImageRefreshCached = 1 &lt;&lt; 4,//将硬盘缓存交给系统自带的NSURLCache去处理
-    SDWebImageContinueInBackground = 1 &lt;&lt; 5,//后台下载
-    SDWebImageHandleCookies = 1 &lt;&lt; 6,// 通过设置NSMutableURLRequest.HTTPShouldHandleCookies = YES来处理存储在NSHTTPCookieStore中的cookie
-    SDWebImageAllowInvalidSSLCertificates = 1 &lt;&lt; 7,// 允许不受信任的SSL证书。主要用于测试目的。
-    SDWebImageHighPriority = 1 &lt;&lt; 8,
-    SDWebImageDelayPlaceholder = 1 &lt;&lt; 9,
-    SDWebImageTransformAnimatedImage = 1 &lt;&lt; 10,
-};
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;一般使用的是SDWebImageRetryFailed | SDWebImageLowPriority，下面看看具体的函数调用：&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;
-- (void)sd_setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageCompletionBlock)completedBlock 
-{
-    [self sd_cancelCurrentImageLoad];//取消正在下载的操作
-    objc_setAssociatedObject(self, &amp;imageURLKey, url, OBJC_ASSOCIATION_RETAIN_NONATOMIC);//关联该view对应的图片URL  
-   /*...*/ 
-    if (url) {
-        __weak UIImageView *wself = self;//防止retain cricle
-        //由SDWebImageManager负责图片的获取
-        id &lt;sdwebimageoperation&gt; operation = [SDWebImageManager.sharedManager downloadImageWithURL:url options:options progress:progressBlock completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
-              /*获取图片到主线层显示*/ 
-        }];
-        [self sd_setImageLoadOperation:operation forKey:@&quot;UIImageViewImageLoad&quot;];
-    } 
-}
-&lt;/sdwebimageoperation&gt;&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;可以看出图片是从服务端、内存或者硬盘获取是由SDWebImageManager管理的，这个类有几个重要的属性：&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;
-@property (strong, nonatomic, readwrite) SDImageCache *imageCache;//负责管理cache，涉及内存缓存和硬盘保存
-@property (strong, nonatomic, readwrite) SDWebImageDownloader *imageDownloader;//负责从网络下载图片
-@property (strong, nonatomic) NSMutableArray *runningOperations;//包含所有当前正在下载的操作对象
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;manager会根据URL先去imageCache中查找对应的图片，如果没有在使用downloader去下载，并在下载完成缓存图片到imageCache，接着看实现：&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;
-- (id &lt;sdwebimageoperation&gt;)downloadImageWithURL:(NSURL *)url options:(SDWebImageOptions)options
-                                        progress:(SDWebImageDownloaderProgressBlock)progressBlock
-                                       completed:(SDWebImageCompletionWithFinishedBlock)completedBlock
- {
-     /*...*/
-    //根据URL生成对应的key，没有特殊处理为[url absoluteString];
-    NSString *key = [self cacheKeyForURL:url];
-    //去imageCache中寻找图片
-    operation.cacheOperation = [self.imageCache queryDiskCacheForKey:key done:^(UIImage *image, SDImageCacheType cacheType) 
-    {
-       /*...*/
-       //如果图片没有找到，或者采用的SDWebImageRefreshCached选项，则从网络下载
-        if ((!image || options &amp; SDWebImageRefreshCached) &amp;&amp; (![self.delegate respondsToSelector:@selector(imageManager:shouldDownloadImageForURL:)] || [self.delegate imageManager:self shouldDownloadImageForURL:url])) {
-                dispatch_main_sync_safe(^{
-                  //如果图片找到了，但是采用的SDWebImageRefreshCached选项，通知获取到了图片，并再次从网络下载，使NSURLCache重新刷新
-                     completedBlock(image, nil, cacheType, YES, url);
-                });
-            }
-            /*下载选项设置*/ 
-            //使用imageDownloader开启网络下载
-            id &lt;sdwebimageoperation&gt; subOperation = [self.imageDownloader downloadImageWithURL:url options:downloaderOptions progress:progressBlock completed:^(UIImage *downloadedImage, NSData *data, NSError *error, BOOL finished) {
-                /*...*/
-               if (downloadedImage &amp;&amp; finished) {
-                     //下载完成后，先将图片保存到imageCache中，然后主线程返回
-                     [self.imageCache storeImage:downloadedImage recalculateFromImage:NO imageData:data forKey:key toDisk:cacheOnDisk];
-                        }
-                     dispatch_main_sync_safe(^{
-                            if (!weakOperation.isCancelled) {
-                                completedBlock(downloadedImage, nil, SDImageCacheTypeNone, finished, url);
-                            }
-                        });
-                    }
-                }
-          /*...*/
-       }
-        else if (image) {
-          //在cache中找到图片了，直接返回
-            dispatch_main_sync_safe(^{
-                if (!weakOperation.isCancelled) {
-                    completedBlock(image, nil, cacheType, YES, url);
-                }
-            });
-        }
-    }];
-    return operation;
-}
-&lt;/sdwebimageoperation&gt;&lt;/sdwebimageoperation&gt;&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;下面先看downloader从网络下载的过程，下载是放在NSOperationQueue中进行的，默认maxConcurrentOperationCount为6，timeout时间为15s：&lt;br&gt;&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;- (id &amp;#60;SDWebImageOperation&amp;#62;)downloadImageWithURL:(NSURL *)url options:(SDWebImageDownloaderOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageDownloaderCompletedBlock)completedBlock &amp;#123;&amp;#10;    __block SDWebImageDownloaderOperation *operation;&amp;#10;    __weak SDWebImageDownloader *wself = self;&amp;#10;    /*...*/&amp;#10;    //&amp;#38450;&amp;#27490;NSURLCache&amp;#21644;SDImageCache&amp;#37325;&amp;#22797;&amp;#32531;&amp;#23384;&amp;#10;    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url cachePolicy:(options &amp;#38; SDWebImageDownloaderUseNSURLCache ? NSURLRequestUseProtocolCachePolicy :NSURLRequestReloadIgnoringLocalCacheData) timeoutInterval:timeoutInterval];&amp;#10;    request.HTTPShouldHandleCookies = (options &amp;#38; SDWebImageDownloaderHandleCookies);&amp;#10;    request.HTTPShouldUsePipelining = YES;&amp;#10;    request.allHTTPHeaderFields = wself.HTTPHeaders;//&amp;#35774;&amp;#32622;http&amp;#22836;&amp;#37096;&amp;#10;    //SDWebImageDownloaderOperation&amp;#27966;&amp;#29983;&amp;#33258;NSOperation&amp;#65292;&amp;#36127;&amp;#36131;&amp;#22270;&amp;#29255;&amp;#19979;&amp;#36733;&amp;#24037;&amp;#20316;&amp;#10;    operation = [[SDWebImageDownloaderOperation alloc] initWithRequest:request&amp;#10;                                                          options:options&amp;#10;                                                         progress:^(NSInteger receivedSize, NSInteger expectedSize) &amp;#123;&amp;#125;&amp;#10;                                                        completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) &amp;#123;&amp;#125;&amp;#10;                                                        cancelled:^&amp;#123;&amp;#125;];&amp;#10;    operation.shouldDecompressImages = wself.shouldDecompressImages;//&amp;#26159;&amp;#21542;&amp;#38656;&amp;#35201;&amp;#35299;&amp;#30721;&amp;#10;    if (wself.username &amp;#38;&amp;#38; wself.password) &amp;#123;&amp;#10;            operation.credential = [NSURLCredential credentialWithUser:wself.username password:wself.password persistence:NSURLCredentialPersistenceForSession];&amp;#10;    &amp;#125;&amp;#10;    if (options &amp;#38; SDWebImageDownloaderHighPriority) &amp;#123;&amp;#10;            operation.queuePriority = NSOperationQueuePriorityHigh;&amp;#10;        &amp;#125; else if (options &amp;#38; SDWebImageDownloaderLowPriority) &amp;#123;&amp;#10;            operation.queuePriority = NSOperationQueuePriorityLow;&amp;#10;    &amp;#125;&amp;#10;        [wself.downloadQueue addOperation:operation];&amp;#10;        if (wself.executionOrder == SDWebImageDownloaderLIFOExecutionOrder) &amp;#123;&amp;#10;            // &amp;#22914;&amp;#26524;&amp;#19979;&amp;#36733;&amp;#39034;&amp;#24207;&amp;#26159;&amp;#21518;&amp;#38754;&amp;#28155;&amp;#21152;&amp;#30340;&amp;#20808;&amp;#36816;&amp;#34892;&amp;#10;            [wself.lastAddedOperation addDependency:operation];&amp;#10;            wself.lastAddedOperation = operation;&amp;#10;        &amp;#125;&amp;#10;    &amp;#125;];&amp;#10;    return operation;&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
-&lt;p&gt;SDWebImageDownloaderOperation派生自NSOperation，通过NSURLConnection进行图片的下载，为了确保能够处理下载的数据，需要在后台运行runloop：&lt;br&gt;&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;- (void)start &amp;#123;&amp;#10;&amp;#160; /*...*/&amp;#10;#if TARGET_OS_IPHONE &amp;#38;&amp;#38; __IPHONE_OS_VERSION_MAX_ALLOWED &amp;#62;= __IPHONE_4_0&amp;#10;        //&amp;#24320;&amp;#21551;&amp;#21518;&amp;#21488;&amp;#19979;&amp;#36733;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; if ([self shouldContinueWhenAppEntersBackground]) &amp;#123;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; __weak __typeof__ (self) wself = self;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; self.backgroundTaskId = [[UIApplication sharedApplication] beginBackgroundTaskWithExpirationHandler:^&amp;#123;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; __strong __typeof (wself) sself = wself;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; if (sself) &amp;#123;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; [sself cancel];&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; [[UIApplication sharedApplication] endBackgroundTask:sself.backgroundTaskId];&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; sself.backgroundTaskId = UIBackgroundTaskInvalid;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#125;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#125;];&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#125;&amp;#10;#endif&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; self.executing = YES;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; self.connection = [[NSURLConnection alloc] initWithRequest:self.request delegate:self startImmediately:NO];&amp;#10;&amp;#160; &amp;#160; &amp;#125;&amp;#10;&amp;#160; &amp;#160; [self.connection start];&amp;#10;&amp;#10;&amp;#160; &amp;#160; if (self.connection) &amp;#123;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; if (self.progressBlock) &amp;#123;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; self.progressBlock(0, NSURLResponseUnknownLength);&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#125;&amp;#10;       //&amp;#22312;&amp;#20027;&amp;#32447;&amp;#31243;&amp;#21457;&amp;#36890;&amp;#30693;&amp;#65292;&amp;#36825;&amp;#26679;&amp;#20063;&amp;#20445;&amp;#35777;&amp;#22312;&amp;#20027;&amp;#32447;&amp;#31243;&amp;#25910;&amp;#21040;&amp;#36890;&amp;#30693;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; dispatch_async(dispatch_get_main_queue(), ^&amp;#123;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; [[NSNotificationCenter defaultCenter] postNotificationName:SDWebImageDownloadStartNotification object:self];&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#125;);&amp;#10;       CFRunLoopRun();//&amp;#22312;&amp;#40664;&amp;#35748;&amp;#27169;&amp;#24335;&amp;#19979;&amp;#36816;&amp;#34892;&amp;#24403;&amp;#21069;runlooprun&amp;#65292;&amp;#30452;&amp;#21040;&amp;#35843;&amp;#29992;CFRunLoopStop&amp;#20572;&amp;#27490;&amp;#36816;&amp;#34892;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; if (!self.isFinished) &amp;#123;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; [self.connection cancel];&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; [self connection:self.connection didFailWithError:[NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorTimedOut userInfo:@&amp;#123;NSURLErrorFailingURLErrorKey : self.request.URL&amp;#125;]];&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#125;&amp;#10;&amp;#160; &amp;#160; &amp;#125;&amp;#10;#if TARGET_OS_IPHONE &amp;#38;&amp;#38; __IPHONE_OS_VERSION_MAX_ALLOWED &amp;#62;= __IPHONE_4_0&amp;#10;&amp;#160; &amp;#160; if (self.backgroundTaskId != UIBackgroundTaskInvalid) &amp;#123;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; [[UIApplication sharedApplication] endBackgroundTask:self.backgroundTaskId];&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; self.backgroundTaskId = UIBackgroundTaskInvalid;&amp;#10;&amp;#160; &amp;#160; &amp;#125;&amp;#10;#endif&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
-&lt;p&gt;下载过程中，在代理 － (void)connection:(NSURLConnection &lt;em&gt;)connection didReceiveData:(NSData &lt;/em&gt;)data中将接收到的数据保存到NSMutableData中，[self.imageData appendData:data]，下载完成后在该线程完成图片的解码，并在完成的completionBlock中进行imageCache的缓存：&lt;/p&gt;
-&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;- (void)connectionDidFinishLoading:(NSURLConnection *)aConnection &amp;#123;&amp;#10;    SDWebImageDownloaderCompletedBlock completionBlock = self.completedBlock;&amp;#10;    @synchronized(self) &amp;#123;&amp;#10;        CFRunLoopStop(CFRunLoopGetCurrent());//&amp;#20572;&amp;#27490;&amp;#24403;&amp;#21069;&amp;#23545;runloop&amp;#10;        /*...*/&amp;#10;        if (completionBlock) &amp;#123;&amp;#10;            /*...*/&amp;#10;            UIImage *image = [UIImage sd_imageWithData:self.imageData];&amp;#10;            NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:self.request.URL];&amp;#10;            image = [self scaledImageForKey:key image:image];&amp;#10;            &amp;#10;              // Do not force decoding animated GIFs&amp;#10;             if (!image.images) &amp;#123;&amp;#10;                 if (self.shouldDecompressImages) &amp;#123;&amp;#10;                    image = [UIImage decodedImageWithImage:image];//&amp;#22270;&amp;#29255;&amp;#35299;&amp;#30721;&amp;#10;                &amp;#125;&amp;#10;            &amp;#125;&amp;#10;            if (CGSizeEqualToSize(image.size, CGSizeZero)) &amp;#123;&amp;#10;                completionBlock(nil, nil, [NSError errorWithDomain:@&amp;#34;SDWebImageErrorDomain&amp;#34; code:0 userInfo:@&amp;#123;NSLocalizedDescriptionKey : @&amp;#34;Downloaded image has 0 pixels&amp;#34;&amp;#125;], YES);&amp;#10;            &amp;#125;&amp;#10;            else &amp;#123;&amp;#10;                completionBlock(image, self.imageData, nil, YES);&amp;#10;            &amp;#125;&amp;#10;        &amp;#125;&amp;#10;    &amp;#125;&amp;#10;    self.completionBlock = nil;&amp;#10;    [self done];&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;</content>
+&lt;h3 id=&quot;转发和多继承&quot;&gt;&lt;a href=&quot;#转发和多继承&quot; class=&quot;headerlink&quot; title=&quot;转发和多继承&quot;&gt;&lt;/a&gt;转发和多继承&lt;/h3&gt;&lt;p&gt;  转发有点像模仿继承，一个对象通过转发响应一个消息，看起来像是继承了其它类实现的方法。&lt;br&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-118ba17fd9465f82.png&quot; alt=&quot;转发&quot;&gt;&lt;br&gt;如上图所示，一个Warrior类的实例转发一条negotiate消息到Diplomat类的实例，使得Warrior看起来能够像Diplomat一样进行negotiate。&lt;br&gt;通过转发消息的对象从而从两个继承体系分支“继承”了方法：原本的继承分支和通过响应消息。在上面的例子中，Warrior看起来好像继承自Diplomat和它的父类。然而转发跟继承有一个重要的区别：继承将不同的功能集合到一个对象；而转发是将不同的功能分配给不同的对象，它将一个问题分解成小的对象，然后通过一种对消息发送者透明的方式把这些对象关联起来。&lt;br&gt;虽然转发能够模仿继承，但是NSObject类不会因为这两个困惑，类似 respondsToSelector: 和 isKindOfClass: 方法只会查看它的继承体系，不会去查看转发链，比如下面查看Warrior能否响应negotiate消息：&lt;br&gt;&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;if ( [aWarrior respondsToSelector:@selector(negotiate)] )&amp;#10;    ...&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;答案永远是NO，即便它能够通过将该消息转发给Diplomat而响应该消息且不会抛出错误。&lt;br&gt;  同时在调用forwardInvocation:之前，需要先调用methodSignatureForSelector:获取指定selector的方法签名：&lt;br&gt;&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;- (NSMethodSignature*)methodSignatureForSelector:(SEL)selector&amp;#10;&amp;#123;&amp;#10;    NSMethodSignature* signature = [super methodSignatureForSelector:selector];&amp;#10;    if (!signature) &amp;#123;&amp;#10;       signature = [surrogate methodSignatureForSelector:selector];&amp;#10;    &amp;#125;&amp;#10;    return signature;&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;示例：&lt;br&gt;&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;@interface ForwardClass : NSObject &amp;#10;-(void)doSomethingElse;&amp;#10;@end&amp;#10;&amp;#10;@implementation ForwardClass&amp;#10;&amp;#10;-(void)doSomethingElse&amp;#10; &amp;#123;&amp;#10;    NSLog(@&amp;#34;doSomething was called on %@&amp;#34;, [self class]);&amp;#10;&amp;#125;&amp;#10;@end&amp;#10;&amp;#10;@interface SomeClass : NSObject &amp;#10;&amp;#123;&amp;#10;    id forwardClass;&amp;#10;&amp;#125;&amp;#10;&amp;#10;-(void)doSomething;&amp;#10;&amp;#10;@end&amp;#10;&amp;#10;@implementation SomeClass&amp;#10;&amp;#10;-(id)init&amp;#10; &amp;#123;&amp;#10;    if (self = [super init]) &amp;#123;&amp;#10;        forwardClass = [ForwardClass new];&amp;#10;    &amp;#125;&amp;#10;    return self;&amp;#10;&amp;#125;&amp;#10;&amp;#10;-(void)doSomething&amp;#10; &amp;#123;&amp;#10;    NSLog(@&amp;#34;doSomething was called on %@&amp;#34;, [self class]);&amp;#10;&amp;#125;&amp;#10;&amp;#10;-(void)forwardInvocation:(NSInvocation *)invocation&amp;#10; &amp;#123;&amp;#10;    if (! forwardClass) &amp;#123;&amp;#10;        [self doesNotRecognizeSelector: [invocation selector]];&amp;#10;    &amp;#125;&amp;#10;    [invocation invokeWithTarget: forwardClass];&amp;#10;&amp;#125;&amp;#10;&amp;#10;-(NSMethodSignature*)methodSignatureForSelector:(SEL)selector&amp;#10; &amp;#123;&amp;#10;    NSMethodSignature *signature = [super methodSignatureForSelector:selector];&amp;#10;    if (! signature) &amp;#123;&amp;#10;        //&amp;#29983;&amp;#25104;&amp;#26041;&amp;#27861;&amp;#31614;&amp;#21517;&amp;#10;        signature = [forwardClass methodSignatureForSelector:selector];&amp;#10;    &amp;#125;&amp;#10;    return signature;&amp;#10;&amp;#125;&amp;#10;&amp;#10;@end&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;现在给SomeClass对象发送doSomethingElse消息后程序不会crash了：&lt;br&gt;&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;id someClass = [SomeClass new];&amp;#10;[someClass doSomething];//ForwardTest[1291:56187] doSomething was called on SomeClass&amp;#10;[someClass doSomethingElse];// ForwardTest[1291:56187] doSomething was called on ForwardClass&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;消息转发有很多的用途，比如： &lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;创建一个对象负责把消息转发给一个由其它对象组成的响应链，代理对象会在这个有其它对象组成的集合里寻找能够处理该消息的对象；&lt;/li&gt;
+&lt;li&gt;把一个对象包在一个logger对象里，用来拦截或者纪录一些有趣的消息调用；&lt;/li&gt;
+&lt;li&gt;比如声明类的属性为dynamic，使用自定义的方法来截取和取代由系统自动生成的getter和setter方法。&lt;/li&gt;
+&lt;/ul&gt;
+</content>
     
     <summary type="html">
     
-      &lt;p&gt;  在开发项目的过程中会用到很多第三方库，比如AFNetWorking,SDWebImage,FMDB等，但一直都没去好好的研究一下，最近刚好项目不是太紧，闲下来可以给自己充充电，先研究一下SDWebImage的底层实现，源码地址：&lt;a href=&quot;https://github.com/rs/SDWebImage&quot;&gt;SDWebImage&lt;/a&gt;&lt;br&gt;  先介绍一下SDWebImage，我们使用较多的是它提供的UIImageView分类，支持从远程服务器下载并缓存图片。自从iOS5.0开始，NSURLCache也可以处理磁盘缓存，那么SDWebImage的优势在哪？首先NSURLCache是缓存原始数据(raw data)到磁盘或内存，因此每次使用的时候需要将原始数据转换成具体的对象，如UIImage等，这会导致额外的数据解析以及内存占用等，而SDWebImage则是缓存UIImage对象在内存，缓存在NSCache中，同时直接保存压缩过的图片到磁盘中；还有一个问题是当你第一次在UIImageView中使用image对象的时候，图片的解码是在主线程中运行的！而SDWebImage会强制将解码操作放到子线程中。下图是SDWebImage简单的类图关系：&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-c1788a3eb9134b64.png&quot; alt=&quot;SDWebImage.png&quot;&gt;&lt;/p&gt;
-&lt;p&gt;下面从UIImageView的图片加载开始看起，Let’s go!&lt;/p&gt;
+      &lt;p&gt;  如果你给一个对象发送它不认识的消息时，系统会抛出一个错误，但在错误抛出之前，运行时会给改对象发送forwardInvocation:消息，同时传递一个NSInvocation对象作为该消息的参数，NSInvocation对象包封装原始消息和对应的参数。你可以实现forwardInvocation:方法来对不能处理的消息做一些默认的处理，以避免程序崩溃，但正如该函数的名字一样，这个函数主要是用来将消息转发给其它对象。每一个对象都从NSObject类继承了forwardInvocation:方法，但在NSObject中，该方法只是简单的调用doesNotRecognizeSelector:，通过重写该方法你就可以利用forwardInvocation:将消息转发给其它对象。&lt;br&gt;  为了转发一个消息，forwardInvocation:需要做的事：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;确定消息该往哪发&lt;/li&gt;
+&lt;li&gt;同时发送对应的原始参数&lt;br&gt;消息可以通过invokeWithTarget:方法发送：&lt;/li&gt;
+&lt;/ul&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;- (void)forwardInvocation:(NSInvocation *)anInvocation&amp;#10;&amp;#123;&amp;#10;    if ([someOtherObject respondsToSelector:[anInvocation selector]])&amp;#10;        [anInvocation invokeWithTarget:someOtherObject];&amp;#10;    else&amp;#10;       [super forwardInvocation:anInvocation];&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;forwardInvocation:方法可以作为无法认识的消息的分发中心，将它们打包发给不同的接受者，或者作为一个中转站将所有消息发往同一个目的地。它可以将一个消息转换成另外的一个消息，或者只是单纯的把消息“吞下”，不对外响应和抛出错误，forwardInvocation:做什么取决于实现者。&lt;/p&gt;
     
     </summary>
     
       <category term="tech" scheme="http://freemind-lj.github.io/categories/tech/"/>
     
     
-      <category term="SDWebimage" scheme="http://freemind-lj.github.io/tags/SDWebimage/"/>
+      <category term="iOS开发" scheme="http://freemind-lj.github.io/tags/iOS%E5%BC%80%E5%8F%91/"/>
     
-      <category term="源码解析" scheme="http://freemind-lj.github.io/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/"/>
+      <category term="runtime" scheme="http://freemind-lj.github.io/tags/runtime/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>利用Charles分析iOS app的网络通信</title>
+    <link href="http://freemind-lj.github.io/2015/05/29/%E5%88%A9%E7%94%A8Charles%E5%88%86%E6%9E%90iOS-app%E7%9A%84%E7%BD%91%E7%BB%9C%E9%80%9A%E4%BF%A1/"/>
+    <id>http://freemind-lj.github.io/2015/05/29/利用Charles分析iOS-app的网络通信/</id>
+    <published>2015-05-29T06:36:11.000Z</published>
+    <updated>2016-02-15T01:45:16.000Z</updated>
+    
+    <content type="html">&lt;p&gt;&lt;a href=&quot;http://www.charlesproxy.com/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Charles&lt;/a&gt;，一个非常方便的抓包工具，这次主要介绍一下如何利用Charles分析iOS应用的网络通信，以iOS应用NASA为例（最近对universe有点感兴趣），下面为app的模样：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-a8ef64c58ff1f617.png&quot; alt=&quot;屏幕快照 2015-05-29 下午2.38.34.png&quot;&gt;&lt;/p&gt;
+&lt;p&gt;里面可以查看一些跟太空相关的图片，分析一下如何获取这些图片，但需要手机连接到Mac共享的Wi-Fi上。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;查看Mac的IP地址，比如我机器上的为：192.168.56.160;&lt;/li&gt;
+&lt;li&gt;打开iPhone设置，选择连接的Wi-Fi，设置HTTP代理，选择手动，并设置服务器的Mac的IP地址，端口设为8090;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-e3c8120ab009fec9.png&quot; alt=&quot;手机设置&quot;&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;打开Charles应用，选择菜单“Proxy”-&amp;gt;”Proxy Settings”，设置端口号8090，同时勾选”Enable transparent HTTP proxying” &lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-b2b75d1a503ee7b5.png&quot; alt=&quot;Charles设置&quot;&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;打开NASA应用，Charles开始记录，进入app的Images选项：&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-db5d7079fb49c12e.png&quot; alt=&quot;Charles纪录结果&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/458529-e72abf64693bc572.png&quot; alt=&quot;手机界面&quot;&gt;&lt;/p&gt;
+&lt;p&gt;通过Charles可以看出获取这张图片请求方式为：&lt;br&gt;&lt;a href=&quot;http://mobile.arc.nasa.gov/public/iexplore/images/useradded/320/norfolk_ast_2009316.jpg&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://mobile.arc.nasa.gov/public/iexplore/images/useradded/320/norfolk_ast_2009316.jpg&lt;/a&gt; ，其它的请求信息都可以在Charles中查看。所以假如你自己的应用想要显示NASA的一些图片，你就可以使用这些请求方式了，分析其它应用方法类似。&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;&lt;a href=&quot;http://www.charlesproxy.com/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Charles&lt;/a&gt;，一个非常方便的抓包工具，这次主要介绍一下如何利用Charles分析iOS应用的网络通信，以iOS应用NASA为
+    
+    </summary>
+    
+      <category term="tech" scheme="http://freemind-lj.github.io/categories/tech/"/>
+    
+    
+      <category term="charles" scheme="http://freemind-lj.github.io/tags/charles/"/>
+    
+      <category term="iOS开发" scheme="http://freemind-lj.github.io/tags/iOS%E5%BC%80%E5%8F%91/"/>
     
   </entry>
   

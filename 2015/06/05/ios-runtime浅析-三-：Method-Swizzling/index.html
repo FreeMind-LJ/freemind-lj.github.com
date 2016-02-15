@@ -1,0 +1,307 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>ios runtime浅析(三)：Method Swizzling | 树下的老男孩</title>
+  <meta name="author" content="树下的老男孩">
+  
+  <meta name="description" content="看到nshipster 的Method Swizzling这篇不错的文章还没翻译，就补充一下，没有逐字翻译，关于associated objects已经有翻译了，大家也可以去了解一下。  method swizzling也许是runtime中最有争议的技术，它的作用就是改变已经存在selector的实现，之所以可以这样是因为方法调用可以在运行时改变：通过改变类的分发表( dispatch table，该表包含selector的名称及对应实现函数的地址)里selector和实现之间的对应关系。  举个例子，比如你想记录一个iOS应用里每个view controller显示的次数：可以在每个view controller添加记录的代码，但这会导致大量的重复代码；通过继承也是一个方法，但需要同时创建UIViewController, UITableViewController, UINavigationController及其它中view controller的子类，同样也会产生许多重复的代码出现。  幸运的是，在UIViewController的category使用method swizzling：">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="ios runtime浅析(三)：Method Swizzling"/>
+  <meta property="og:site_name" content="树下的老男孩"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="树下的老男孩" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  <script src="/js/jquery.min.js"></script>
+  
+<script type="text/javascript">
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-45019001-1', 'topdna.org');
+  ga('send', 'pageview');
+
+</script>
+
+
+</head>
+
+
+<body>
+  <!--[if lte IE 8]> <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'> <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode"><img src="http://storage.ie6countdown.com/assets/100/images/banners/warning_bar_0027_Simplified Chinese.jpg" border="0" height="42" width="820" alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today." style='margin-left:auto;margin-right:auto;display: block;'/></a></div> <![endif]-->
+  <header id="header" class="inner"><div class="alignleft">
+  <h1><a href="/">树下的老男孩</a></h1>
+  <h2><a href="/">工匠之行，在行动中体悟修行的乐趣</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">首页</a></li>
+    
+      <li><a href="/categories/tech/">技术</a></li>
+    
+      <li><a href="/categories/others/">其它</a></li>
+    
+      <li><a href="/archives">归档</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div></header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+    <div class="gallery">
+  <div class="photoset">
+    
+      <img src="">
+    
+  </div>
+  <div class="control">
+    <div class="prev"></div>
+    <div class="next"></div>
+  </div>
+</div>
+  
+  <div class="post-content">
+    <header>
+      
+        <time datetime="2015-06-05T15:33:10.000Z"><a href="/2015/06/05/ios-runtime浅析-三-：Method-Swizzling/">2015-06-05</a></time>
+      
+      
+  
+    <h1 class="title">ios runtime浅析(三)：Method Swizzling</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>  看到nshipster 的<a href="https://github.com/AFNetworking/AFNetworking/" target="_blank" rel="external">Method Swizzling</a>这篇不错的文章还没翻译，就补充一下，没有逐字翻译，关于<a href="http://nshipster.cn/associated-objects/" target="_blank" rel="external">associated objects</a>已经有翻译了，大家也可以去了解一下。<br>  method swizzling也许是runtime中最有争议的技术，它的作用就是改变已经存在selector的实现，之所以可以这样是因为方法调用可以在运行时改变：通过改变类的分发表( dispatch table，该表包含selector的名称及对应实现函数的地址)里selector和实现之间的对应关系。<br>  举个例子，比如你想记录一个iOS应用里每个view controller显示的次数：可以在每个view controller添加记录的代码，但这会导致大量的重复代码；通过继承也是一个方法，但需要同时创建UIViewController, UITableViewController, UINavigationController及其它中view controller的子类，同样也会产生许多重复的代码出现。<br>  幸运的是，在UIViewController的category使用method swizzling：</p>
+<a id="more"></a>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">#import &#60;objc/runtime.h&#62;&#10;&#10;@implementation UIViewController (Tracking)&#10;&#10;+ (void)load &#123;&#10;    static dispatch_once_t onceToken;&#10;    dispatch_once(&#38;onceToken, ^&#123;&#10;        Class class = [self class];&#10;&#10;        SEL originalSelector = @selector(viewWillAppear:);&#10;        SEL swizzledSelector = @selector(xxx_viewWillAppear:);&#10;&#10;        Method originalMethod = class_getInstanceMethod(class, originalSelector);&#10;        Method swizzledMethod = class_getInstanceMethod(class, swizzledSelector);&#10;&#10;        // &#22914;&#26524; swizzling &#30340;&#26159;&#31867;&#26041;&#27861;, &#37319;&#29992;&#22914;&#19979;&#30340;&#26041;&#24335;:&#10;        // Class class = object_getClass((id)self);&#10;        // ...&#10;        // Method originalMethod = class_getClassMethod(class, originalSelector);&#10;        // Method swizzledMethod = class_getClassMethod(class, swizzledSelector);&#10;        &#10;        //&#20132;&#25442;&#23454;&#29616;&#10;        method_exchangeImplementations(originalMethod, swizzledMethod);&#10;    &#125;);&#10;&#125;&#10;&#10;#pragma mark - Method Swizzling&#10;&#10;- (void)xxx_viewWillAppear:(BOOL)animated &#123;&#10;    [self xxx_viewWillAppear:animated];&#10;    NSLog(@&#34;viewWillAppear: %@&#34;, self);&#10;&#125;&#10;&#10;@end</span><br></pre></td></tr></table></figure>
+<p>  现在，当一个UIViewController或者其子类的实例调用viewWillAppear:方法时，就会打印出一条记录。假如要在在view controller的生命周期，view的绘制或者Foundation的网络协议栈注入一些自定的行为，method swizzling也许是你应该考虑的一个方向。</p>
+<p>下面是使用method swizzling应该注意的点：</p>
+<h3 id="load-vs-initialize"><a href="#load-vs-initialize" class="headerlink" title="+load vs. +initialize"></a>+load vs. +initialize</h3><h6 id="Swizzling应该只在load方法中使用"><a href="#Swizzling应该只在load方法中使用" class="headerlink" title="Swizzling应该只在load方法中使用"></a>Swizzling应该只在load方法中使用</h6><p>oc会在运行时自动调用每个类的两个方法，+load 会在类初始化加载的时候调用；+initialize方法会在程序调用类的第一个实例或者类方法的时候调用。这两个方法都是可选的，只会在实现的时候才去调用。由于method swizzling会影响到全局的状态，因此最小化竞争条件的出现变得很重要，+load方法能够确保在类的初始化时候调用，这能够保证改变应用行为的一致性，而+initialize在执行时并不提供这种保证，实际上，如果没有直接给这个类发送消息，该方法可能都不会调用到。</p>
+<h3 id="dispatch-once"><a href="#dispatch-once" class="headerlink" title="dispatch_once"></a>dispatch_once</h3><h4 id="Swizzling应该只在dispatch-once中完成"><a href="#Swizzling应该只在dispatch-once中完成" class="headerlink" title="Swizzling应该只在dispatch_once中完成"></a>Swizzling应该只在dispatch_once中完成</h4><p>如上，由于swizzling会改变全局状态，所以我们需要在运行时采取一些预防措施。原子性就是其中的一种预防措施，因为它能保证不管有多少个线程，代码只会执行一次。GCD的dispatch_once 能够满足这种需求，因此在method swizzling应该将其作为最佳的实践方式。</p>
+<h3 id="选择器，方法和实现"><a href="#选择器，方法和实现" class="headerlink" title="选择器，方法和实现"></a>选择器，方法和实现</h3><p>在oc中，选择器、方法和实现是运行时的特殊方面，虽然在一般情况下，这些术语是用在消息发送的过程中。<br>下面是Apple对它们的几个描述：</p>
+<ul>
+<li>选择器(Selector-typedef struct objc_selector *SEL )：用于在运行时表示一个方法的名称，一个方法选择器就是一个C字符串，在运行时会被注册或者映射，选择器是由编译器生成的，并在类被加载的时候由运行时自动进行映射。</li>
+<li>方法(Method-typedef struct objc_method *Method)：在类的定义中代表一个方法的类型。</li>
+<li>实现(Implementation- typedef id (*IMP)(id, SEL, …))：这是一个指向方法实现函数起始地址的指针，这个函数的第一个参数是指向self的指针，第二个参数是方法选择器，然后是方法的参数。<br>理解它们之间关系的最好方式是：一个类维护着一张分发表(dispatch table)，用来解析运行时发来的消息；该表的每个入口是一个方法(Method)，其中的key就是选择器(SEL)，对应一个实现(IMP)，即一个指向底层c函数的指针。<br>swizzle 一个方法就是改变类的分发表，使它在解析消息的时候，将一个选择器selector对应到别的实现，并且将该选择器对应的原始实现关联到新的选择器中。<h3 id="调用-cmd"><a href="#调用-cmd" class="headerlink" title="调用 _cmd"></a>调用 _cmd</h3>看起来下面的代码可能导致无限循环：</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- (void)xxx_viewWillAppear:(BOOL)animated &#123;&#10;    [self xxx_viewWillAppear:animated];&#10;    NSLog(@&#34;viewWillAppear: %@&#34;, NSStringFromClass([self class]));&#10;&#125;</span><br></pre></td></tr></table></figure>
+<p>可奇怪的是，它并不会。在swizzling的过程中，xxx_viewWillAppear:已经被重新指向UIViewController 的原始实现-viewWillAppear:，但是如果我们在这个方法中调用viewWillAppear:则会导致无限循环。</p>
+<h3 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h3><p>通常认为Swizzling是一个比较危险的技术，容易产生不可预料的行为和无法预见的后果，但只要遵循以下几个注意事项，其实method swizzlin还是相对安全的。</p>
+<ul>
+<li>总是调用一个方法的原始实现(除非你有足够好的理由不这么做):API提供了输入和输出的约定，但其中的实现却是黑盒。Swizzling 一个方法但不去调用其原始实现，可能造成私有状态的底层假设被打破，影响程序的其它部分。</li>
+<li>避免冲突: 给category方法加前缀，确保不会跟其它依赖的代码产生冲突。</li>
+<li>知道到底发生啥了：简单的复制粘贴swizzling 代码，而不清楚其如何工作不仅非常危险，而且浪费了好多深入学习objective-c运行时的机会，可以通过查看 <a href="https://developer.apple.com/library/mac/documentation/Cocoa/Reference/ObjCRuntimeRef/Reference/reference.html#//apple_ref/c/func/method_getImplementation" target="_blank" rel="external">Objective-C Runtime Reference</a> 和<objc runtime.h="">头文件了解其中的一些来龙去脉。</objc></li>
+<li>小心的处理：不管你在swizzling Foundation、UIKit或者其它内建framework方法时多么的充满自信，必须清楚在下一个版本这些可能都改变了，所以为了不出差错，还是需要多花点心思的。</li>
+</ul>
+
+      
+    </div>
+    <footer>
+      
+
+        
+          <div class="alignleft post-nav">
+            <em>上一篇: </em><a href="/2015/06/11/Xcode中统计代码覆盖率/">Xcode中统计代码覆盖率</a>
+          </div>
+        
+        
+          <div class="alignright post-nav">
+            <em>下一篇: </em><a href="/2015/06/02/ios-runtime浅析-二-：消息转发/">ios runtime浅析(二)：消息转发</a>
+          </div>
+          <div class="clearfix"></div>
+        
+
+        
+          <div class="copyright">
+            
+              <span class="claim">版权声明：自由转载-非商用-保持署名  树下的老男孩</span>
+            
+            
+              <span class="from-link">
+                <em>本文链接地址:</em>
+                <a href="/2015/06/05/ios-runtime浅析-三-：Method-Swizzling/">
+                  http://freemind-lj.github.io/2015/06/05/ios-runtime浅析-三-：Method-Swizzling/
+                </a>
+              </span>
+            
+          </div>
+        
+        
+  
+  <div class="categories">
+    <a href="/categories/tech/">tech</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/iOS开发/">iOS开发</a>, <a href="/tags/runtime/">runtime</a>
+  </div>
+
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+<!-- Duoshuo Comment BEGIN -->
+<div class="ds-thread"></div>
+<script type="text/javascript">
+  var duoshuoQuery = {short_name: 'treeboy' };
+  (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';
+      ds.async = true;
+      ds.src = 'http://static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0] 
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script>
+<!-- Duoshuo Comment END -->
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="text" name="q" results="0" placeholder="搜一下">
+    <i class="icon-search"></i>
+    <input type="hidden" name="q" value="site:freemind-lj.github.io">
+  </form>
+</div>
+
+  
+<div class="widget tag">
+  <h3 class="title">标签</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/GCD/">GCD</a><small>2</small></li>
+  
+    <li><a href="/tags/IM/">IM</a><small>2</small></li>
+  
+    <li><a href="/tags/OGRE/">OGRE</a><small>1</small></li>
+  
+    <li><a href="/tags/SDWebimage/">SDWebimage</a><small>2</small></li>
+  
+    <li><a href="/tags/XMPP/">XMPP</a><small>2</small></li>
+  
+    <li><a href="/tags/charles/">charles</a><small>1</small></li>
+  
+    <li><a href="/tags/iOS开发/">iOS开发</a><small>16</small></li>
+  
+    <li><a href="/tags/runtime/">runtime</a><small>3</small></li>
+  
+    <li><a href="/tags/代码整洁之道/">代码整洁之道</a><small>2</small></li>
+  
+    <li><a href="/tags/性能优化/">性能优化</a><small>2</small></li>
+  
+    <li><a href="/tags/测试/">测试</a><small>1</small></li>
+  
+    <li><a href="/tags/源码剖析/">源码剖析</a><small>1</small></li>
+  
+    <li><a href="/tags/源码解析/">源码解析</a><small>2</small></li>
+  
+    <li><a href="/tags/面向对象设计/">面向对象设计</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">最新文章</h3>
+  <ul class="entry">
+    
+      <li>
+        <a href="/2016/02/02/iOS应用程序间共享数据/">iOS应用程序间共享数据</a>
+      </li>
+    
+      <li>
+        <a href="/2016/01/07/细说-synchronized和dispatch-once/">细说@synchronized和dispatch_once</a>
+      </li>
+    
+      <li>
+        <a href="/2015/12/23/谈谈面向对象设计-OOD-原则/">谈谈面向对象设计(OOD)原则</a>
+      </li>
+    
+      <li>
+        <a href="/2015/12/16/有意义的命名/">有意义的命名</a>
+      </li>
+    
+      <li>
+        <a href="/2015/12/14/整洁代码/">整洁代码</a>
+      </li>
+    
+      <li>
+        <a href="/2015/11/24/开源许可证的一些区别/">开源许可证的一些区别</a>
+      </li>
+    
+      <li>
+        <a href="/2015/11/20/关于GCD开发的一些事儿/">关于GCD开发的一些事儿</a>
+      </li>
+    
+      <li>
+        <a href="/2015/11/02/NSOperation和NSOperationQueue的一些事儿/">NSOperation和NSOperationQueue的一些事儿</a>
+      </li>
+    
+      <li>
+        <a href="/2015/10/20/IM开发-2-XMPP-iOS开发/">IM开发(2)-XMPP iOS开发</a>
+      </li>
+    
+      <li>
+        <a href="/2015/10/08/IM开发-1-ejabberd服务器搭建/">IM开发(1)-ejabberd服务器搭建</a>
+      </li>
+    
+      <li>
+        <a href="/2015/09/09/iOS-app性能优化的那些事-二/">iOS app性能优化的那些事(二)</a>
+      </li>
+    
+      <li>
+        <a href="/2015/09/05/iOS-app性能优化的那些事/">iOS app性能优化的那些事</a>
+      </li>
+    
+  </ul>
+</div>
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <div id="go-pg-top"><i class="icon-arrow-up"></i></div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2016 树下的老男孩
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript" charset="utf-8" src="/js/page.js"></script>
+
+</body>
+
+</html>

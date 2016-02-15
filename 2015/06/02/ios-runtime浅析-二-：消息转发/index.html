@@ -1,0 +1,309 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>ios runtime浅析(二)：消息转发 | 树下的老男孩</title>
+  <meta name="author" content="树下的老男孩">
+  
+  <meta name="description" content="如果你给一个对象发送它不认识的消息时，系统会抛出一个错误，但在错误抛出之前，运行时会给改对象发送forwardInvocation:消息，同时传递一个NSInvocation对象作为该消息的参数，NSInvocation对象包封装原始消息和对应的参数。你可以实现forwardInvocation:方法来对不能处理的消息做一些默认的处理，以避免程序崩溃，但正如该函数的名字一样，这个函数主要是用来将消息转发给其它对象。每一个对象都从NSObject类继承了forwardInvocation:方法，但在NSObject中，该方法只是简单的调用doesNotRecognizeSelector:，通过重写该方法你就可以利用forwardInvocation:将消息转发给其它对象。  为了转发一个消息，forwardInvocation:需要做的事：
+
+确定消息该往哪发
+同时发送对应的原始参数消息可以通过invokeWithTarget:方法发送：
+
+1- (void)forwardInvocation:(NSInvocation *)anInvocation&amp;#10;&amp;#123;&amp;#10;    if ([someOtherObject respondsToSelector:[anInvocation selector]])&amp;#10;        [anInvocation invokeWithTarget:someOtherObject];&amp;#10;    else&amp;#10;       [super forwardInvocation:anInvocation];&amp;#10;&amp;#125;
+forwardInvocation:方法可以作为无法认识的消息的分发中心，将它们打包发给不同的接受者，或者作为一个中转站将所有消息发往同一个目的地。它可以将一个消息转换成另外的一个消息，或者只是单纯的把消息“吞下”，不对外响应和抛出错误，forwardInvocation:做什么取决于实现者。">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="ios runtime浅析(二)：消息转发"/>
+  <meta property="og:site_name" content="树下的老男孩"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="树下的老男孩" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  <script src="/js/jquery.min.js"></script>
+  
+<script type="text/javascript">
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-45019001-1', 'topdna.org');
+  ga('send', 'pageview');
+
+</script>
+
+
+</head>
+
+
+<body>
+  <!--[if lte IE 8]> <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'> <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode"><img src="http://storage.ie6countdown.com/assets/100/images/banners/warning_bar_0027_Simplified Chinese.jpg" border="0" height="42" width="820" alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today." style='margin-left:auto;margin-right:auto;display: block;'/></a></div> <![endif]-->
+  <header id="header" class="inner"><div class="alignleft">
+  <h1><a href="/">树下的老男孩</a></h1>
+  <h2><a href="/">工匠之行，在行动中体悟修行的乐趣</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">首页</a></li>
+    
+      <li><a href="/categories/tech/">技术</a></li>
+    
+      <li><a href="/categories/others/">其它</a></li>
+    
+      <li><a href="/archives">归档</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div></header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+    <div class="gallery">
+  <div class="photoset">
+    
+      <img src="">
+    
+  </div>
+  <div class="control">
+    <div class="prev"></div>
+    <div class="next"></div>
+  </div>
+</div>
+  
+  <div class="post-content">
+    <header>
+      
+        <time datetime="2015-06-02T06:34:48.000Z"><a href="/2015/06/02/ios-runtime浅析-二-：消息转发/">2015-06-02</a></time>
+      
+      
+  
+    <h1 class="title">ios runtime浅析(二)：消息转发</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>  如果你给一个对象发送它不认识的消息时，系统会抛出一个错误，但在错误抛出之前，运行时会给改对象发送forwardInvocation:消息，同时传递一个NSInvocation对象作为该消息的参数，NSInvocation对象包封装原始消息和对应的参数。你可以实现forwardInvocation:方法来对不能处理的消息做一些默认的处理，以避免程序崩溃，但正如该函数的名字一样，这个函数主要是用来将消息转发给其它对象。每一个对象都从NSObject类继承了forwardInvocation:方法，但在NSObject中，该方法只是简单的调用doesNotRecognizeSelector:，通过重写该方法你就可以利用forwardInvocation:将消息转发给其它对象。<br>  为了转发一个消息，forwardInvocation:需要做的事：</p>
+<ul>
+<li>确定消息该往哪发</li>
+<li>同时发送对应的原始参数<br>消息可以通过invokeWithTarget:方法发送：</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- (void)forwardInvocation:(NSInvocation *)anInvocation&#10;&#123;&#10;    if ([someOtherObject respondsToSelector:[anInvocation selector]])&#10;        [anInvocation invokeWithTarget:someOtherObject];&#10;    else&#10;       [super forwardInvocation:anInvocation];&#10;&#125;</span><br></pre></td></tr></table></figure>
+<p>forwardInvocation:方法可以作为无法认识的消息的分发中心，将它们打包发给不同的接受者，或者作为一个中转站将所有消息发往同一个目的地。它可以将一个消息转换成另外的一个消息，或者只是单纯的把消息“吞下”，不对外响应和抛出错误，forwardInvocation:做什么取决于实现者。</p>
+<a id="more"></a>
+<h3 id="转发和多继承"><a href="#转发和多继承" class="headerlink" title="转发和多继承"></a>转发和多继承</h3><p>  转发有点像模仿继承，一个对象通过转发响应一个消息，看起来像是继承了其它类实现的方法。<br><img src="http://upload-images.jianshu.io/upload_images/458529-118ba17fd9465f82.png" alt="转发"><br>如上图所示，一个Warrior类的实例转发一条negotiate消息到Diplomat类的实例，使得Warrior看起来能够像Diplomat一样进行negotiate。<br>通过转发消息的对象从而从两个继承体系分支“继承”了方法：原本的继承分支和通过响应消息。在上面的例子中，Warrior看起来好像继承自Diplomat和它的父类。然而转发跟继承有一个重要的区别：继承将不同的功能集合到一个对象；而转发是将不同的功能分配给不同的对象，它将一个问题分解成小的对象，然后通过一种对消息发送者透明的方式把这些对象关联起来。<br>虽然转发能够模仿继承，但是NSObject类不会因为这两个困惑，类似 respondsToSelector: 和 isKindOfClass: 方法只会查看它的继承体系，不会去查看转发链，比如下面查看Warrior能否响应negotiate消息：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">if ( [aWarrior respondsToSelector:@selector(negotiate)] )&#10;    ...</span><br></pre></td></tr></table></figure></p>
+<p>答案永远是NO，即便它能够通过将该消息转发给Diplomat而响应该消息且不会抛出错误。<br>  同时在调用forwardInvocation:之前，需要先调用methodSignatureForSelector:获取指定selector的方法签名：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- (NSMethodSignature*)methodSignatureForSelector:(SEL)selector&#10;&#123;&#10;    NSMethodSignature* signature = [super methodSignatureForSelector:selector];&#10;    if (!signature) &#123;&#10;       signature = [surrogate methodSignatureForSelector:selector];&#10;    &#125;&#10;    return signature;&#10;&#125;</span><br></pre></td></tr></table></figure></p>
+<p>示例：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">@interface ForwardClass : NSObject &#10;-(void)doSomethingElse;&#10;@end&#10;&#10;@implementation ForwardClass&#10;&#10;-(void)doSomethingElse&#10; &#123;&#10;    NSLog(@&#34;doSomething was called on %@&#34;, [self class]);&#10;&#125;&#10;@end&#10;&#10;@interface SomeClass : NSObject &#10;&#123;&#10;    id forwardClass;&#10;&#125;&#10;&#10;-(void)doSomething;&#10;&#10;@end&#10;&#10;@implementation SomeClass&#10;&#10;-(id)init&#10; &#123;&#10;    if (self = [super init]) &#123;&#10;        forwardClass = [ForwardClass new];&#10;    &#125;&#10;    return self;&#10;&#125;&#10;&#10;-(void)doSomething&#10; &#123;&#10;    NSLog(@&#34;doSomething was called on %@&#34;, [self class]);&#10;&#125;&#10;&#10;-(void)forwardInvocation:(NSInvocation *)invocation&#10; &#123;&#10;    if (! forwardClass) &#123;&#10;        [self doesNotRecognizeSelector: [invocation selector]];&#10;    &#125;&#10;    [invocation invokeWithTarget: forwardClass];&#10;&#125;&#10;&#10;-(NSMethodSignature*)methodSignatureForSelector:(SEL)selector&#10; &#123;&#10;    NSMethodSignature *signature = [super methodSignatureForSelector:selector];&#10;    if (! signature) &#123;&#10;        //&#29983;&#25104;&#26041;&#27861;&#31614;&#21517;&#10;        signature = [forwardClass methodSignatureForSelector:selector];&#10;    &#125;&#10;    return signature;&#10;&#125;&#10;&#10;@end</span><br></pre></td></tr></table></figure></p>
+<p>现在给SomeClass对象发送doSomethingElse消息后程序不会crash了：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">id someClass = [SomeClass new];&#10;[someClass doSomething];//ForwardTest[1291:56187] doSomething was called on SomeClass&#10;[someClass doSomethingElse];// ForwardTest[1291:56187] doSomething was called on ForwardClass</span><br></pre></td></tr></table></figure></p>
+<p>消息转发有很多的用途，比如： </p>
+<ul>
+<li>创建一个对象负责把消息转发给一个由其它对象组成的响应链，代理对象会在这个有其它对象组成的集合里寻找能够处理该消息的对象；</li>
+<li>把一个对象包在一个logger对象里，用来拦截或者纪录一些有趣的消息调用；</li>
+<li>比如声明类的属性为dynamic，使用自定义的方法来截取和取代由系统自动生成的getter和setter方法。</li>
+</ul>
+
+      
+    </div>
+    <footer>
+      
+
+        
+          <div class="alignleft post-nav">
+            <em>上一篇: </em><a href="/2015/06/05/ios-runtime浅析-三-：Method-Swizzling/">ios runtime浅析(三)：Method Swizzling</a>
+          </div>
+        
+        
+          <div class="alignright post-nav">
+            <em>下一篇: </em><a href="/2015/05/29/利用Charles分析iOS-app的网络通信/">利用Charles分析iOS app的网络通信</a>
+          </div>
+          <div class="clearfix"></div>
+        
+
+        
+          <div class="copyright">
+            
+              <span class="claim">版权声明：自由转载-非商用-保持署名  树下的老男孩</span>
+            
+            
+              <span class="from-link">
+                <em>本文链接地址:</em>
+                <a href="/2015/06/02/ios-runtime浅析-二-：消息转发/">
+                  http://freemind-lj.github.io/2015/06/02/ios-runtime浅析-二-：消息转发/
+                </a>
+              </span>
+            
+          </div>
+        
+        
+  
+  <div class="categories">
+    <a href="/categories/tech/">tech</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/iOS开发/">iOS开发</a>, <a href="/tags/runtime/">runtime</a>
+  </div>
+
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+<!-- Duoshuo Comment BEGIN -->
+<div class="ds-thread"></div>
+<script type="text/javascript">
+  var duoshuoQuery = {short_name: 'treeboy' };
+  (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';
+      ds.async = true;
+      ds.src = 'http://static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0] 
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script>
+<!-- Duoshuo Comment END -->
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="text" name="q" results="0" placeholder="搜一下">
+    <i class="icon-search"></i>
+    <input type="hidden" name="q" value="site:freemind-lj.github.io">
+  </form>
+</div>
+
+  
+<div class="widget tag">
+  <h3 class="title">标签</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/GCD/">GCD</a><small>2</small></li>
+  
+    <li><a href="/tags/IM/">IM</a><small>2</small></li>
+  
+    <li><a href="/tags/OGRE/">OGRE</a><small>1</small></li>
+  
+    <li><a href="/tags/SDWebimage/">SDWebimage</a><small>2</small></li>
+  
+    <li><a href="/tags/XMPP/">XMPP</a><small>2</small></li>
+  
+    <li><a href="/tags/charles/">charles</a><small>1</small></li>
+  
+    <li><a href="/tags/iOS开发/">iOS开发</a><small>16</small></li>
+  
+    <li><a href="/tags/runtime/">runtime</a><small>3</small></li>
+  
+    <li><a href="/tags/代码整洁之道/">代码整洁之道</a><small>2</small></li>
+  
+    <li><a href="/tags/性能优化/">性能优化</a><small>2</small></li>
+  
+    <li><a href="/tags/测试/">测试</a><small>1</small></li>
+  
+    <li><a href="/tags/源码剖析/">源码剖析</a><small>1</small></li>
+  
+    <li><a href="/tags/源码解析/">源码解析</a><small>2</small></li>
+  
+    <li><a href="/tags/面向对象设计/">面向对象设计</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">最新文章</h3>
+  <ul class="entry">
+    
+      <li>
+        <a href="/2016/02/02/iOS应用程序间共享数据/">iOS应用程序间共享数据</a>
+      </li>
+    
+      <li>
+        <a href="/2016/01/07/细说-synchronized和dispatch-once/">细说@synchronized和dispatch_once</a>
+      </li>
+    
+      <li>
+        <a href="/2015/12/23/谈谈面向对象设计-OOD-原则/">谈谈面向对象设计(OOD)原则</a>
+      </li>
+    
+      <li>
+        <a href="/2015/12/16/有意义的命名/">有意义的命名</a>
+      </li>
+    
+      <li>
+        <a href="/2015/12/14/整洁代码/">整洁代码</a>
+      </li>
+    
+      <li>
+        <a href="/2015/11/24/开源许可证的一些区别/">开源许可证的一些区别</a>
+      </li>
+    
+      <li>
+        <a href="/2015/11/20/关于GCD开发的一些事儿/">关于GCD开发的一些事儿</a>
+      </li>
+    
+      <li>
+        <a href="/2015/11/02/NSOperation和NSOperationQueue的一些事儿/">NSOperation和NSOperationQueue的一些事儿</a>
+      </li>
+    
+      <li>
+        <a href="/2015/10/20/IM开发-2-XMPP-iOS开发/">IM开发(2)-XMPP iOS开发</a>
+      </li>
+    
+      <li>
+        <a href="/2015/10/08/IM开发-1-ejabberd服务器搭建/">IM开发(1)-ejabberd服务器搭建</a>
+      </li>
+    
+      <li>
+        <a href="/2015/09/09/iOS-app性能优化的那些事-二/">iOS app性能优化的那些事(二)</a>
+      </li>
+    
+      <li>
+        <a href="/2015/09/05/iOS-app性能优化的那些事/">iOS app性能优化的那些事</a>
+      </li>
+    
+  </ul>
+</div>
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <div id="go-pg-top"><i class="icon-arrow-up"></i></div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2016 树下的老男孩
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript" charset="utf-8" src="/js/page.js"></script>
+
+</body>
+
+</html>

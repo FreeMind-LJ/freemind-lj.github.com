@@ -1,0 +1,310 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>iOS block浅析 | 树下的老男孩</title>
+  <meta name="author" content="树下的老男孩">
+  
+  <meta name="description" content="iOS开发中经常会使用block结合gcd来完成多线程编程，block也属于对象，主要有三种类型:1、 _NSConcreteStackBlock ，存储在栈上；2、_NSConcreteGlobalBlock，存储在程序的数据区域(text段)；3、_NSConcreteMallocBlock，存储在堆上。下面分别介绍一下这三种类型的block，block在arc和非arc的模式下会有些需要注意的地方：
+
+NSGlobalBlock：在block内部没有引用任何外部变量
+
+1void (^globalBlock) () = ^ () &amp;#123;&amp;#10;      NSLog(@&amp;#34;global block&amp;#34;);&amp;#10;&amp;#125;;&amp;#10;NSLog(@&amp;#34;%@&amp;#34;, globalBlock);//&amp;#60;__NSGlobalBlock__: 0x1096e20c0&amp;#62;
+对NSGlobalBlock的retain、copy、release操作都无效。
+
+NSStackBlock：在block内部引用外部变量先讨论下MRC模式：">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="iOS block浅析"/>
+  <meta property="og:site_name" content="树下的老男孩"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="树下的老男孩" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  <script src="/js/jquery.min.js"></script>
+  
+<script type="text/javascript">
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-45019001-1', 'topdna.org');
+  ga('send', 'pageview');
+
+</script>
+
+
+</head>
+
+
+<body>
+  <!--[if lte IE 8]> <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'> <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode"><img src="http://storage.ie6countdown.com/assets/100/images/banners/warning_bar_0027_Simplified Chinese.jpg" border="0" height="42" width="820" alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today." style='margin-left:auto;margin-right:auto;display: block;'/></a></div> <![endif]-->
+  <header id="header" class="inner"><div class="alignleft">
+  <h1><a href="/">树下的老男孩</a></h1>
+  <h2><a href="/">工匠之行，在行动中体悟修行的乐趣</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">首页</a></li>
+    
+      <li><a href="/categories/tech/">技术</a></li>
+    
+      <li><a href="/categories/others/">其它</a></li>
+    
+      <li><a href="/archives">归档</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div></header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+    <div class="gallery">
+  <div class="photoset">
+    
+      <img src="">
+    
+  </div>
+  <div class="control">
+    <div class="prev"></div>
+    <div class="next"></div>
+  </div>
+</div>
+  
+  <div class="post-content">
+    <header>
+      
+        <time datetime="2015-05-21T11:38:32.000Z"><a href="/2015/05/21/iOS-block浅析/">2015-05-21</a></time>
+      
+      
+  
+    <h1 class="title">iOS block浅析</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>iOS开发中经常会使用block结合gcd来完成多线程编程，block也属于对象，主要有三种类型:<br>1、 _NSConcreteStackBlock ，存储在栈上；<br>2、_NSConcreteGlobalBlock，存储在程序的数据区域(text段)；<br>3、_NSConcreteMallocBlock，存储在堆上。<br>下面分别介绍一下这三种类型的block，block在arc和非arc的模式下会有些需要注意的地方：</p>
+<ul>
+<li>NSGlobalBlock：在block内部没有引用任何外部变量</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">void (^globalBlock) () = ^ () &#123;&#10;      NSLog(@&#34;global block&#34;);&#10;&#125;;&#10;NSLog(@&#34;%@&#34;, globalBlock);//&#60;__NSGlobalBlock__: 0x1096e20c0&#62;</span><br></pre></td></tr></table></figure>
+<p>对NSGlobalBlock的retain、copy、release操作都无效。</p>
+<ul>
+<li>NSStackBlock：在block内部引用外部变量<br>先讨论下MRC模式：</li>
+</ul>
+<a id="more"></a>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">int base = 100;&#10;long (^stackBlock) (int, int) = ^ long (int a, int b) &#123;&#10;    return base +a + b;&#10;&#125;;&#10;NSLog(@&#34;%@&#34;,stackBlock);//&#60;__NSStackBlock__: 0x7fff57c6bce0&#62;</span><br></pre></td></tr></table></figure>
+<p>栈block在当函数退出的时候，该空间就会被回收，因此如果再调用该block会导致crash：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">void example_addBlockToArray(NSMutableArray *array) &#123;&#10;  char b = &#39;B&#39;;&#10;  [array addObject:^&#123;&#10;    printf(&#34;%cn&#34;, b);&#10;  &#125;];&#10;&#125;&#10;&#10;void example() &#123;&#10;  NSMutableArray *array = [NSMutableArray array];&#10;  example_addBlockToArray(array);&#10;  void (^block)() = [array objectAtIndex:0];&#10;  block();&#10;&#125;</span><br></pre></td></tr></table></figure></p>
+<p>在example_addBlockToArray函数中添加的block由于为栈block，因此在example函数中调用的话会导致程序crash掉，可以通过将block拷贝到堆上来解决这个问题：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[array addObject:[[^&#123;&#10;       printf(&#34;%cn&#34;, b);&#10;   &#125; copy autorelease]]];</span><br></pre></td></tr></table></figure></p>
+<p>retain、release这种类型的block不起作用。下面看看在ARC模式下会有啥不同的地方：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">int base = 100;&#10;long (^stackBlock) (int, int) = ^ long (int a, int b) &#123;&#10;    return base +a + b;&#10;&#125;;&#10;NSLog(@&#34;%@&#34;,stackBlock);//&#60;__NSMallocBlock__: 0x7f8da961e590&#62;</span><br></pre></td></tr></table></figure></p>
+<p>我们发现在ARC模式下，打印出来的结果并不是NSStackBlock这个类型，很多人以为在ARC模式下block的类型只有NSGlobalBlock和NSMallocBlock两种，其实这种观点是错误的。在ARC情况下，生成的block也是NSStackBlock，只是当赋值给strong对象时，系统会主动对其进行copy:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">int i=0;&#10;NSLog(@&#34;%@&#34;, ^&#123;&#10;    NSLog(@&#34;stack block here, i=%d&#34;, i);&#10;&#125;);//&#60;__NSStackBlock__: 0x7fff592eacf8&#62;&#10;&#10;void (^block)()=^&#123;&#10;    NSLog(@&#34;stack block here, i=%d&#34;, i);&#10;&#125;;&#10;NSLog(@&#34;%@&#34;,block);//&#60;__NSMallocBlock__: 0x7fae49e02660&#62;</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li>NSMallocBlock<br>如果NSStackBlock需要在其作用域外部使用的时候，在MRC的模式下需要手动将其copy到堆上，NSMallocBlock支持retain、release，会对其引用计数＋1或－1，copy不会生成新的对象，只是增加了一次引用，类似retain；而在ARC模式下会自动对其进行copy，不需要自己手动去管理，尽可能使用ARC。</li>
+</ul>
+
+      
+    </div>
+    <footer>
+      
+
+        
+          <div class="alignleft post-nav">
+            <em>上一篇: </em><a href="/2015/05/25/ios-runtime浅析-：消息传递与动态解析/">ios runtime浅析(-)：消息传递与动态解析</a>
+          </div>
+        
+        
+          <div class="alignright post-nav">
+            <em>下一篇: </em><a href="/2015/05/19/iOS持续集成：命令行创建工程/">iOS持续集成：命令行创建工程</a>
+          </div>
+          <div class="clearfix"></div>
+        
+
+        
+          <div class="copyright">
+            
+              <span class="claim">版权声明：自由转载-非商用-保持署名  树下的老男孩</span>
+            
+            
+              <span class="from-link">
+                <em>本文链接地址:</em>
+                <a href="/2015/05/21/iOS-block浅析/">
+                  http://freemind-lj.github.io/2015/05/21/iOS-block浅析/
+                </a>
+              </span>
+            
+          </div>
+        
+        
+  
+  <div class="categories">
+    <a href="/categories/tech/">tech</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/iOS开发/">iOS开发</a>
+  </div>
+
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+<!-- Duoshuo Comment BEGIN -->
+<div class="ds-thread"></div>
+<script type="text/javascript">
+  var duoshuoQuery = {short_name: 'treeboy' };
+  (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';
+      ds.async = true;
+      ds.src = 'http://static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0] 
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script>
+<!-- Duoshuo Comment END -->
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="text" name="q" results="0" placeholder="搜一下">
+    <i class="icon-search"></i>
+    <input type="hidden" name="q" value="site:freemind-lj.github.io">
+  </form>
+</div>
+
+  
+<div class="widget tag">
+  <h3 class="title">标签</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/GCD/">GCD</a><small>2</small></li>
+  
+    <li><a href="/tags/IM/">IM</a><small>2</small></li>
+  
+    <li><a href="/tags/OGRE/">OGRE</a><small>1</small></li>
+  
+    <li><a href="/tags/SDWebimage/">SDWebimage</a><small>2</small></li>
+  
+    <li><a href="/tags/XMPP/">XMPP</a><small>2</small></li>
+  
+    <li><a href="/tags/charles/">charles</a><small>1</small></li>
+  
+    <li><a href="/tags/iOS开发/">iOS开发</a><small>16</small></li>
+  
+    <li><a href="/tags/runtime/">runtime</a><small>3</small></li>
+  
+    <li><a href="/tags/代码整洁之道/">代码整洁之道</a><small>2</small></li>
+  
+    <li><a href="/tags/性能优化/">性能优化</a><small>2</small></li>
+  
+    <li><a href="/tags/测试/">测试</a><small>1</small></li>
+  
+    <li><a href="/tags/源码剖析/">源码剖析</a><small>1</small></li>
+  
+    <li><a href="/tags/源码解析/">源码解析</a><small>2</small></li>
+  
+    <li><a href="/tags/面向对象设计/">面向对象设计</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">最新文章</h3>
+  <ul class="entry">
+    
+      <li>
+        <a href="/2016/02/02/iOS应用程序间共享数据/">iOS应用程序间共享数据</a>
+      </li>
+    
+      <li>
+        <a href="/2016/01/07/细说-synchronized和dispatch-once/">细说@synchronized和dispatch_once</a>
+      </li>
+    
+      <li>
+        <a href="/2015/12/23/谈谈面向对象设计-OOD-原则/">谈谈面向对象设计(OOD)原则</a>
+      </li>
+    
+      <li>
+        <a href="/2015/12/16/有意义的命名/">有意义的命名</a>
+      </li>
+    
+      <li>
+        <a href="/2015/12/14/整洁代码/">整洁代码</a>
+      </li>
+    
+      <li>
+        <a href="/2015/11/24/开源许可证的一些区别/">开源许可证的一些区别</a>
+      </li>
+    
+      <li>
+        <a href="/2015/11/20/关于GCD开发的一些事儿/">关于GCD开发的一些事儿</a>
+      </li>
+    
+      <li>
+        <a href="/2015/11/02/NSOperation和NSOperationQueue的一些事儿/">NSOperation和NSOperationQueue的一些事儿</a>
+      </li>
+    
+      <li>
+        <a href="/2015/10/20/IM开发-2-XMPP-iOS开发/">IM开发(2)-XMPP iOS开发</a>
+      </li>
+    
+      <li>
+        <a href="/2015/10/08/IM开发-1-ejabberd服务器搭建/">IM开发(1)-ejabberd服务器搭建</a>
+      </li>
+    
+      <li>
+        <a href="/2015/09/09/iOS-app性能优化的那些事-二/">iOS app性能优化的那些事(二)</a>
+      </li>
+    
+      <li>
+        <a href="/2015/09/05/iOS-app性能优化的那些事/">iOS app性能优化的那些事</a>
+      </li>
+    
+  </ul>
+</div>
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <div id="go-pg-top"><i class="icon-arrow-up"></i></div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2016 树下的老男孩
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript" charset="utf-8" src="/js/page.js"></script>
+
+</body>
+
+</html>

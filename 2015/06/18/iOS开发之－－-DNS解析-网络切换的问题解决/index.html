@@ -1,0 +1,312 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>iOS开发之－－ DNS解析(网络切换的问题解决) | 树下的老男孩</title>
+  <meta name="author" content="树下的老男孩">
+  
+  <meta name="description" content="上次提到过由于电信的问题需要自己手动去解析dns，这里介绍的是如何拦截每一个请求做解析，但是没有说具体的解析方法，下面简单的记录一下：
+
+res_query方法
+
+1int res_query(char *domain_name, int class, int type, char *answer_buffer, int answer_buffer_length)
+这是比较常见的系统调用，使用该方法的时候需要在Xcode中添加libresolv.dylib，然后包含resolv.h头文件即可，具体代码如下：">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="iOS开发之－－ DNS解析(网络切换的问题解决)"/>
+  <meta property="og:site_name" content="树下的老男孩"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="树下的老男孩" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  <script src="/js/jquery.min.js"></script>
+  
+<script type="text/javascript">
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-45019001-1', 'topdna.org');
+  ga('send', 'pageview');
+
+</script>
+
+
+</head>
+
+
+<body>
+  <!--[if lte IE 8]> <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'> <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode"><img src="http://storage.ie6countdown.com/assets/100/images/banners/warning_bar_0027_Simplified Chinese.jpg" border="0" height="42" width="820" alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today." style='margin-left:auto;margin-right:auto;display: block;'/></a></div> <![endif]-->
+  <header id="header" class="inner"><div class="alignleft">
+  <h1><a href="/">树下的老男孩</a></h1>
+  <h2><a href="/">工匠之行，在行动中体悟修行的乐趣</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">首页</a></li>
+    
+      <li><a href="/categories/tech/">技术</a></li>
+    
+      <li><a href="/categories/others/">其它</a></li>
+    
+      <li><a href="/archives">归档</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div></header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+    <div class="gallery">
+  <div class="photoset">
+    
+      <img src="">
+    
+  </div>
+  <div class="control">
+    <div class="prev"></div>
+    <div class="next"></div>
+  </div>
+</div>
+  
+  <div class="post-content">
+    <header>
+      
+        <time datetime="2015-06-18T08:28:20.000Z"><a href="/2015/06/18/iOS开发之－－-DNS解析-网络切换的问题解决/">2015-06-18</a></time>
+      
+      
+  
+    <h1 class="title">iOS开发之－－ DNS解析(网络切换的问题解决)</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>  上次提到过由于电信的问题需要自己手动去解析dns，<a href="http://www.jianshu.com/p/7c89b8c5482a" target="_blank" rel="external">这里</a>介绍的是如何拦截<br>每一个请求做解析，但是没有说具体的解析方法，下面简单的记录一下：</p>
+<ul>
+<li>res_query方法</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">int res_query(char *domain_name, int class, int type, char *answer_buffer, int answer_buffer_length)</span><br></pre></td></tr></table></figure>
+<p>这是比较常见的系统调用，使用该方法的时候需要在Xcode中添加libresolv.dylib，然后包含resolv.h头文件即可，具体代码如下：</p>
+<a id="more"></a>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">unsigned char res[512];&#10;int nBytesRead = 0;&#10;&#10;//&#35843;&#29992;&#31995;&#32479;&#26041;&#27861;&#10;nBytesRead = res_query(&#34;www.baidu.com&#34;, ns_c_in, ns_t_a, res, sizeof(res));&#10;&#10;ns_msg handle;&#10;ns_initparse(res, nBytesRead, &#38;handle);&#10;&#10;NSMutableArray *ipList = nil;&#10;int msg_count = ns_msg_count(handle, ns_s_an);&#10;if (msg_count &#62; 0) &#123;&#10;    ipList = [[NSMutableArray alloc] initWithCapacity:msg_count];&#10;    for(int rrnum = 0; rrnum &#60; msg_count; rrnum++) &#123;&#10;        ns_rr rr;&#10;        &#10;        //&#35299;&#26512;&#32467;&#26524;&#10;        if(ns_parserr(&#38;handle, ns_s_an, rrnum, &#38;rr) == 0) &#123;&#10;            char ip1[16];&#10;            strcpy(ip1, inet_ntoa(*(struct in_addr *)ns_rr_rdata(rr)));&#10;            NSString *ipString = [[NSString alloc] initWithCString:ip1 encoding:NSASCIIStringEncoding];&#10;            if (![ipString isEqualToString:@&#34;&#34;]) &#123;&#10;                &#10;                //&#23558;&#25552;&#21462;&#21040;&#30340;IP&#22320;&#22336;&#25918;&#21040;&#25968;&#32452;&#20013;&#10;                [ipList addObject:ipString];&#10;            &#125;&#10;        &#125;&#10;    &#125;&#10;&#125;</span><br></pre></td></tr></table></figure>
+<p>然而该方法有一个问题，在网络从2/3G和WI-FI之间切换的时候，该方法经常不能正常工作，或者需要等待较长的时间，</p>
+<ul>
+<li>gethostbyname</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">struct hostent *gethostbyname(const char *hostName);</span><br></pre></td></tr></table></figure>
+<p> 具体代码如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">struct hostent *host = gethostbyname(&#34;www.google.com.hk&#34;);&#10;&#10;struct in_addr **list = (struct in_addr **)host-&#62;h_addr_list;&#10;&#10;//&#33719;&#21462;IP&#22320;&#22336;&#10;NSString *ip= [NSString stringWithCString:inet_ntoa(*list[0]) encoding:NSUTF8StringEncoding];&#10;&#10;NSLog(@&#34;ip address is : %@&#34;,ip);</span><br></pre></td></tr></table></figure></p>
+<p>该方法在碰到切换网络的时候，出现失败的情况比上面的方法好多了，但偶尔也还是会出现，是时候采用苹果自己的方法了。</p>
+<ul>
+<li>CFHostStartInfoResolution</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Boolean CFHostStartInfoResolution (CFHostRef theHost, CFHostInfoType info, CFStreamError *error);</span><br></pre></td></tr></table></figure>
+<p>具体实现方法如下:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Boolean result,bResolved;&#10;CFHostRef hostRef;&#10;CFArrayRef addresses = NULL;&#10;&#10;CFStringRef hostNameRef = CFStringCreateWithCString(kCFAllocatorDefault, &#34;www.google.com.hk&#34;, kCFStringEncodingASCII);&#10;&#10;hostRef = CFHostCreateWithName(kCFAllocatorDefault, hostNameRef);&#10;if (hostRef) &#123;&#10;    result = CFHostStartInfoResolution(hostRef, kCFHostAddresses, NULL);&#10;    if (result == TRUE) &#123;&#10;        addresses = CFHostGetAddressing(hostRef, &#38;result);&#10;    &#125;&#10;&#125;&#10;bResolved = result == TRUE ? true : false;&#10;&#10;if(bResolved)&#10;&#123;&#10;    struct sockaddr_in* remoteAddr;&#10;    for(int i = 0; i &#60; CFArrayGetCount(addresses); i++)&#10;    &#123;&#10;        CFDataRef saData = (CFDataRef)CFArrayGetValueAtIndex(addresses, i);&#10;        remoteAddr = (struct sockaddr_in*)CFDataGetBytePtr(saData);&#10;        &#10;        if(remoteAddr != NULL)&#10;        &#123;&#10;            //&#33719;&#21462;IP&#22320;&#22336;&#10;            char ip[16];&#10;            strcpy(ip, inet_ntoa(remoteAddr-&#62;sin_addr));&#10;        &#125;&#10;    &#125;&#10;&#125;&#10;CFRelease(hostNameRef);&#10;CFRelease(hostRef);</span><br></pre></td></tr></table></figure>
+<p>具体的demo可以到<a href="https://github.com/FreeMind-LJ/DNSTest" target="_blank" rel="external">这里</a>看看</p>
+
+      
+    </div>
+    <footer>
+      
+
+        
+          <div class="alignleft post-nav">
+            <em>上一篇: </em><a href="/2015/07/21/git遇到的一些问题解决/">git遇到的一些问题解决</a>
+          </div>
+        
+        
+          <div class="alignright post-nav">
+            <em>下一篇: </em><a href="/2015/06/16/iOS开发之-NSURLProtocol/">iOS开发之--- NSURLProtocol</a>
+          </div>
+          <div class="clearfix"></div>
+        
+
+        
+          <div class="copyright">
+            
+              <span class="claim">版权声明：自由转载-非商用-保持署名  树下的老男孩</span>
+            
+            
+              <span class="from-link">
+                <em>本文链接地址:</em>
+                <a href="/2015/06/18/iOS开发之－－-DNS解析-网络切换的问题解决/">
+                  http://freemind-lj.github.io/2015/06/18/iOS开发之－－-DNS解析-网络切换的问题解决/
+                </a>
+              </span>
+            
+          </div>
+        
+        
+  
+  <div class="categories">
+    <a href="/categories/tech/">tech</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/iOS开发/">iOS开发</a>
+  </div>
+
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+<!-- Duoshuo Comment BEGIN -->
+<div class="ds-thread"></div>
+<script type="text/javascript">
+  var duoshuoQuery = {short_name: 'treeboy' };
+  (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';
+      ds.async = true;
+      ds.src = 'http://static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0] 
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script>
+<!-- Duoshuo Comment END -->
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="text" name="q" results="0" placeholder="搜一下">
+    <i class="icon-search"></i>
+    <input type="hidden" name="q" value="site:freemind-lj.github.io">
+  </form>
+</div>
+
+  
+<div class="widget tag">
+  <h3 class="title">标签</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/GCD/">GCD</a><small>2</small></li>
+  
+    <li><a href="/tags/IM/">IM</a><small>2</small></li>
+  
+    <li><a href="/tags/OGRE/">OGRE</a><small>1</small></li>
+  
+    <li><a href="/tags/SDWebimage/">SDWebimage</a><small>2</small></li>
+  
+    <li><a href="/tags/XMPP/">XMPP</a><small>2</small></li>
+  
+    <li><a href="/tags/charles/">charles</a><small>1</small></li>
+  
+    <li><a href="/tags/iOS开发/">iOS开发</a><small>16</small></li>
+  
+    <li><a href="/tags/runtime/">runtime</a><small>3</small></li>
+  
+    <li><a href="/tags/代码整洁之道/">代码整洁之道</a><small>2</small></li>
+  
+    <li><a href="/tags/性能优化/">性能优化</a><small>2</small></li>
+  
+    <li><a href="/tags/测试/">测试</a><small>1</small></li>
+  
+    <li><a href="/tags/源码剖析/">源码剖析</a><small>1</small></li>
+  
+    <li><a href="/tags/源码解析/">源码解析</a><small>2</small></li>
+  
+    <li><a href="/tags/面向对象设计/">面向对象设计</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">最新文章</h3>
+  <ul class="entry">
+    
+      <li>
+        <a href="/2016/02/02/iOS应用程序间共享数据/">iOS应用程序间共享数据</a>
+      </li>
+    
+      <li>
+        <a href="/2016/01/07/细说-synchronized和dispatch-once/">细说@synchronized和dispatch_once</a>
+      </li>
+    
+      <li>
+        <a href="/2015/12/23/谈谈面向对象设计-OOD-原则/">谈谈面向对象设计(OOD)原则</a>
+      </li>
+    
+      <li>
+        <a href="/2015/12/16/有意义的命名/">有意义的命名</a>
+      </li>
+    
+      <li>
+        <a href="/2015/12/14/整洁代码/">整洁代码</a>
+      </li>
+    
+      <li>
+        <a href="/2015/11/24/开源许可证的一些区别/">开源许可证的一些区别</a>
+      </li>
+    
+      <li>
+        <a href="/2015/11/20/关于GCD开发的一些事儿/">关于GCD开发的一些事儿</a>
+      </li>
+    
+      <li>
+        <a href="/2015/11/02/NSOperation和NSOperationQueue的一些事儿/">NSOperation和NSOperationQueue的一些事儿</a>
+      </li>
+    
+      <li>
+        <a href="/2015/10/20/IM开发-2-XMPP-iOS开发/">IM开发(2)-XMPP iOS开发</a>
+      </li>
+    
+      <li>
+        <a href="/2015/10/08/IM开发-1-ejabberd服务器搭建/">IM开发(1)-ejabberd服务器搭建</a>
+      </li>
+    
+      <li>
+        <a href="/2015/09/09/iOS-app性能优化的那些事-二/">iOS app性能优化的那些事(二)</a>
+      </li>
+    
+      <li>
+        <a href="/2015/09/05/iOS-app性能优化的那些事/">iOS app性能优化的那些事</a>
+      </li>
+    
+  </ul>
+</div>
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <div id="go-pg-top"><i class="icon-arrow-up"></i></div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2016 树下的老男孩
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript" charset="utf-8" src="/js/page.js"></script>
+
+</body>
+
+</html>

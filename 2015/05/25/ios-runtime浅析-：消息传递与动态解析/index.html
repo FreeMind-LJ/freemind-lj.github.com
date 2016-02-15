@@ -1,0 +1,309 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>ios runtime浅析(-)：消息传递与动态解析 | 树下的老男孩</title>
+  <meta name="author" content="树下的老男孩">
+  
+  <meta name="description" content="在object-c中，消息直到运行的时候才会绑定对应的实现，编译器将消息表达式：1[receiver message]
+   转换成对objc_msgSend消息传递函数的调用:1objc_msgSend(receiver, selector&amp;#65289;//or objc_msgSend(receiver, selector, arg1, arg2, ...)
+该函数包含消息的接受者、函数的名称以及对应的参数。该消息传递函数首先去receiver类寻找selector所对应的实现，接着调用该实现并传递对应的参数，最后返回函数的返回值。objc_msgSend函数由编译器生成的，自己在代码中不能直接调用该函数。
+消息传递的关键在于每个类结构都有两个重要的元素：
+
+指向父类的指针；
+类的分发表( dispatch table)，该表包含selector的名称及对应实现函数的地址；
+
+消息传递的过程：当给一个对象发送消息的时候，消息传递函数首先根据对象的isa指针找到类的结构，然后在其分发表中寻找对应的selector，如果找到的话就调用对应的实现；如果找不到则会根据super class指针去其父类寻找，如果父类还找不到，会接着去父类的父类中寻找，直到NSObject类为止。为了加速消息传递的过程，运行时系统会缓存用到过的selector，每个类都有一个单独的cache，它可以缓存继承或自己定义的方法。在根据selector名字搜索分发表之前，消息路由会首先检查receiver类的cache是否已经缓存对应的selector，如果有的话就直接调用对应的实现。">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="ios runtime浅析(-)：消息传递与动态解析"/>
+  <meta property="og:site_name" content="树下的老男孩"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="树下的老男孩" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  <script src="/js/jquery.min.js"></script>
+  
+<script type="text/javascript">
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-45019001-1', 'topdna.org');
+  ga('send', 'pageview');
+
+</script>
+
+
+</head>
+
+
+<body>
+  <!--[if lte IE 8]> <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'> <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode"><img src="http://storage.ie6countdown.com/assets/100/images/banners/warning_bar_0027_Simplified Chinese.jpg" border="0" height="42" width="820" alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today." style='margin-left:auto;margin-right:auto;display: block;'/></a></div> <![endif]-->
+  <header id="header" class="inner"><div class="alignleft">
+  <h1><a href="/">树下的老男孩</a></h1>
+  <h2><a href="/">工匠之行，在行动中体悟修行的乐趣</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">首页</a></li>
+    
+      <li><a href="/categories/tech/">技术</a></li>
+    
+      <li><a href="/categories/others/">其它</a></li>
+    
+      <li><a href="/archives">归档</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div></header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+    <div class="gallery">
+  <div class="photoset">
+    
+      <img src="">
+    
+  </div>
+  <div class="control">
+    <div class="prev"></div>
+    <div class="next"></div>
+  </div>
+</div>
+  
+  <div class="post-content">
+    <header>
+      
+        <time datetime="2015-05-25T14:37:20.000Z"><a href="/2015/05/25/ios-runtime浅析-：消息传递与动态解析/">2015-05-25</a></time>
+      
+      
+  
+    <h1 class="title">ios runtime浅析(-)：消息传递与动态解析</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>  在object-c中，消息直到运行的时候才会绑定对应的实现，编译器将消息表达式：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[receiver message]</span><br></pre></td></tr></table></figure></p>
+<p>   转换成对objc_msgSend消息传递函数的调用:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">objc_msgSend(receiver, selector&#65289;//or objc_msgSend(receiver, selector, arg1, arg2, ...)</span><br></pre></td></tr></table></figure></p>
+<p>该函数包含消息的接受者、函数的名称以及对应的参数。该消息传递函数首先去receiver类寻找selector所对应的实现，接着调用该实现并传递对应的参数，最后返回函数的返回值。objc_msgSend函数由编译器生成的，自己在代码中不能直接调用该函数。</p>
+<p>消息传递的关键在于每个类结构都有两个重要的元素：</p>
+<ul>
+<li>指向父类的指针；</li>
+<li>类的分发表( dispatch table)，该表包含selector的名称及对应实现函数的地址；</li>
+</ul>
+<p>消息传递的过程：当给一个对象发送消息的时候，消息传递函数首先根据对象的isa指针找到类的结构，然后在其分发表中寻找对应的selector，如果找到的话就调用对应的实现；如果找不到则会根据super class指针去其父类寻找，如果父类还找不到，会接着去父类的父类中寻找，直到NSObject类为止。<br>为了加速消息传递的过程，运行时系统会缓存用到过的selector，每个类都有一个单独的cache，它可以缓存继承或自己定义的方法。在根据selector名字搜索分发表之前，消息路由会首先检查receiver类的cache是否已经缓存对应的selector，如果有的话就直接调用对应的实现。</p>
+<a id="more"></a>
+<h4 id="获取函数地址"><a href="#获取函数地址" class="headerlink" title="获取函数地址"></a>获取函数地址</h4><p>绕过消息绑定的唯一方法就是获取函数的地址，然后直接调用。这在极少的情况下适用：当一个方法连续执行很多次，而你想避免每次消息传递带来的开销。<br>通过methodForSelector:方法你可以获取selector对应实现的指针，该指针必须转换成合适的函数类型：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">void (*setter)(id, SEL, BOOL);//&#35774;&#32622;&#23545;&#24212;&#30340;&#20989;&#25968;&#25351;&#38024;&#31867;&#22411;&#10;int i;&#10; &#10;setter = (void (*)(id, SEL, BOOL))[target&#10;    methodForSelector:@selector(setFilled:)];&#10;for ( i = 0 ; i &#60; 1000 ; i++ )&#10;    setter(targetList[i], @selector(setFilled:), YES);//&#36890;&#36807;&#20989;&#25968;&#25351;&#38024;&#35843;&#29992;&#23545;&#24212;&#23454;&#29616;</span><br></pre></td></tr></table></figure></p>
+<p>使用methodForSelector:绕开动态绑定节约了消息传递时时间，然后这有在一个特定的方法重复调用多次的时候才能体现出来，比如上述的例子。</p>
+<h4 id="消息动态解析"><a href="#消息动态解析" class="headerlink" title="消息动态解析"></a>消息动态解析</h4><p>在某些情况下你可能需要动态的提供方法，比如在oc中你声明某个属性为@dynamic类型，编译器就认为与这属性相关的方法会动态提供。你可以通过实现<a href="https://developer.apple.com/library/ios/documentation/Cocoa/Reference/Foundation/Classes/NSObject_Class/index.html#//apple_ref/occ/clm/NSObject/resolveInstanceMethod:" target="_blank" rel="external">resolveInstanceMethod:</a>和 <a href="https://developer.apple.com/library/ios/documentation/Cocoa/Reference/Foundation/Classes/NSObject_Class/index.html#//apple_ref/occ/clm/NSObject/resolveClassMethod:" target="_blank" rel="external">resolveClassMethod:</a>动态的为selector提供实现方法，objective-c方法本质上就是一个带有至少两个参数（_self和_cmd）的c函数，你可以通过 <a href="https://developer.apple.com/library/ios/documentation/Cocoa/Reference/ObjCRuntimeRef/index.html#//apple_ref/c/func/class_addMethod" target="_blank" rel="external">class_addMethod</a>为类添加一个函数，参见下面的例子：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">@interface SomeClass : NSObject&#10;@property (assign, nonatomic) float objectTag;&#10;@end&#10;&#10;@implementation SomeClass&#10;@dynamic objectTag;  //&#22768;&#26126;&#20026;dynamic&#10;//&#28155;&#21152;setter&#23454;&#29616;&#10;void dynamicSetMethod(id self,SEL _cmd,float w)&#123;&#10;    printf(&#34;dynamicMethod-%s\n&#34;,[NSStringFromSelector(_cmd)&#10;                                 cStringUsingEncoding:NSUTF8StringEncoding]);&#10;    printf(&#34;%f\n&#34;,w);&#10;    objc_setAssociatedObject(self, ObjectTagKey, [NSNumber numberWithFloat:w], OBJC_ASSOCIATION_RETAIN_NONATOMIC);&#10;&#125;&#10;//&#28155;&#21152;getter&#23454;&#29616;&#10;void dynamicGetMethod(id self,SEL _cmd)&#123;&#10;    printf(&#34;dynamicMethod-%s\n&#34;,[NSStringFromSelector(_cmd)&#10;                                 cStringUsingEncoding:NSUTF8StringEncoding]);&#10;   [objc_getAssociatedObject(self, ObjectTagKey) floatValue];&#10;&#125;&#10;&#10;//&#35299;&#26512;selector&#26041;&#27861;&#10;+(BOOL) resolveInstanceMethod: (SEL) sel&#123;&#10;    &#10;    NSString *methodName=NSStringFromSelector(sel);&#10;    BOOL result=NO;&#10;    //&#21160;&#24577;&#30340;&#28155;&#21152;setter&#21644;getter&#26041;&#27861;&#10;    if ([methodName isEqualToString:@&#34;setObjectTag:&#34;]) &#123;&#10;        class_addMethod([self class], sel, (IMP) dynamicSetMethod,&#10;                        &#34;v@:f&#34;);&#10;        result=YES;  &#10;    &#125;else if([methodName isEqualToString:@&#34;objectTag&#34;])&#123;&#10;        class_addMethod([self class], sel, (IMP) dynamicGetMethod,&#10;                        &#34;v@:f&#34;);&#10;        result=YES;&#10;    &#125;&#10;    return result;&#10;&#125;</span><br></pre></td></tr></table></figure></p>
+<p>看看class_addMethod函数：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">BOOL class_addMethod(Class cls, SEL name, IMP imp, const char *types)&#10;&#21442;&#25968;&#35828;&#26126;&#65306;&#10;cls&#65306;&#28155;&#21152;&#26041;&#27861;&#30340;&#31867;&#10;name&#65306;selector&#21517;&#31216;&#10;imp&#65306;selector&#23545;&#24212;&#24471;&#20855;&#20307;&#23454;&#29616;&#10;types&#65306;&#19968;&#20010;&#23450;&#20041;&#35813;&#20989;&#25968;&#36820;&#22238;&#20540;&#31867;&#22411;&#21644;&#21442;&#25968;&#31867;&#22411;&#30340;&#23383;&#31526;&#20018;</span><br></pre></td></tr></table></figure></p>
+<p>通过上面动态的添加getter和setter方法后，调用如下代码程序就不会crash。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">self.objectTag=10.0f;&#10;float tag = self.objectTag</span><br></pre></td></tr></table></figure></p>
+<p>在消息转发机制开始之前，一个类有机会先动态解析该方法，如果你实现了 <a href="https://developer.apple.com/library/ios/documentation/Cocoa/Reference/Foundation/Classes/NSObject_Class/index.html#//apple_ref/occ/clm/NSObject/resolveInstanceMethod:" target="_blank" rel="external">resolveInstanceMethod:</a>，但是对一些特定的selectors想启用消息转发机制，只需要过滤这些selector返回NO即可。</p>
+
+      
+    </div>
+    <footer>
+      
+
+        
+          <div class="alignleft post-nav">
+            <em>上一篇: </em><a href="/2015/05/29/利用Charles分析iOS-app的网络通信/">利用Charles分析iOS app的网络通信</a>
+          </div>
+        
+        
+          <div class="alignright post-nav">
+            <em>下一篇: </em><a href="/2015/05/21/iOS-block浅析/">iOS block浅析</a>
+          </div>
+          <div class="clearfix"></div>
+        
+
+        
+          <div class="copyright">
+            
+              <span class="claim">版权声明：自由转载-非商用-保持署名  树下的老男孩</span>
+            
+            
+              <span class="from-link">
+                <em>本文链接地址:</em>
+                <a href="/2015/05/25/ios-runtime浅析-：消息传递与动态解析/">
+                  http://freemind-lj.github.io/2015/05/25/ios-runtime浅析-：消息传递与动态解析/
+                </a>
+              </span>
+            
+          </div>
+        
+        
+  
+  <div class="categories">
+    <a href="/categories/tech/">tech</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/iOS开发/">iOS开发</a>, <a href="/tags/runtime/">runtime</a>
+  </div>
+
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+<!-- Duoshuo Comment BEGIN -->
+<div class="ds-thread"></div>
+<script type="text/javascript">
+  var duoshuoQuery = {short_name: 'treeboy' };
+  (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';
+      ds.async = true;
+      ds.src = 'http://static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0] 
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script>
+<!-- Duoshuo Comment END -->
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="text" name="q" results="0" placeholder="搜一下">
+    <i class="icon-search"></i>
+    <input type="hidden" name="q" value="site:freemind-lj.github.io">
+  </form>
+</div>
+
+  
+<div class="widget tag">
+  <h3 class="title">标签</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/GCD/">GCD</a><small>2</small></li>
+  
+    <li><a href="/tags/IM/">IM</a><small>2</small></li>
+  
+    <li><a href="/tags/OGRE/">OGRE</a><small>1</small></li>
+  
+    <li><a href="/tags/SDWebimage/">SDWebimage</a><small>2</small></li>
+  
+    <li><a href="/tags/XMPP/">XMPP</a><small>2</small></li>
+  
+    <li><a href="/tags/charles/">charles</a><small>1</small></li>
+  
+    <li><a href="/tags/iOS开发/">iOS开发</a><small>16</small></li>
+  
+    <li><a href="/tags/runtime/">runtime</a><small>3</small></li>
+  
+    <li><a href="/tags/代码整洁之道/">代码整洁之道</a><small>2</small></li>
+  
+    <li><a href="/tags/性能优化/">性能优化</a><small>2</small></li>
+  
+    <li><a href="/tags/测试/">测试</a><small>1</small></li>
+  
+    <li><a href="/tags/源码剖析/">源码剖析</a><small>1</small></li>
+  
+    <li><a href="/tags/源码解析/">源码解析</a><small>2</small></li>
+  
+    <li><a href="/tags/面向对象设计/">面向对象设计</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">最新文章</h3>
+  <ul class="entry">
+    
+      <li>
+        <a href="/2016/02/02/iOS应用程序间共享数据/">iOS应用程序间共享数据</a>
+      </li>
+    
+      <li>
+        <a href="/2016/01/07/细说-synchronized和dispatch-once/">细说@synchronized和dispatch_once</a>
+      </li>
+    
+      <li>
+        <a href="/2015/12/23/谈谈面向对象设计-OOD-原则/">谈谈面向对象设计(OOD)原则</a>
+      </li>
+    
+      <li>
+        <a href="/2015/12/16/有意义的命名/">有意义的命名</a>
+      </li>
+    
+      <li>
+        <a href="/2015/12/14/整洁代码/">整洁代码</a>
+      </li>
+    
+      <li>
+        <a href="/2015/11/24/开源许可证的一些区别/">开源许可证的一些区别</a>
+      </li>
+    
+      <li>
+        <a href="/2015/11/20/关于GCD开发的一些事儿/">关于GCD开发的一些事儿</a>
+      </li>
+    
+      <li>
+        <a href="/2015/11/02/NSOperation和NSOperationQueue的一些事儿/">NSOperation和NSOperationQueue的一些事儿</a>
+      </li>
+    
+      <li>
+        <a href="/2015/10/20/IM开发-2-XMPP-iOS开发/">IM开发(2)-XMPP iOS开发</a>
+      </li>
+    
+      <li>
+        <a href="/2015/10/08/IM开发-1-ejabberd服务器搭建/">IM开发(1)-ejabberd服务器搭建</a>
+      </li>
+    
+      <li>
+        <a href="/2015/09/09/iOS-app性能优化的那些事-二/">iOS app性能优化的那些事(二)</a>
+      </li>
+    
+      <li>
+        <a href="/2015/09/05/iOS-app性能优化的那些事/">iOS app性能优化的那些事</a>
+      </li>
+    
+  </ul>
+</div>
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <div id="go-pg-top"><i class="icon-arrow-up"></i></div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2016 树下的老男孩
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript" charset="utf-8" src="/js/page.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,314 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>iOS持续集成：命令行创建工程 | 树下的老男孩</title>
+  <meta name="author" content="树下的老男孩">
+  
+  <meta name="description" content="在开发iOS应用的时候，大部分都是直接采用Xcode进行开发，但有时候需要用命令行来创建工程，比如最近在做ci的持续集成，就只能通过命令行的方式，这时候就需要了解一下工程文件的构成。我们知道工程文件的相关信息保存在project.pbxproj，因此可以通过脚本创建出pbxproj文件，完成基础工程的创建。
+pbxproj  下面介绍一下pbxproj文件，可以拖动.xcodeproj文件到文本编辑器，如sublime，查看pbxproj文件的组成方式，主要包括：
+
+PBXBuildFile PBXFileReference这两个section保存中工程文件相关的信息:包含文件的类型，路径，名称等
+
+1/* Begin PBXBuildFile section */&amp;#10;    F60CC2A114D4EA0500A005E4 /* SocketOperation.m in Sources */ = &amp;#123;isa = PBXBuildFile; fileRef = F60CC2A014D4EA0500A005E4 /* SocketOperation.m */; &amp;#125;;&amp;#10;/* End PBXBuildFile section */&amp;#10;&amp;#10;/* Begin PBXFileReference section *&amp;#10;&amp;#9;F60CC2A014D4EA0500A005E4 /* SocketOperation.m */ = &amp;#123;isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SocketOperation.m; sourceTree = &amp;#34;&amp;#60;group&amp;#62;&amp;#34;; &amp;#125;;&amp;#10;/* End PBXFileReference section */">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="iOS持续集成：命令行创建工程"/>
+  <meta property="og:site_name" content="树下的老男孩"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="树下的老男孩" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  <script src="/js/jquery.min.js"></script>
+  
+<script type="text/javascript">
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-45019001-1', 'topdna.org');
+  ga('send', 'pageview');
+
+</script>
+
+
+</head>
+
+
+<body>
+  <!--[if lte IE 8]> <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'> <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode"><img src="http://storage.ie6countdown.com/assets/100/images/banners/warning_bar_0027_Simplified Chinese.jpg" border="0" height="42" width="820" alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today." style='margin-left:auto;margin-right:auto;display: block;'/></a></div> <![endif]-->
+  <header id="header" class="inner"><div class="alignleft">
+  <h1><a href="/">树下的老男孩</a></h1>
+  <h2><a href="/">工匠之行，在行动中体悟修行的乐趣</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">首页</a></li>
+    
+      <li><a href="/categories/tech/">技术</a></li>
+    
+      <li><a href="/categories/others/">其它</a></li>
+    
+      <li><a href="/archives">归档</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div></header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+    <div class="gallery">
+  <div class="photoset">
+    
+      <img src="">
+    
+  </div>
+  <div class="control">
+    <div class="prev"></div>
+    <div class="next"></div>
+  </div>
+</div>
+  
+  <div class="post-content">
+    <header>
+      
+        <time datetime="2015-05-19T13:39:42.000Z"><a href="/2015/05/19/iOS持续集成：命令行创建工程/">2015-05-19</a></time>
+      
+      
+  
+    <h1 class="title">iOS持续集成：命令行创建工程</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>  在开发iOS应用的时候，大部分都是直接采用Xcode进行开发，但有时候需要用命令行来创建工程，比如最近在做ci的持续集成，就只能通过命令行的方式，这时候就需要了解一下工程文件的构成。我们知道工程文件的相关信息保存在project.pbxproj，因此可以通过脚本创建出pbxproj文件，完成基础工程的创建。</p>
+<h2 id="pbxproj"><a href="#pbxproj" class="headerlink" title="pbxproj"></a>pbxproj</h2><p>  下面介绍一下pbxproj文件，可以拖动.xcodeproj文件到文本编辑器，如sublime，查看pbxproj文件的组成方式，主要包括：</p>
+<ul>
+<li>PBXBuildFile PBXFileReference<br>这两个section保存中工程文件相关的信息:包含文件的类型，路径，名称等</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/* Begin PBXBuildFile section */&#10;    F60CC2A114D4EA0500A005E4 /* SocketOperation.m in Sources */ = &#123;isa = PBXBuildFile; fileRef = F60CC2A014D4EA0500A005E4 /* SocketOperation.m */; &#125;;&#10;/* End PBXBuildFile section */&#10;&#10;/* Begin PBXFileReference section *&#10;&#9;F60CC2A014D4EA0500A005E4 /* SocketOperation.m */ = &#123;isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SocketOperation.m; sourceTree = &#34;&#60;group&#62;&#34;; &#125;;&#10;/* End PBXFileReference section */</span><br></pre></td></tr></table></figure>
+<a id="more"></a>
+<ul>
+<li>PBXGroup<br>这个section保存着工程文件的分组信息：分组的名称，以及该组内含有的文件，比如下面的例子，一个TestChat分组里面还有一个Supporting Files子分组，同时该组包含AppDelegate的.h和.m两个文件，该分组对应的路径为TestChat：</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">* Begin PBXGroup section */&#10;&#9;&#9;F62417EA14D52F3C003CE997 /* TestChat */ = &#123;&#10;&#9;&#9;&#9;isa = PBXGroup;&#10;&#9;&#9;&#9;children = (&#10;&#9;&#9;&#9;&#9;F62417EB14D52F3C003CE997 /* Supporting Files */,&#10;&#9;&#9;&#9;&#9;F62417F314D52F3C003CE997 /* AppDelegate.h */,&#10;&#9;&#9;&#9;&#9;F62417F414D52F3C003CE997 /* AppDelegate.m */,&#10;&#9;&#9;&#9;);&#10;&#9;&#9;&#9;path = TestChat;&#10;&#9;&#9;&#9;sourceTree = &#34;&#60;group&#62;&#34;;&#10;&#9;&#9;&#125;;&#10;/* End PBXGroup section */</span><br></pre></td></tr></table></figure>
+<ul>
+<li>PBXNativeTarget<br>该section保存工程创建的target信息：包含target的对应的配置信息、创建规则、依赖、名称和类型等信息</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/* Begin PBXNativeTarget section */&#10;CAC8612E08B161103B6C9DC7 /* UIModuleExample */ = &#123;&#10;&#9;&#9;&#9;isa = PBXNativeTarget;&#10;&#9;&#9;&#9;buildConfigurationList = 56006E5E8040DE2B3965BE91 /* Build configuration list for PBXNativeTarget &#34;UIModuleExample&#34; */;&#10;&#9;&#9;&#9;buildPhases = (&#10;&#9;&#9;&#9;&#9;58D3152C3900AA8B62A79D47 /* Sources */,&#10;&#9;&#9;&#9;&#9;A5BF724742232AA0E86F3339 /* Frameworks */,&#10;&#9;&#9;&#9;);&#10;&#9;&#9;&#9;buildRules = (&#10;&#9;&#9;&#9;);&#10;&#9;&#9;&#9;dependencies = (&#10;&#9;&#9;&#9;);&#10;&#9;&#9;&#9;name = UIModuleExample;&#10;&#9;&#9;&#9;productName = UIModuleExample;&#10;&#9;&#9;&#9;productReference = 377070E96E22438316AB8879 /* UIModuleExample.app */;&#10;&#9;&#9;&#9;productType = &#34;com.apple.product-type.application&#34;;&#10;&#9;&#9;&#125;;&#10;/* End PBXNativeTarget section */</span><br></pre></td></tr></table></figure>
+<ul>
+<li>XCBuildConfiguration XCConfigurationList<br>这两个section保存着工程相关的配置信息：下面对应的是debug模式下的配置信息，可以看到里面包含CODE_SIGN_IDENTITY，sdk，framework的搜索路径等信息。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/* Begin XCBuildConfiguration section */&#10;&#9;&#9;F62417FD14D52F3C003CE997 /* Debug */ = &#123;&#10;&#9;&#9;&#9;isa = XCBuildConfiguration;&#10;&#9;&#9;&#9;buildSettings = &#123;&#10;&#9;&#9;&#9;&#9;&#34;CODE_SIGN_IDENTITY[sdk=iphoneos*]&#34; = &#34;iPhone Developer&#34;;&#10;&#9;&#9;&#9;&#9;FRAMEWORK_SEARCH_PATHS = (&#10;&#9;&#9;&#9;&#9;&#9;&#34;$(inherited)&#34;,&#10;&#9;&#9;&#9;&#9;&#9;&#34;\&#34;$(DEVELOPER_FRAMEWORKS_DIR)\&#34;&#34;,&#10;&#9;&#9;&#9;&#9;);&#10;&#9;&#9;&#9;&#9;GCC_PRECOMPILE_PREFIX_HEADER = YES;&#10;&#9;&#9;&#9;&#9;GCC_PREFIX_HEADER = &#34;TestChat/TestChat-Prefix.pch&#34;;&#10;&#9;&#9;&#9;&#9;INFOPLIST_FILE = &#34;TestChat/TestChat-Info.plist&#34;;&#10;&#9;&#9;&#9;&#9;IPHONEOS_DEPLOYMENT_TARGET = 5.0;&#10;&#9;&#9;&#9;&#9;OTHER_LDFLAGS = &#34;-ObjC&#34;;&#10;&#9;&#9;&#9;&#9;PRODUCT_NAME = &#34;$(TARGET_NAME)&#34;;&#10;&#9;&#9;&#9;&#9;TARGETED_DEVICE_FAMILY = &#34;1,2&#34;;&#10;&#9;&#9;&#9;&#9;WRAPPER_EXTENSION = app;&#10;&#9;&#9;&#9;&#125;;&#10;&#9;&#9;&#9;name = Debug;&#10;&#9;&#9;&#125;;&#10;/* End XCBuildConfiguration section */</span><br></pre></td></tr></table></figure>
+<p>通过上面分析一个pbxproj文件的过程可以看出，要创建一个工程，首先需要添加相关的文件，然后设置需要生成的target以及对应的配置信息就行了。</p>
+<h2 id="命令行生成pbxproj"><a href="#命令行生成pbxproj" class="headerlink" title="命令行生成pbxproj"></a>命令行生成pbxproj</h2><p>上面大概了解了一个pbxproj文件的整体构造，要想生成一个这样的文件，可以自己按照对应的格式书写，或者借助一些脚本工具，这里推荐cocoapods的Xcodeproj，项目的地址：<a href="https://github.com/CocoaPods/Xcodeproj" target="_blank" rel="external">Xcodeproj</a> ，该工具是用ruby语言实现的，可以用它来修改和创建pbxproj文件，下面是自己用ruby生成project文件的一部分示例代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"> &#65283;&#21019;&#24314; Example.xcodeproj&#24037;&#31243;&#25991;&#20214;&#65292;&#24182;&#20445;&#23384;&#10; Xcodeproj::Project.new(&#34;./Example.xcodeproj&#34;).save&#10;&#10; &#65283;&#25171;&#24320;&#21019;&#24314;&#30340;Example.xcodeproj&#25991;&#20214;&#10; proj=Xcodeproj::Project.open(&#34;./Example.xcodeproj&#34;)&#10;&#10; &#65283;&#21019;&#24314;&#19968;&#20010;&#20998;&#32452;&#65292;&#21517;&#31216;&#20026;Example&#65292;&#23545;&#24212;&#30340;&#36335;&#24452;&#20026;./Example&#10; exampleGroup=proj.main_group.new_group(&#34;Example&#34;,&#34;./Example&#34;)&#10;&#10; #&#32473;Example&#20998;&#32452;&#28155;&#21152;&#25991;&#20214;&#24341;&#29992;&#10; exampleGroup.new_reference(&#34;AppDelegate.h&#34;)&#10; ref1=exampleGroup.new_reference(&#34;AppDelegate.m&#34;)&#10; ref2=exampleGroup.new_reference(&#34;Images.xcassets&#34;)&#10; exampleGroup.new_reference(&#34;Base.lproj/LaunchScreen.xib&#34;)&#10;&#10;&#65283;&#22312;Example&#20998;&#32452;&#19979;&#21019;&#24314;&#19968;&#20010;&#21517;&#23383;&#20026;Supporting Files&#30340;&#23376;&#20998;&#32452;&#65292;&#24182;&#32473;&#35813;&#23376;&#20998;&#32452;&#28155;&#21152;main&#21644;info.plist&#25991;&#20214;&#24341;&#29992;&#10; supportingGroup=exampleGroup.new_group(&#34;Supporting Files&#34;)&#10; ref3=supportingGroup.new_reference(&#34;main.m&#34;)&#10; supportingGroup.new_reference(&#34;Info.plist&#34;)&#10;&#10;&#65283;&#21019;&#24314;target&#65292;&#20027;&#35201;&#30340;&#21442;&#25968; type: application :dynamic_library framework :static_library &#24847;&#24605;&#22823;&#23478;&#37117;&#25026;&#30340;&#10;&#65283;name&#65306;target&#21517;&#31216;&#10;&#65283;platform&#65306;&#24179;&#21488; :ios&#25110;&#32773;:osx&#10; target = proj.new_target(:application,&#34;Example&#34;,:ios)&#10;&#10;#&#28155;&#21152;target&#37197;&#32622;&#20449;&#24687;&#10; target.build_configuration_list.set_setting(&#39;INFOPLIST_FILE&#39;, &#34;$(SRCROOT)/Example/Info.plist&#34;)&#10;&#10; &#65283;target&#28155;&#21152;&#30456;&#20851;&#30340;&#25991;&#20214;&#24341;&#29992;&#65292;&#36825;&#26679;&#32534;&#35793;&#30340;&#26102;&#20505;&#25165;&#33021;&#24341;&#29992;&#21040;&#10; target.add_file_references([ref1,ref2,ref3])&#10;&#10; testGroup=proj.main_group.new_group(&#34;ExampleTests&#34;,&#34;./ExampleTests&#34;)&#10; ref4=testGroup.new_reference(&#34;ExampleTests.m&#34;)&#10; supportingGroup=testGroup.new_group(&#34;Supporting Files&#34;)&#10; supportingGroup.new_reference(&#34;Info.plist&#34;)&#10;&#10; &#65283;&#21019;&#24314;test target&#10; testTarget = proj.new_target(:unit_test_bundle,&#34;ExampleTests&#34;,:ios,nil,proj.products_group)&#10; testRefrence = testTarget.product_reference&#10; testRefrence.set_explicit_file_type(&#39;wrapper.cfbundle&#39;)&#10; testRefrence.name = &#34;ExampleTests.xctest&#34;&#10; testTarget.add_file_references([ref4])&#10; &#10;&#65283;&#20445;&#23384;&#10; proj.save</span><br></pre></td></tr></table></figure>
+<p>通过上面的脚本生产的工程如下：<br><img src="http://upload-images.jianshu.io/upload_images/458529-7f7b98df7baf60db.png" alt="生成的工程文件"></p>
+<p>由于对ruby不太熟悉，因此有错误的地方欢迎提出！</p>
+
+      
+    </div>
+    <footer>
+      
+
+        
+          <div class="alignleft post-nav">
+            <em>上一篇: </em><a href="/2015/05/21/iOS-block浅析/">iOS block浅析</a>
+          </div>
+        
+        
+          <div class="alignright post-nav">
+            <em>下一篇: </em><a href="/2015/05/10/SDWebImage源码剖析（二）/">SDWebImage源码剖析（二）</a>
+          </div>
+          <div class="clearfix"></div>
+        
+
+        
+          <div class="copyright">
+            
+              <span class="claim">版权声明：自由转载-非商用-保持署名  树下的老男孩</span>
+            
+            
+              <span class="from-link">
+                <em>本文链接地址:</em>
+                <a href="/2015/05/19/iOS持续集成：命令行创建工程/">
+                  http://freemind-lj.github.io/2015/05/19/iOS持续集成：命令行创建工程/
+                </a>
+              </span>
+            
+          </div>
+        
+        
+  
+  <div class="categories">
+    <a href="/categories/tech/">tech</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/iOS开发/">iOS开发</a>
+  </div>
+
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+<!-- Duoshuo Comment BEGIN -->
+<div class="ds-thread"></div>
+<script type="text/javascript">
+  var duoshuoQuery = {short_name: 'treeboy' };
+  (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';
+      ds.async = true;
+      ds.src = 'http://static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0] 
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script>
+<!-- Duoshuo Comment END -->
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="text" name="q" results="0" placeholder="搜一下">
+    <i class="icon-search"></i>
+    <input type="hidden" name="q" value="site:freemind-lj.github.io">
+  </form>
+</div>
+
+  
+<div class="widget tag">
+  <h3 class="title">标签</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/GCD/">GCD</a><small>2</small></li>
+  
+    <li><a href="/tags/IM/">IM</a><small>2</small></li>
+  
+    <li><a href="/tags/OGRE/">OGRE</a><small>1</small></li>
+  
+    <li><a href="/tags/SDWebimage/">SDWebimage</a><small>2</small></li>
+  
+    <li><a href="/tags/XMPP/">XMPP</a><small>2</small></li>
+  
+    <li><a href="/tags/charles/">charles</a><small>1</small></li>
+  
+    <li><a href="/tags/iOS开发/">iOS开发</a><small>16</small></li>
+  
+    <li><a href="/tags/runtime/">runtime</a><small>3</small></li>
+  
+    <li><a href="/tags/代码整洁之道/">代码整洁之道</a><small>2</small></li>
+  
+    <li><a href="/tags/性能优化/">性能优化</a><small>2</small></li>
+  
+    <li><a href="/tags/测试/">测试</a><small>1</small></li>
+  
+    <li><a href="/tags/源码剖析/">源码剖析</a><small>1</small></li>
+  
+    <li><a href="/tags/源码解析/">源码解析</a><small>2</small></li>
+  
+    <li><a href="/tags/面向对象设计/">面向对象设计</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">最新文章</h3>
+  <ul class="entry">
+    
+      <li>
+        <a href="/2016/02/02/iOS应用程序间共享数据/">iOS应用程序间共享数据</a>
+      </li>
+    
+      <li>
+        <a href="/2016/01/07/细说-synchronized和dispatch-once/">细说@synchronized和dispatch_once</a>
+      </li>
+    
+      <li>
+        <a href="/2015/12/23/谈谈面向对象设计-OOD-原则/">谈谈面向对象设计(OOD)原则</a>
+      </li>
+    
+      <li>
+        <a href="/2015/12/16/有意义的命名/">有意义的命名</a>
+      </li>
+    
+      <li>
+        <a href="/2015/12/14/整洁代码/">整洁代码</a>
+      </li>
+    
+      <li>
+        <a href="/2015/11/24/开源许可证的一些区别/">开源许可证的一些区别</a>
+      </li>
+    
+      <li>
+        <a href="/2015/11/20/关于GCD开发的一些事儿/">关于GCD开发的一些事儿</a>
+      </li>
+    
+      <li>
+        <a href="/2015/11/02/NSOperation和NSOperationQueue的一些事儿/">NSOperation和NSOperationQueue的一些事儿</a>
+      </li>
+    
+      <li>
+        <a href="/2015/10/20/IM开发-2-XMPP-iOS开发/">IM开发(2)-XMPP iOS开发</a>
+      </li>
+    
+      <li>
+        <a href="/2015/10/08/IM开发-1-ejabberd服务器搭建/">IM开发(1)-ejabberd服务器搭建</a>
+      </li>
+    
+      <li>
+        <a href="/2015/09/09/iOS-app性能优化的那些事-二/">iOS app性能优化的那些事(二)</a>
+      </li>
+    
+      <li>
+        <a href="/2015/09/05/iOS-app性能优化的那些事/">iOS app性能优化的那些事</a>
+      </li>
+    
+  </ul>
+</div>
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <div id="go-pg-top"><i class="icon-arrow-up"></i></div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2016 树下的老男孩
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript" charset="utf-8" src="/js/page.js"></script>
+
+</body>
+
+</html>

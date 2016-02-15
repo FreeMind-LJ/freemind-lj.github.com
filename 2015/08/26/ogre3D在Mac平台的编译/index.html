@@ -1,0 +1,325 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>ogre3D在Mac平台的编译 | 树下的老男孩</title>
+  <meta name="author" content="树下的老男孩">
+  
+  <meta name="description" content="本文主要介绍如何在Mac平台下编译一份可以在iOS上运行的ogre3d引擎的sdk，OGRE简单来说就是一个图形引擎，并且也只是一个图形引擎，不像cocos2dx之类的游戏引擎，包括网络，声音和物理碰撞等组件，OGRE只专注于图形渲染这块，不过可以方便的结合其它组件来组成一个游戏引擎，具体可以自己去了解。
+
+编译OGRE3d首先创建一个文件夹用于放置OGRE3D项目，这个可以随便指定，比如放置在桌面:1mkdir /Users/LJ/Desktop/OGREBuild
+
+下载Ogre3d依赖编译ogre需要首先下载相关的依赖库，由于我们想要编译的是运行在iOS上面的，所以选择现在iOS相关的依赖库,下载地址：iOSDependencies，打开dmg将里面的文件夹拖到OGREBuild文件夹里面；
+下载ogre3d源码这里我使用的是1.9版本的代码，可以使用下面的命令克隆对应的源码(要先安装Mercurial)：1hg clone https://bitbucket.org/sinbad/ogre ogre3d
+
+
+最后面是指定下载的文件夹名字，文件大小500M左右，下载过程比较缓慢，可以到网盘里面下载：ogre3d，同样把该文件夹放到OGREBuild里面；
+
+CMake安装首先要先安装cmake，安装方法可以参考网上的信息，打开控制台，在ogre3d里面创建一个build文件夹，然后运行cmake命令：">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="ogre3D在Mac平台的编译"/>
+  <meta property="og:site_name" content="树下的老男孩"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/favicon.png" rel="icon">
+  <link rel="alternate" href="/atom.xml" title="树下的老男孩" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  <script src="/js/jquery.min.js"></script>
+  
+<script type="text/javascript">
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-45019001-1', 'topdna.org');
+  ga('send', 'pageview');
+
+</script>
+
+
+</head>
+
+
+<body>
+  <!--[if lte IE 8]> <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'> <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode"><img src="http://storage.ie6countdown.com/assets/100/images/banners/warning_bar_0027_Simplified Chinese.jpg" border="0" height="42" width="820" alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today." style='margin-left:auto;margin-right:auto;display: block;'/></a></div> <![endif]-->
+  <header id="header" class="inner"><div class="alignleft">
+  <h1><a href="/">树下的老男孩</a></h1>
+  <h2><a href="/">工匠之行，在行动中体悟修行的乐趣</a></h2>
+</div>
+<nav id="main-nav" class="alignright">
+  <ul>
+    
+      <li><a href="/">首页</a></li>
+    
+      <li><a href="/categories/tech/">技术</a></li>
+    
+      <li><a href="/categories/others/">其它</a></li>
+    
+      <li><a href="/archives">归档</a></li>
+    
+  </ul>
+  <div class="clearfix"></div>
+</nav>
+<div class="clearfix"></div></header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+    <div class="gallery">
+  <div class="photoset">
+    
+      <img src="">
+    
+  </div>
+  <div class="control">
+    <div class="prev"></div>
+    <div class="next"></div>
+  </div>
+</div>
+  
+  <div class="post-content">
+    <header>
+      
+        <time datetime="2015-08-26T11:25:10.000Z"><a href="/2015/08/26/ogre3D在Mac平台的编译/">2015-08-26</a></time>
+      
+      
+  
+    <h1 class="title">ogre3D在Mac平台的编译</h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>  本文主要介绍如何在Mac平台下编译一份可以在iOS上运行的ogre3d引擎的sdk，<a href="http://www.ogre3d.org/" target="_blank" rel="external">OGRE</a>简单来说就是一个图形引擎，并且也只是一个图形引擎，不像cocos2dx之类的游戏引擎，包括网络，声音和物理碰撞等组件，OGRE只专注于图形渲染这块，不过可以方便的结合其它组件来组成一个游戏引擎，具体可以自己去了解。</p>
+<hr>
+<h4 id="编译OGRE3d"><a href="#编译OGRE3d" class="headerlink" title="编译OGRE3d"></a>编译OGRE3d</h4><p>首先创建一个文件夹用于放置OGRE3D项目，这个可以随便指定，比如放置在桌面:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mkdir /Users/LJ/Desktop/OGREBuild</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li>下载Ogre3d依赖<br>编译ogre需要首先下载相关的依赖库，由于我们想要编译的是运行在iOS上面的，所以选择现在iOS相关的依赖库,下载地址：<a href="http://sourceforge.net/projects/ogre/files/ogre-dependencies-mac/1.9/Ogre_iOS_7.0_Dependencies_20140315.dmg/download" target="_blank" rel="external">iOSDependencies</a>，打开dmg将里面的文件夹拖到OGREBuild文件夹里面；</li>
+<li>下载ogre3d源码<br>这里我使用的是1.9版本的代码，可以使用下面的命令克隆对应的源码(要先安装Mercurial)：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hg clone https://bitbucket.org/sinbad/ogre ogre3d</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>最后面是指定下载的文件夹名字，文件大小500M左右，下载过程比较缓慢，可以到网盘里面下载：<a href="http://pan.baidu.com/s/1hqyE8tu" target="_blank" rel="external">ogre3d</a>，同样把该文件夹放到OGREBuild里面；</p>
+<ul>
+<li>CMake安装<br>首先要先安装cmake，安装方法可以参考网上的信息，打开控制台，在ogre3d里面创建一个build文件夹，然后运行cmake命令：</li>
+</ul>
+<a id="more"></a>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lujbdeAir:ogre LJ$ mkdir build&#10;lujbdeAir:ogre LJ$ cd build&#10;lujbdeAir:build LJ$&#160;cmake -DCMAKE_CXX_FLAGS=&#34;$&#123;CMAKE_CXX_FLAGS&#125; -v -stdlib=libc++ -std=c++11&#34;&#10; -D BOOST_ROOT=/Users/LJ/Desktop/OGREBuild/iOSDependencies/include/boost &#10; -D BOOST_INCLUDEDIR=/Users/LJ/Desktop/OGREBuild/iOSDependencies/include/boost &#10; -D BOOST_LIBRARYDIR=/Users/LJ/Desktop/OGREBuild/iOSDependencies/lib&#10; -D OGRE_DEPENDENCIES_DIR=/Users/LJ/Desktop/OGREBuild/iOSDependencies -D OGRE_STATIC=1&#10; -D OGRE_BUILD_SAMPLES=0 -D OGRE_BUILD_PLATFORM_APPLE_IOS=1 -G Xcode ..</span><br></pre></td></tr></table></figure>
+<p>简单介绍一下cmake里面的参数：<br>DCMAKE_CXX_FLAGS的值表示支持c++11；BOOST_ROOT，BOOST_INCLUDEDIR，BOOST_LIBRARYDIR，OGRE_DEPENDENCIES_DIR分别对应boost库和依赖库的路径；OGRE_STATIC=1表示我们构建的是静态库，OGRE_BUILD_SAMPLES表示是否需要构建sample工程，由于我们只想要build对应的sdk，所以将该值设为0表示不构建sample；同时我们的目标是构建iOS版本的sdk，所以需要设置OGRE_BUILD_PLATFORM_APPLE_IOS＝1。<br>  运行完之后能看到在build文件夹下有个OGRE工程，点击OGRE.xcodeproj就可以开始编译我们的sdk了。</p>
+<ul>
+<li>编译sdk<br>  在运行ogre工程之前，需要配置一些选项，点击Product → Scheme → Edit Scheme，分别设置ALL_BUILD和install target的Build Configuration选项为release，然后设置选择的target为ALL_BUILD。接下来就command+B开始编译，这个过程可能也需要花点时间；build成功之后，在选择install target，同样command＋B编译，完成之后你应该能发现有一个sdk目录，别忘了还需要把build目下的lib文件夹内容拷贝到sdk的lib文件夹下，这里面包含的是iOS运行时需要用到的一些静态库:</li>
+</ul>
+<p><img src="http://upload-images.jianshu.io/upload_images/458529-5954b0a64958b6f2.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="sdk目录"></p>
+<ul>
+<li>创建iOS demo工程<br>  编译完sdk之后，我们就可以开始构建我们的iOS工程了，为了方便建立ogre工程，我们可以下载一个<a href="http://sourceforge.net/projects/ogre/files/ogre-dependencies-mac/1.9/Ogre_Xcode4_Templates_20140408.pkg.zip/download" target="_blank" rel="external">Ogre_Xcode4_Templates</a>，安装完之后能看到在创建Xcode工程时多了一个选项：</li>
+</ul>
+<p><img src="http://upload-images.jianshu.io/upload_images/458529-42ac6ac279224f41.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="屏幕快照 2015-08-26 下午7.32.51.png"><br>点击next便可以创建一个iOS的ogre工程了,可以看到模版帮我们创建了好些文件，包括OgreFramework和demoAPP等，想要运行还需要些配置。<br>打开Build Settings选择”+” add User-Defined Setting，新建OGRE_SDK_ROOT为sdk的路径：</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/458529-eaca40598cae1625.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="OGRE_SDK_ROOT路径"></p>
+<p>设置Header Search Paths:</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/458529-63a4387554579269.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Header Search Paths"><br>设置Library Search Paths:</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/458529-c4bbd5775250e26a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Library Search Paths"></p>
+<p>配置完这些内容后，点击运行应该就能看到在iPhone上出现了ogre3d的经典模型画面：</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/458529-0efe81919dbb5f4a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="ogre"></p>
+<p>接下来就可以开始ogre引擎的研究之旅了。</p>
+
+      
+    </div>
+    <footer>
+      
+
+        
+          <div class="alignleft post-nav">
+            <em>上一篇: </em><a href="/2015/09/05/iOS-app性能优化的那些事/">iOS app性能优化的那些事</a>
+          </div>
+        
+        
+          <div class="alignright post-nav">
+            <em>下一篇: </em><a href="/2015/07/21/git遇到的一些问题解决/">git遇到的一些问题解决</a>
+          </div>
+          <div class="clearfix"></div>
+        
+
+        
+          <div class="copyright">
+            
+              <span class="claim">版权声明：自由转载-非商用-保持署名  树下的老男孩</span>
+            
+            
+              <span class="from-link">
+                <em>本文链接地址:</em>
+                <a href="/2015/08/26/ogre3D在Mac平台的编译/">
+                  http://freemind-lj.github.io/2015/08/26/ogre3D在Mac平台的编译/
+                </a>
+              </span>
+            
+          </div>
+        
+        
+  
+  <div class="categories">
+    <a href="/categories/others/">others</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/OGRE/">OGRE</a>
+  </div>
+
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+<!-- Duoshuo Comment BEGIN -->
+<div class="ds-thread"></div>
+<script type="text/javascript">
+  var duoshuoQuery = {short_name: 'treeboy' };
+  (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';
+      ds.async = true;
+      ds.src = 'http://static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0] 
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script>
+<!-- Duoshuo Comment END -->
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="text" name="q" results="0" placeholder="搜一下">
+    <i class="icon-search"></i>
+    <input type="hidden" name="q" value="site:freemind-lj.github.io">
+  </form>
+</div>
+
+  
+<div class="widget tag">
+  <h3 class="title">标签</h3>
+  <ul class="entry">
+  
+    <li><a href="/tags/GCD/">GCD</a><small>2</small></li>
+  
+    <li><a href="/tags/IM/">IM</a><small>2</small></li>
+  
+    <li><a href="/tags/OGRE/">OGRE</a><small>1</small></li>
+  
+    <li><a href="/tags/SDWebimage/">SDWebimage</a><small>2</small></li>
+  
+    <li><a href="/tags/XMPP/">XMPP</a><small>2</small></li>
+  
+    <li><a href="/tags/charles/">charles</a><small>1</small></li>
+  
+    <li><a href="/tags/iOS开发/">iOS开发</a><small>16</small></li>
+  
+    <li><a href="/tags/runtime/">runtime</a><small>3</small></li>
+  
+    <li><a href="/tags/代码整洁之道/">代码整洁之道</a><small>2</small></li>
+  
+    <li><a href="/tags/性能优化/">性能优化</a><small>2</small></li>
+  
+    <li><a href="/tags/测试/">测试</a><small>1</small></li>
+  
+    <li><a href="/tags/源码剖析/">源码剖析</a><small>1</small></li>
+  
+    <li><a href="/tags/源码解析/">源码解析</a><small>2</small></li>
+  
+    <li><a href="/tags/面向对象设计/">面向对象设计</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">最新文章</h3>
+  <ul class="entry">
+    
+      <li>
+        <a href="/2016/02/02/iOS应用程序间共享数据/">iOS应用程序间共享数据</a>
+      </li>
+    
+      <li>
+        <a href="/2016/01/07/细说-synchronized和dispatch-once/">细说@synchronized和dispatch_once</a>
+      </li>
+    
+      <li>
+        <a href="/2015/12/23/谈谈面向对象设计-OOD-原则/">谈谈面向对象设计(OOD)原则</a>
+      </li>
+    
+      <li>
+        <a href="/2015/12/16/有意义的命名/">有意义的命名</a>
+      </li>
+    
+      <li>
+        <a href="/2015/12/14/整洁代码/">整洁代码</a>
+      </li>
+    
+      <li>
+        <a href="/2015/11/24/开源许可证的一些区别/">开源许可证的一些区别</a>
+      </li>
+    
+      <li>
+        <a href="/2015/11/20/关于GCD开发的一些事儿/">关于GCD开发的一些事儿</a>
+      </li>
+    
+      <li>
+        <a href="/2015/11/02/NSOperation和NSOperationQueue的一些事儿/">NSOperation和NSOperationQueue的一些事儿</a>
+      </li>
+    
+      <li>
+        <a href="/2015/10/20/IM开发-2-XMPP-iOS开发/">IM开发(2)-XMPP iOS开发</a>
+      </li>
+    
+      <li>
+        <a href="/2015/10/08/IM开发-1-ejabberd服务器搭建/">IM开发(1)-ejabberd服务器搭建</a>
+      </li>
+    
+      <li>
+        <a href="/2015/09/09/iOS-app性能优化的那些事-二/">iOS app性能优化的那些事(二)</a>
+      </li>
+    
+      <li>
+        <a href="/2015/09/05/iOS-app性能优化的那些事/">iOS app性能优化的那些事</a>
+      </li>
+    
+  </ul>
+</div>
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <div id="go-pg-top"><i class="icon-arrow-up"></i></div>
+  <footer id="footer" class="inner"><div class="alignleft">
+  
+  &copy; 2016 树下的老男孩
+  
+</div>
+<div class="clearfix"></div></footer>
+  <script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript" charset="utf-8" src="/js/page.js"></script>
+
+</body>
+
+</html>
