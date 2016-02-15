@@ -973,6 +973,39 @@
   </entry>
   
   <entry>
+    <title>method Swizzling实践--alloc hooker</title>
+    <link href="http://freemind-lj.github.io/2015/08/06/method-Swizzling%E5%AE%9E%E8%B7%B5-alloc-hooker/"/>
+    <id>http://freemind-lj.github.io/2015/08/06/method-Swizzling实践-alloc-hooker/</id>
+    <published>2015-08-06T15:06:04.000Z</published>
+    <updated>2016-02-15T04:07:15.000Z</updated>
+    
+    <content type="html">&lt;p&gt;  废话不多说，直接进入正题。这次碰到的问题主要是在项目里涉及到的一些内存问题，先说说这个项目的整体结构，由于要实现跨平台的缘故，所以在最顶层是由lua来编写相关的业务代码的，实现安卓和iOS端业务的快速开发，中间是一层统一的c++接口，然后iOS跟安卓根据这份统一的c++接口实现各自平台的底层逻辑代码，比如对于一个View，c++的统一接口为： &lt;/p&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;void *createView(const char *type)&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;然后创建view由iOS跟安卓各自去实现，iOS端可以实现c++跟oc的混合编码，可以直接调用oc的代码，然后lua调用c++借由&lt;a href=&quot;http://www.ibm.com/developerworks/cn/aix/library/au-swig/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;swig&lt;/a&gt;实现互调，这个有很多种方法可以自己去挑选合适的。&lt;br&gt;  下面说说框架中遇到的问题，由于这中间涉及到lua，c＋＋跟oc的混合编码，而且oc使用的是mrc方式(项目开始的时间比较早)，因此内存管理的问题变得尤为重要。正常的处理逻辑是：创建时，lua调用c++去new一个oc对象；释放时，lua调用c++的析构函数，然后在析构函数里完成oc对象的释放。然后怎么确保这些对象按照这个逻辑被释放掉了呢～&lt;/p&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;p&gt;  对于这个问题，我采取的策略是在每个对象创建的时候做一个记录，然后在对象被清理的时候从记录中删除，最后看看记录中还有没有多余的对象，以此来判断对象是否都被释放完毕(或者有啥新的思路也可以提出来哈～)，实现这个需要借助两个东西：&lt;a href=&quot;http://www.jianshu.com/p/b87fa689055f&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;method Swizzling&lt;/a&gt; 和 &lt;a href=&quot;http://www.cocoachina.com/industry/20140605/8683.html]&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;NSHashTable&lt;/a&gt;,method Swizzling可以参考之前的博客，NSHashTable主要利用它可以持有weak类型的成员变量，NSHashTableWeakMemory表示添加到该hash table时并不会增加对象的引用技术，当添加的对象在外部被释放时，该table会自动删除相应的对象。&lt;/p&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;NSHashTable *hashTable = [NSHashTable hashTableWithOptions: NSHashTableWeakMemory];&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;因此可以看出具体的实现方式了：利用method Swizzling去hook nsobject的init方法，并将其添加到NSHashTableWeakMemory型的NSHashTable，最后看看该table中还有哪些对象，证明这些对象还没有被释放掉，可以通过这来检测整个对象的创建跟释放逻辑是否正确。&lt;br&gt;  下面给出示例代码，比如要记录UIView对象创建跟释放：&lt;/p&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;static NSHashTable *hashTable;//&amp;#23384;&amp;#20648;&amp;#21019;&amp;#24314;&amp;#30340;&amp;#23545;&amp;#35937;&amp;#10;@implementation UIView (AllocHook)&amp;#10;&amp;#10;//method Swizzling&amp;#30340;&amp;#26041;&amp;#27861;&amp;#65292;&amp;#25105;&amp;#20204;hook&amp;#35813;&amp;#26041;&amp;#27861;&amp;#65292;&amp;#24182;&amp;#39069;&amp;#22806;&amp;#23558;&amp;#35813;&amp;#23545;&amp;#35937;&amp;#28155;&amp;#21152;&amp;#21040;NSHashTable&amp;#20013;&amp;#10;-(instancetype)customInit&amp;#10;&amp;#123;&amp;#10;    if (!hashTable) &amp;#123;&amp;#10;        hashTable = [NSHashTable hashTableWithOptions:NSHashTableWeakMemory];&amp;#10;    &amp;#125;&amp;#10;    [hashTable addObject:self];&amp;#10;    return [self customInit];&amp;#10;&amp;#125;&amp;#10;@end&amp;#10;&amp;#10;//&amp;#19968;&amp;#20010;hook&amp;#23545;&amp;#35937;&amp;#65292;&amp;#29992;&amp;#20110;&amp;#24320;&amp;#21551;method Swizzling&amp;#10;@implementation ViewAllocHooker&amp;#10;&amp;#10;-(void)startRecord&amp;#10;&amp;#123;&amp;#10;    Class class = [UIView class];&amp;#10;    &amp;#10;    SEL originalSelector = @selector(init);&amp;#10;    SEL swizzledSelector = @selector(customInit);&amp;#10;    &amp;#10;    Method originalMethod = class_getInstanceMethod(class, originalSelector);&amp;#10;    Method swizzledMethod = class_getInstanceMethod(class, swizzledSelector);&amp;#10;    //&amp;#20132;&amp;#25442;&amp;#21407;&amp;#26469;&amp;#30340;init&amp;#26041;&amp;#27861;&amp;#36319;&amp;#26032;&amp;#30340;customInit&amp;#26041;&amp;#27861;&amp;#10;    method_exchangeImplementations(originalMethod, swizzledMethod);&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;这样每个调用init方法创建的UIView或其子类都将被记录到NSHashTable中，同时由于该table只是持有添加对象的弱引用，因此可以在后面查看该table还有哪些对象就可以确定这些对象还没被释放，以验证该框架是否正确。详细的例子代码可以查看&lt;a href=&quot;https://github.com/FreeMind-LJ/AllocHooker&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;github&lt;/a&gt;，其中的ViewAllocHooker可以采用单例，由于是示例代码就不更改了，有啥改进的地方欢迎提出～～&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;  废话不多说，直接进入正题。这次碰到的问题主要是在项目里涉及到的一些内存问题，先说说这个项目的整体结构，由于要实现跨平台的缘故，所以在最顶层是由lua来编写相关的业务代码的，实现安卓和iOS端业务的快速开发，中间是一层统一的c++接口，然后iOS跟安卓根据这份统一的c++接口实现各自平台的底层逻辑代码，比如对于一个View，c++的统一接口为： &lt;/p&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;void *createView(const char *type)&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;然后创建view由iOS跟安卓各自去实现，iOS端可以实现c++跟oc的混合编码，可以直接调用oc的代码，然后lua调用c++借由&lt;a href=&quot;http://www.ibm.com/developerworks/cn/aix/library/au-swig/&quot;&gt;swig&lt;/a&gt;实现互调，这个有很多种方法可以自己去挑选合适的。&lt;br&gt;  下面说说框架中遇到的问题，由于这中间涉及到lua，c＋＋跟oc的混合编码，而且oc使用的是mrc方式(项目开始的时间比较早)，因此内存管理的问题变得尤为重要。正常的处理逻辑是：创建时，lua调用c++去new一个oc对象；释放时，lua调用c++的析构函数，然后在析构函数里完成oc对象的释放。然后怎么确保这些对象按照这个逻辑被释放掉了呢～&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="tech" scheme="http://freemind-lj.github.io/categories/tech/"/>
+    
+    
+      <category term="iOS开发" scheme="http://freemind-lj.github.io/tags/iOS%E5%BC%80%E5%8F%91/"/>
+    
+  </entry>
+  
+  <entry>
     <title>git遇到的一些问题解决</title>
     <link href="http://freemind-lj.github.io/2015/07/21/git%E9%81%87%E5%88%B0%E7%9A%84%E4%B8%80%E4%BA%9B%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3/"/>
     <id>http://freemind-lj.github.io/2015/07/21/git遇到的一些问题解决/</id>
@@ -1258,40 +1291,6 @@
       <category term="iOS开发" scheme="http://freemind-lj.github.io/tags/iOS%E5%BC%80%E5%8F%91/"/>
     
       <category term="runtime" scheme="http://freemind-lj.github.io/tags/runtime/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>利用Charles分析iOS app的网络通信</title>
-    <link href="http://freemind-lj.github.io/2015/05/29/%E5%88%A9%E7%94%A8Charles%E5%88%86%E6%9E%90iOS-app%E7%9A%84%E7%BD%91%E7%BB%9C%E9%80%9A%E4%BF%A1/"/>
-    <id>http://freemind-lj.github.io/2015/05/29/利用Charles分析iOS-app的网络通信/</id>
-    <published>2015-05-29T06:36:11.000Z</published>
-    <updated>2016-02-15T03:37:46.000Z</updated>
-    
-    <content type="html">&lt;p&gt;&lt;a href=&quot;http://www.charlesproxy.com/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Charles&lt;/a&gt;，一个非常方便的抓包工具，这次主要介绍一下如何利用Charles分析iOS应用的网络通信，以iOS应用NASA为例（最近对universe有点感兴趣），下面为app的模样：&lt;/p&gt;
-&lt;center&gt;&lt;br&gt;&lt;img src=&quot;http://7xpjm0.com1.z0.glb.clouddn.com/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202015-05-29%20%E4%B8%8B%E5%8D%88.jpeg&quot; alt=&quot;屏幕快照 2015-05-29 下午2.38.34.png&quot;&gt;&lt;br&gt;&lt;/center&gt;&lt;br&gt;里面可以查看一些跟太空相关的图片，分析一下如何获取这些图片，但需要手机连接到Mac共享的Wi-Fi上。&lt;br&gt;&lt;em&gt; 查看Mac的IP地址，比如我机器上的为：192.168.56.160;
-&lt;/em&gt; 打开iPhone设置，选择连接的Wi-Fi，设置HTTP代理，选择手动，并设置服务器的Mac的IP地址，端口设为8090;&lt;br&gt;&lt;center&gt;&lt;br&gt;&lt;img src=&quot;http://7xpjm0.com1.z0.glb.clouddn.com/%E6%89%8B%E6%9C%BA%E8%AE%BE%E7%BD%AE.jpeg&quot; alt=&quot;手机设置&quot;&gt;&lt;br&gt;&lt;/center&gt;
-
-&lt;ul&gt;
-&lt;li&gt;打开Charles应用，选择菜单“Proxy”-&amp;gt;”Proxy Settings”，设置端口号8090，同时勾选”Enable transparent HTTP proxying” &lt;/li&gt;
-&lt;/ul&gt;
-&lt;center&gt;&lt;br&gt;&lt;img src=&quot;http://7xpjm0.com1.z0.glb.clouddn.com/Charles%E8%AE%BE%E7%BD%AE.jpeg&quot; alt=&quot;Charles设置&quot;&gt;&lt;br&gt;&lt;/center&gt;&lt;br&gt;* 打开NASA应用，Charles开始记录，进入app的Images选项：&lt;br&gt;&lt;br&gt;&lt;center&gt;&lt;br&gt;&lt;img src=&quot;http://7xpjm0.com1.z0.glb.clouddn.com/Charles%E7%BA%AA%E5%BD%95%E7%BB%93%E6%9E%9C.jpeg&quot; alt=&quot;Charles纪录结果&quot;&gt;&lt;br&gt;&lt;br&gt;&lt;img src=&quot;http://7xpjm0.com1.z0.glb.clouddn.com/%E6%89%8B%E6%9C%BA%E7%95%8C%E9%9D%A2.jpeg&quot; alt=&quot;手机界面&quot;&gt;&lt;br&gt;&lt;/center&gt;
-
-&lt;p&gt;通过Charles可以看出获取这张图片请求方式为：&lt;br&gt;&lt;a href=&quot;http://mobile.arc.nasa.gov/public/iexplore/images/useradded/320/norfolk_ast_2009316.jpg&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://mobile.arc.nasa.gov/public/iexplore/images/useradded/320/norfolk_ast_2009316.jpg&lt;/a&gt; ，其它的请求信息都可以在Charles中查看。所以假如你自己的应用想要显示NASA的一些图片，你就可以使用这些请求方式了，分析其它应用方法类似。&lt;/p&gt;
-</content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;&lt;a href=&quot;http://www.charlesproxy.com/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Charles&lt;/a&gt;，一个非常方便的抓包工具，这次主要介绍一下如何利用Charles分析iOS应用的网络通信，以iOS应用NASA为
-    
-    </summary>
-    
-      <category term="tech" scheme="http://freemind-lj.github.io/categories/tech/"/>
-    
-    
-      <category term="charles" scheme="http://freemind-lj.github.io/tags/charles/"/>
-    
-      <category term="iOS开发" scheme="http://freemind-lj.github.io/tags/iOS%E5%BC%80%E5%8F%91/"/>
     
   </entry>
   

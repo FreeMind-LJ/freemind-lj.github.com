@@ -3,22 +3,17 @@
 <head>
   <meta charset="utf-8">
   
-  <title>iOS block浅析 | 树下的老男孩</title>
+  <title>method Swizzling实践--alloc hooker | 树下的老男孩</title>
   <meta name="author" content="树下的老男孩">
   
-  <meta name="description" content="iOS开发中经常会使用block结合gcd来完成多线程编程，block也属于对象，主要有三种类型:1、 _NSConcreteStackBlock ，存储在栈上；2、_NSConcreteGlobalBlock，存储在程序的数据区域(text段)；3、_NSConcreteMallocBlock，存储在堆上。下面分别介绍一下这三种类型的block，block在arc和非arc的模式下会有些需要注意的地方：
-
-NSGlobalBlock：在block内部没有引用任何外部变量
-
-1void (^globalBlock) () = ^ () &amp;#123;&amp;#10;      NSLog(@&amp;#34;global block&amp;#34;);&amp;#10;&amp;#125;;&amp;#10;NSLog(@&amp;#34;%@&amp;#34;, globalBlock);//&amp;#60;__NSGlobalBlock__: 0x1096e20c0&amp;#62;
-对NSGlobalBlock的retain、copy、release操作都无效。
-
-NSStackBlock：在block内部引用外部变量先讨论下MRC模式：">
+  <meta name="description" content="废话不多说，直接进入正题。这次碰到的问题主要是在项目里涉及到的一些内存问题，先说说这个项目的整体结构，由于要实现跨平台的缘故，所以在最顶层是由lua来编写相关的业务代码的，实现安卓和iOS端业务的快速开发，中间是一层统一的c++接口，然后iOS跟安卓根据这份统一的c++接口实现各自平台的底层逻辑代码，比如对于一个View，c++的统一接口为： 
+1void *createView(const char *type)
+然后创建view由iOS跟安卓各自去实现，iOS端可以实现c++跟oc的混合编码，可以直接调用oc的代码，然后lua调用c++借由swig实现互调，这个有很多种方法可以自己去挑选合适的。  下面说说框架中遇到的问题，由于这中间涉及到lua，c＋＋跟oc的混合编码，而且oc使用的是mrc方式(项目开始的时间比较早)，因此内存管理的问题变得尤为重要。正常的处理逻辑是：创建时，lua调用c++去new一个oc对象；释放时，lua调用c++的析构函数，然后在析构函数里完成oc对象的释放。然后怎么确保这些对象按照这个逻辑被释放掉了呢～">
   
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
-  <meta property="og:title" content="iOS block浅析"/>
+  <meta property="og:title" content="method Swizzling实践--alloc hooker"/>
   <meta property="og:site_name" content="树下的老男孩"/>
 
   
@@ -86,34 +81,25 @@ NSStackBlock：在block内部引用外部变量先讨论下MRC模式：">
   <div class="post-content">
     <header>
       
-        <time datetime="2015-05-21T11:38:32.000Z"><a href="/2015/05/21/iOS-block浅析/">2015-05-21</a></time>
+        <time datetime="2015-08-06T15:06:04.000Z"><a href="/2015/08/06/method-Swizzling实践-alloc-hooker/">2015-08-06</a></time>
       
       
   
-    <h1 class="title">iOS block浅析</h1>
+    <h1 class="title">method Swizzling实践--alloc hooker</h1>
   
 
     </header>
     <div class="entry">
       
-        <p>iOS开发中经常会使用block结合gcd来完成多线程编程，block也属于对象，主要有三种类型:<br>1、 _NSConcreteStackBlock ，存储在栈上；<br>2、_NSConcreteGlobalBlock，存储在程序的数据区域(text段)；<br>3、_NSConcreteMallocBlock，存储在堆上。<br>下面分别介绍一下这三种类型的block，block在arc和非arc的模式下会有些需要注意的地方：</p>
-<ul>
-<li>NSGlobalBlock：在block内部没有引用任何外部变量</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">void (^globalBlock) () = ^ () &#123;&#10;      NSLog(@&#34;global block&#34;);&#10;&#125;;&#10;NSLog(@&#34;%@&#34;, globalBlock);//&#60;__NSGlobalBlock__: 0x1096e20c0&#62;</span><br></pre></td></tr></table></figure>
-<p>对NSGlobalBlock的retain、copy、release操作都无效。</p>
-<ul>
-<li>NSStackBlock：在block内部引用外部变量<br>先讨论下MRC模式：</li>
-</ul>
+        <p>  废话不多说，直接进入正题。这次碰到的问题主要是在项目里涉及到的一些内存问题，先说说这个项目的整体结构，由于要实现跨平台的缘故，所以在最顶层是由lua来编写相关的业务代码的，实现安卓和iOS端业务的快速开发，中间是一层统一的c++接口，然后iOS跟安卓根据这份统一的c++接口实现各自平台的底层逻辑代码，比如对于一个View，c++的统一接口为： </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">void *createView(const char *type)</span><br></pre></td></tr></table></figure>
+<p>然后创建view由iOS跟安卓各自去实现，iOS端可以实现c++跟oc的混合编码，可以直接调用oc的代码，然后lua调用c++借由<a href="http://www.ibm.com/developerworks/cn/aix/library/au-swig/" target="_blank" rel="external">swig</a>实现互调，这个有很多种方法可以自己去挑选合适的。<br>  下面说说框架中遇到的问题，由于这中间涉及到lua，c＋＋跟oc的混合编码，而且oc使用的是mrc方式(项目开始的时间比较早)，因此内存管理的问题变得尤为重要。正常的处理逻辑是：创建时，lua调用c++去new一个oc对象；释放时，lua调用c++的析构函数，然后在析构函数里完成oc对象的释放。然后怎么确保这些对象按照这个逻辑被释放掉了呢～</p>
 <a id="more"></a>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">int base = 100;&#10;long (^stackBlock) (int, int) = ^ long (int a, int b) &#123;&#10;    return base +a + b;&#10;&#125;;&#10;NSLog(@&#34;%@&#34;,stackBlock);//&#60;__NSStackBlock__: 0x7fff57c6bce0&#62;</span><br></pre></td></tr></table></figure>
-<p>栈block在当函数退出的时候，该空间就会被回收，因此如果再调用该block会导致crash：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">void example_addBlockToArray(NSMutableArray *array) &#123;&#10;  char b = &#39;B&#39;;&#10;  [array addObject:^&#123;&#10;    printf(&#34;%cn&#34;, b);&#10;  &#125;];&#10;&#125;&#10;&#10;void example() &#123;&#10;  NSMutableArray *array = [NSMutableArray array];&#10;  example_addBlockToArray(array);&#10;  void (^block)() = [array objectAtIndex:0];&#10;  block();&#10;&#125;</span><br></pre></td></tr></table></figure></p>
-<p>在example_addBlockToArray函数中添加的block由于为栈block，因此在example函数中调用的话会导致程序crash掉，可以通过将block拷贝到堆上来解决这个问题：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[array addObject:[[^&#123;&#10;       printf(&#34;%cn&#34;, b);&#10;   &#125; copy autorelease]]];</span><br></pre></td></tr></table></figure></p>
-<p>retain、release这种类型的block不起作用。下面看看在ARC模式下会有啥不同的地方：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">int base = 100;&#10;long (^stackBlock) (int, int) = ^ long (int a, int b) &#123;&#10;    return base +a + b;&#10;&#125;;&#10;NSLog(@&#34;%@&#34;,stackBlock);//&#60;__NSMallocBlock__: 0x7f8da961e590&#62;</span><br></pre></td></tr></table></figure></p>
-<p>我们发现在ARC模式下，打印出来的结果并不是NSStackBlock这个类型，很多人以为在ARC模式下block的类型只有NSGlobalBlock和NSMallocBlock两种，其实这种观点是错误的。在ARC情况下，生成的block也是NSStackBlock，只是当赋值给strong对象时，系统会主动对其进行copy:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">int i=0;&#10;NSLog(@&#34;%@&#34;, ^&#123;&#10;    NSLog(@&#34;stack block here, i=%d&#34;, i);&#10;&#125;);//&#60;__NSStackBlock__: 0x7fff592eacf8&#62;&#10;&#10;void (^block)()=^&#123;&#10;    NSLog(@&#34;stack block here, i=%d&#34;, i);&#10;&#125;;&#10;NSLog(@&#34;%@&#34;,block);//&#60;__NSMallocBlock__: 0x7fae49e02660&#62;</span><br></pre></td></tr></table></figure></p>
-<ul>
-<li>NSMallocBlock<br>如果NSStackBlock需要在其作用域外部使用的时候，在MRC的模式下需要手动将其copy到堆上，NSMallocBlock支持retain、release，会对其引用计数＋1或－1，copy不会生成新的对象，只是增加了一次引用，类似retain；而在ARC模式下会自动对其进行copy，不需要自己手动去管理，尽可能使用ARC。</li>
-</ul>
+<p>  对于这个问题，我采取的策略是在每个对象创建的时候做一个记录，然后在对象被清理的时候从记录中删除，最后看看记录中还有没有多余的对象，以此来判断对象是否都被释放完毕(或者有啥新的思路也可以提出来哈～)，实现这个需要借助两个东西：<a href="http://www.jianshu.com/p/b87fa689055f" target="_blank" rel="external">method Swizzling</a> 和 <a href="http://www.cocoachina.com/industry/20140605/8683.html]" target="_blank" rel="external">NSHashTable</a>,method Swizzling可以参考之前的博客，NSHashTable主要利用它可以持有weak类型的成员变量，NSHashTableWeakMemory表示添加到该hash table时并不会增加对象的引用技术，当添加的对象在外部被释放时，该table会自动删除相应的对象。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">NSHashTable *hashTable = [NSHashTable hashTableWithOptions: NSHashTableWeakMemory];</span><br></pre></td></tr></table></figure>
+<p>因此可以看出具体的实现方式了：利用method Swizzling去hook nsobject的init方法，并将其添加到NSHashTableWeakMemory型的NSHashTable，最后看看该table中还有哪些对象，证明这些对象还没有被释放掉，可以通过这来检测整个对象的创建跟释放逻辑是否正确。<br>  下面给出示例代码，比如要记录UIView对象创建跟释放：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">static NSHashTable *hashTable;//&#23384;&#20648;&#21019;&#24314;&#30340;&#23545;&#35937;&#10;@implementation UIView (AllocHook)&#10;&#10;//method Swizzling&#30340;&#26041;&#27861;&#65292;&#25105;&#20204;hook&#35813;&#26041;&#27861;&#65292;&#24182;&#39069;&#22806;&#23558;&#35813;&#23545;&#35937;&#28155;&#21152;&#21040;NSHashTable&#20013;&#10;-(instancetype)customInit&#10;&#123;&#10;    if (!hashTable) &#123;&#10;        hashTable = [NSHashTable hashTableWithOptions:NSHashTableWeakMemory];&#10;    &#125;&#10;    [hashTable addObject:self];&#10;    return [self customInit];&#10;&#125;&#10;@end&#10;&#10;//&#19968;&#20010;hook&#23545;&#35937;&#65292;&#29992;&#20110;&#24320;&#21551;method Swizzling&#10;@implementation ViewAllocHooker&#10;&#10;-(void)startRecord&#10;&#123;&#10;    Class class = [UIView class];&#10;    &#10;    SEL originalSelector = @selector(init);&#10;    SEL swizzledSelector = @selector(customInit);&#10;    &#10;    Method originalMethod = class_getInstanceMethod(class, originalSelector);&#10;    Method swizzledMethod = class_getInstanceMethod(class, swizzledSelector);&#10;    //&#20132;&#25442;&#21407;&#26469;&#30340;init&#26041;&#27861;&#36319;&#26032;&#30340;customInit&#26041;&#27861;&#10;    method_exchangeImplementations(originalMethod, swizzledMethod);&#10;&#125;</span><br></pre></td></tr></table></figure>
+<p>这样每个调用init方法创建的UIView或其子类都将被记录到NSHashTable中，同时由于该table只是持有添加对象的弱引用，因此可以在后面查看该table还有哪些对象就可以确定这些对象还没被释放，以验证该框架是否正确。详细的例子代码可以查看<a href="https://github.com/FreeMind-LJ/AllocHooker" target="_blank" rel="external">github</a>，其中的ViewAllocHooker可以采用单例，由于是示例代码就不更改了，有啥改进的地方欢迎提出～～</p>
 
       
     </div>
@@ -122,12 +108,12 @@ NSStackBlock：在block内部引用外部变量先讨论下MRC模式：">
 
         
           <div class="alignleft post-nav">
-            <em>上一篇: </em><a href="/2015/05/25/ios-runtime浅析-：消息传递与动态解析/">ios runtime浅析(-)：消息传递与动态解析</a>
+            <em>上一篇: </em><a href="/2015/08/26/ogre3D在Mac平台的编译/">ogre3D在Mac平台的编译</a>
           </div>
         
         
           <div class="alignright post-nav">
-            <em>下一篇: </em><a href="/2015/05/19/iOS持续集成：命令行创建工程/">iOS持续集成：命令行创建工程</a>
+            <em>下一篇: </em><a href="/2015/07/21/git遇到的一些问题解决/">git遇到的一些问题解决</a>
           </div>
           <div class="clearfix"></div>
         
@@ -140,8 +126,8 @@ NSStackBlock：在block内部引用外部变量先讨论下MRC模式：">
             
               <span class="from-link">
                 <em>本文链接地址:</em>
-                <a href="/2015/05/21/iOS-block浅析/">
-                  http://freemind-lj.github.io/2015/05/21/iOS-block浅析/
+                <a href="/2015/08/06/method-Swizzling实践-alloc-hooker/">
+                  http://freemind-lj.github.io/2015/08/06/method-Swizzling实践-alloc-hooker/
                 </a>
               </span>
             
