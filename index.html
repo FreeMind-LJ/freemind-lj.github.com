@@ -232,6 +232,130 @@
             
               
                 
+                <a class="post-title-link" href="/2016/03/14/浅析React之通信机制（一）/" itemprop="url">
+                  浅析React之通信机制（一）
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-03-14T19:38:44+08:00" content="2016-03-14">
+              2016-03-14
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/tech/" itemprop="url" rel="index">
+                    <span itemprop="name">tech</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/03/14/浅析React之通信机制（一）/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/03/14/浅析React之通信机制（一）/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2016/03/14/浅析React之通信机制（一）/" class="leancloud_visitors" data-flag-title="浅析React之通信机制（一）">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p><img src="http://7xpjm0.com1.z0.glb.clouddn.com/458529-15c5ec5d168c8861.png" alt=""><br>自从Facebook提出了react之后，这个框架的关注度一直居高不下，它所引入的一些东西还是值得学习，比如组件化的开发方式，virtual dom的性能提升方式等，最近为了改进现有的跨平台方案也在研究react，在这边也做下相关的记录。</p>
+<p>####pre<br>在开始使用react之前我们需要搭建相应的环境，这个就不在探讨了，具体可以查看<a href="http://reactnative.cn/docs/0.20/getting-started.html">官方文档</a>，由于react需要使用javascript语言，所以可能需要去简单了解一下相关的语法(比如：<a href="http://es6.ruanyifeng.com/">ES6 标准入门</a>)，另外iOS在7.0之后引入了javascriptcore框架，极大的方便了js跟oc之间de通信，之前有一篇<a href="http://www.jianshu.com/p/1328e15416f3">博客</a>简单的介绍了javascriptcore，有兴趣的也可以去了解一下。</p>
+<p>####整体框架<br>react的整体示意图可以用下面图表示，我们所编写的js代码可以在各个平台上运行，这让我们有web的开发效率的同时又有了原生应用的体验。</p>
+<p><img src="http://7xpjm0.com1.z0.glb.clouddn.com/458529-b6a9b19b0a599340.png" alt="Learn once, write anywhere"><br>不过这里面包含的东西对于有点多，尤其很多web相关的东西对于没接触过的人还是有些难度的，要想快速的研究透彻可能不太现实，至少对于我是这样的，因此我们首先研究一下react中js跟native之间的通信方法，其它的有待后面在分析。</p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2016/03/14/浅析React之通信机制（一）/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2016/03/01/说说JavaScriptCore/" itemprop="url">
                   说说JavaScriptCore
                 </a>
@@ -1111,135 +1235,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2015/11/20/关于GCD开发的一些事儿/" itemprop="url">
-                  关于GCD开发的一些事儿
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2015-11-20T17:58:10+08:00" content="2015-11-20">
-              2015-11-20
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/tech/" itemprop="url" rel="index">
-                    <span itemprop="name">tech</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2015/11/20/关于GCD开发的一些事儿/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2015/11/20/关于GCD开发的一些事儿/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-             <span id="/2015/11/20/关于GCD开发的一些事儿/" class="leancloud_visitors" data-flag-title="关于GCD开发的一些事儿">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>在之前我们介绍过NSOperation的一些东西，这次我们来聊一聊另一个iOS开发最经常使用的技术之一 — GCD，GCD将线程的管理移到系统级别，你只需要定义好要执行的任务，然后丢到合适的Dispatch queue，GCD会负责创建线程来执行你的代码，由于这部分是处于系统级别，所以执行的性能通常非常高。GCD这部分代码苹果已开源，有兴趣的可以去下载了解一下:<a href="http://libdispatch.macosforge.org/">地址</a><br>在介绍GCD之前我们先了解一下Quality of Service：</p>
-<h3 id="Quality-of-Service-QoS"><a href="#Quality-of-Service-QoS" class="headerlink" title="Quality of Service(QoS)"></a>Quality of Service(QoS)</h3><p>这是在iOS8之后提供的新功能，苹果提供了几个Quality of Service枚举来使用:user interactive, user initiated, utility 和 background，通过这告诉系统我们在进行什么样的工作，然后系统会通过合理的资源控制来最高效的执行任务代码，其中主要涉及到CPU调度的优先级、IO优先级、任务运行在哪个线程以及运行的顺序等等，我们通过一个抽象的Quality of Service参数来表明任务的意图以及类别。</p>
-<ul>
-<li>NSQualityOfServiceUserInteractive<br>与用户交互的任务，这些任务通常跟UI级别的刷新相关，比如动画，这些任务需要在一瞬间完成</li>
-<li>NSQualityOfServiceUserInitiated<br>由用户发起的并且需要立即得到结果的任务，比如滑动scroll view时去加载数据用于后续cell的显示，这些任务通常跟后续的用户交互相关，在几秒或者更短的时间内完成</li>
-<li>NSQualityOfServiceUtility<br>一些可能需要花点时间的任务，这些任务不需要马上返回结果，比如下载的任务，这些任务可能花费几秒或者几分钟的时间</li>
-<li>NSQualityOfServiceBackground<br>这些任务对用户不可见，比如后台进行备份的操作，这些任务可能需要较长的时间，几分钟甚至几个小时</li>
-<li>NSQualityOfServiceDefault<br>优先级介于user-initiated 和 utility，当没有 QoS信息时默认使用，开发者不应该使用这个值来设置自己的任务</li>
-</ul>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2015/11/20/关于GCD开发的一些事儿/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
 
   </section>
 
@@ -1286,7 +1281,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">27</span>
+              <span class="site-state-item-count">28</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -1303,7 +1298,7 @@
           
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-count">15</span>
                 <span class="site-state-item-name">标签</span>
               
             </div>
