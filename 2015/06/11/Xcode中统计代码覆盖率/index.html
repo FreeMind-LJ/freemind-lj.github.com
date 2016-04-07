@@ -58,15 +58,13 @@
 
 
 <meta name="description" content="最近在项目里需要在单元测试时统计一下代码覆盖率，其实就是被用来作为测量单元测试的指标，看看测试的代码覆盖到多广的范围，下面介绍一下如何统计单元测试的代码覆盖率：
-下载工具  主要采用XcodeCoverage工具，它可以将代码覆盖的结果以html的形式展现，方便我们查看，可以采用pod的方式安装:1pod &amp;#39;XcodeCoverage&amp;#39;, &amp;#39;~&amp;#62;1.0&amp;#39;
-工">
+下载工具  主要采用XcodeCoverage工具，它可以将代码覆盖的结果以html的形式展现，方便我们查看，可以采用pod的方式安装:1pod &amp;apos;XcodeCoverage&amp;apos;, &amp;apos;~&amp;gt;1.0&amp;ap">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Xcode中统计代码覆盖率">
 <meta property="og:url" content="http://freemind-lj.github.io/2015/06/11/Xcode中统计代码覆盖率/index.html">
 <meta property="og:site_name" content="树下的老男孩">
 <meta property="og:description" content="最近在项目里需要在单元测试时统计一下代码覆盖率，其实就是被用来作为测量单元测试的指标，看看测试的代码覆盖到多广的范围，下面介绍一下如何统计单元测试的代码覆盖率：
-下载工具  主要采用XcodeCoverage工具，它可以将代码覆盖的结果以html的形式展现，方便我们查看，可以采用pod的方式安装:1pod &amp;#39;XcodeCoverage&amp;#39;, &amp;#39;~&amp;#62;1.0&amp;#39;
-工">
+下载工具  主要采用XcodeCoverage工具，它可以将代码覆盖的结果以html的形式展现，方便我们查看，可以采用pod的方式安装:1pod &amp;apos;XcodeCoverage&amp;apos;, &amp;apos;~&amp;gt;1.0&amp;ap">
 <meta property="og:image" content="http://7xpjm0.com1.z0.glb.clouddn.com/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202015-06-11%20.jpeg">
 <meta property="og:image" content="http://7xpjm0.com1.z0.glb.clouddn.com/%E6%B7%BB%E5%8A%A0%E8%BF%90%E8%A1%8C%E8%84%9A%E6%9C%AC.jpeg">
 <meta property="og:image" content="http://7xpjm0.com1.z0.glb.clouddn.com/%E4%B8%8D%E5%AE%8C%E5%85%A8%E8%A6%86%E7%9B%96.jpeg">
@@ -75,8 +73,8 @@
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Xcode中统计代码覆盖率">
 <meta name="twitter:description" content="最近在项目里需要在单元测试时统计一下代码覆盖率，其实就是被用来作为测量单元测试的指标，看看测试的代码覆盖到多广的范围，下面介绍一下如何统计单元测试的代码覆盖率：
-下载工具  主要采用XcodeCoverage工具，它可以将代码覆盖的结果以html的形式展现，方便我们查看，可以采用pod的方式安装:1pod &amp;#39;XcodeCoverage&amp;#39;, &amp;#39;~&amp;#62;1.0&amp;#39;
-工">
+下载工具  主要采用XcodeCoverage工具，它可以将代码覆盖的结果以html的形式展现，方便我们查看，可以采用pod的方式安装:1pod &amp;apos;XcodeCoverage&amp;apos;, &amp;apos;~&amp;gt;1.0&amp;ap">
+<meta name="twitter:image" content="http://7xpjm0.com1.z0.glb.clouddn.com/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202015-06-11%20.jpeg">
 
 
 
@@ -308,7 +306,7 @@
 
       
         <p>  最近在项目里需要在单元测试时统计一下<a href="http://www.cnblogs.com/coderzh/archive/2009/03/29/1424344.html" target="_blank" rel="external">代码覆盖率</a>，其实就是被用来作为测量单元测试的指标，看看测试的代码覆盖到多广的范围，下面介绍一下如何统计单元测试的代码覆盖率：</p>
-<h4 id="下载工具"><a href="#下载工具" class="headerlink" title="下载工具"></a>下载工具</h4><p>  主要采用<a href="https://github.com/jonreid/XcodeCoverage" target="_blank" rel="external">XcodeCoverage</a>工具，它可以将代码覆盖的结果以html的形式展现，方便我们查看，可以采用pod的方式安装:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pod &#39;XcodeCoverage&#39;, &#39;~&#62;1.0&#39;</span><br></pre></td></tr></table></figure></p>
+<h4 id="下载工具"><a href="#下载工具" class="headerlink" title="下载工具"></a>下载工具</h4><p>  主要采用<a href="https://github.com/jonreid/XcodeCoverage" target="_blank" rel="external">XcodeCoverage</a>工具，它可以将代码覆盖的结果以html的形式展现，方便我们查看，可以采用pod的方式安装:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pod &apos;XcodeCoverage&apos;, &apos;~&gt;1.0&apos;</span><br></pre></td></tr></table></figure></p>
 <h4 id="工程配置"><a href="#工程配置" class="headerlink" title="工程配置"></a>工程配置</h4><p>pod安装后需要配置工程：</p>
 <ul>
 <li>设置 Build Settings<br>需要设置两个地方，找到 “Generate Test Coverage Files”和“Instrument Program Flow”两个选项，分别设置Debug下为YES：</li>
@@ -323,10 +321,10 @@
 <h4 id="RUN"><a href="#RUN" class="headerlink" title="RUN"></a>RUN</h4><p>工程配置完后，开始跑单元测试例。跑完测试例后，打开终端，cd进入到XcodeCoverage目录，运行如下脚本：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./getcov --show</span><br></pre></td></tr></table></figure></p>
 <p>然后你就可以在浏览器中查看你的代码覆盖率结果。</p>
 <h4 id="example"><a href="#example" class="headerlink" title="example"></a>example</h4><p>下面假设你要测试一个getMaxNumber功能，代码如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">@implementation MaxNumber&#10;&#10;+(int)getMaxNumber:(int)a b:(int)b c:(int)c&#10;&#123;&#10;    if(a &#62; b)&#123;&#10;        if(a &#62; c)&#123;&#10;            return a;&#10;        &#125;else&#123;&#10;            return c;&#10;        &#125;&#10;    &#125;else&#123;&#10;        if(b &#62; c)&#123;&#10;            return b;&#10;        &#125;else&#123;&#10;            return c;&#10;        &#125;&#10;    &#125;&#10;&#125;&#10;&#10;@end</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">@implementation MaxNumber</span><br><span class="line"></span><br><span class="line">+(int)getMaxNumber:(int)a b:(int)b c:(int)c</span><br><span class="line">&#123;</span><br><span class="line">    if(a &gt; b)&#123;</span><br><span class="line">        if(a &gt; c)&#123;</span><br><span class="line">            return a;</span><br><span class="line">        &#125;else&#123;</span><br><span class="line">            return c;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;else&#123;</span><br><span class="line">        if(b &gt; c)&#123;</span><br><span class="line">            return b;</span><br><span class="line">        &#125;else&#123;</span><br><span class="line">            return c;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">@end</span><br></pre></td></tr></table></figure>
 <p>首先添加一个单元测试：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-(void)testGetMax&#10;&#123;&#10;    XCTAssertEqual(3, [MaxNumber getMaxNumber:1 b:2 c:3]);&#10;&#125;</span><br></pre></td></tr></table></figure>
-<p>运行完该测试例后，运行脚本./getcov –show，便可以看到如下结果：<br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/%E4%B8%8D%E5%AE%8C%E5%85%A8%E8%A6%86%E7%9B%96.jpeg" alt="不完全覆盖"><br>其中的红色表示测试例没有覆盖到的地方。下面增加三个测试例<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-(void)testGetMax&#10;&#123;&#10;    XCTAssertEqual(3, [MaxNumber getMaxNumber:1 b:2 c:3]);&#10;    XCTAssertEqual(3, [MaxNumber getMaxNumber:2 b:1 c:3]);&#10;    XCTAssertEqual(3, [MaxNumber getMaxNumber:3 b:2 c:1]);&#10;    XCTAssertEqual(3, [MaxNumber getMaxNumber:1 b:3 c:2]);&#10;&#125;</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">-(void)testGetMax</span><br><span class="line">&#123;</span><br><span class="line">    XCTAssertEqual(3, [MaxNumber getMaxNumber:1 b:2 c:3]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>运行完该测试例后，运行脚本./getcov –show，便可以看到如下结果：<br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/%E4%B8%8D%E5%AE%8C%E5%85%A8%E8%A6%86%E7%9B%96.jpeg" alt="不完全覆盖"><br>其中的红色表示测试例没有覆盖到的地方。下面增加三个测试例<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">-(void)testGetMax</span><br><span class="line">&#123;</span><br><span class="line">    XCTAssertEqual(3, [MaxNumber getMaxNumber:1 b:2 c:3]);</span><br><span class="line">    XCTAssertEqual(3, [MaxNumber getMaxNumber:2 b:1 c:3]);</span><br><span class="line">    XCTAssertEqual(3, [MaxNumber getMaxNumber:3 b:2 c:1]);</span><br><span class="line">    XCTAssertEqual(3, [MaxNumber getMaxNumber:1 b:3 c:2]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <p>测试例修改之后，需要先运行cleancov脚本(如果工程里面的代码修改了，需要clean product)，然后再运行脚本./getcov –show查看结果：<br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/%E5%AE%8C%E5%85%A8%E8%A6%86%E7%9B%96.jpeg" alt="完全覆盖"><br>可以看出现在的测试代码已经覆盖到了该函数的所有代码。</p>
 
       
@@ -427,7 +425,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">26</span>
+              <span class="site-state-item-count">27</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

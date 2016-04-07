@@ -63,7 +63,7 @@
 
 “杀一个程序员不需要用枪，改三次需求就可以了”
 
-  其实需求设计是一个方面，另外我们作为设计开发人员有时候也需要去反省，反省一下代码的设计是否合理，为什么新功能的在原">
+  其实需求设计是一个方面，另外我们作为设计开发人员有时候也需要去反省，反省一下代码的设计是否合理，为什么新功能的在">
 <meta property="og:type" content="article">
 <meta property="og:title" content="谈谈面向对象设计(OOD)原则">
 <meta property="og:url" content="http://freemind-lj.github.io/2015/12/23/谈谈面向对象设计-OOD-原则/index.html">
@@ -74,7 +74,7 @@
 
 “杀一个程序员不需要用枪，改三次需求就可以了”
 
-  其实需求设计是一个方面，另外我们作为设计开发人员有时候也需要去反省，反省一下代码的设计是否合理，为什么新功能的在原">
+  其实需求设计是一个方面，另外我们作为设计开发人员有时候也需要去反省，反省一下代码的设计是否合理，为什么新功能的在">
 <meta property="og:image" content="http://7xpjm0.com1.z0.glb.clouddn.com/%E5%8D%95%E4%B8%80%E8%81%8C%E8%B4%A3.png">
 <meta property="og:image" content="http://7xpjm0.com1.z0.glb.clouddn.com/%E5%BC%80%E9%97%AD%E5%8E%9F%E5%88%99.png">
 <meta property="og:image" content="http://7xpjm0.com1.z0.glb.clouddn.com/%E9%B2%B8%E9%B1%BC%E7%BB%A7%E6%89%BF%E8%87%AA%E9%B1%BC%E7%B1%BB.png">
@@ -90,7 +90,8 @@
 
 “杀一个程序员不需要用枪，改三次需求就可以了”
 
-  其实需求设计是一个方面，另外我们作为设计开发人员有时候也需要去反省，反省一下代码的设计是否合理，为什么新功能的在原">
+  其实需求设计是一个方面，另外我们作为设计开发人员有时候也需要去反省，反省一下代码的设计是否合理，为什么新功能的在">
+<meta name="twitter:image" content="http://7xpjm0.com1.z0.glb.clouddn.com/%E5%8D%95%E4%B8%80%E8%81%8C%E8%B4%A3.png">
 
 
 
@@ -350,7 +351,7 @@
 <p>一个类有且仅有一个职责，只有一个引起它变化的原因。</p>
 </blockquote>
 <p>  简单来说一个类只做好一件事就行，不去管跟自己不相干的，狗拿耗子多管闲事，其核心就是解耦以及高内聚。这个原则看着很简单，我们在写代码的时候即便不知道这个原则也会往这个方向靠拢，写出功能相对单一的类，不过这个原则很容易违背，因为可能由于某种原因，原来功能单一的类需要被细化成颗粒更小的职责1跟职责2，所以在每次迭代过程中可能需要重新梳理重构之前编写的代码，将不同的职责封装到不同的类或者模块中。<br>举个栗子：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">@interface DataTransfer : NSObject&#10;-(void)upload:(NSData *)data; //&#19978;&#20256;&#25968;&#25454;&#10;-(void)download(NSString*)url;  //&#26681;&#25454;URL&#19979;&#36733;&#19996;&#35199;&#10;@end</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">@interface DataTransfer : NSObject</span><br><span class="line">-(void)upload:(NSData *)data; //上传数据</span><br><span class="line">-(void)download(NSString*)url;  //根据URL下载东西</span><br><span class="line">@end</span><br></pre></td></tr></table></figure>
 <p>  DataTransfer包含上传跟下载功能，仔细考虑可以发现这相当于实现了两个功能，一个负责上传的相关逻辑，另一个负责下载的逻辑，而这个两个功能相对对立，当有一个功能改变的时候，比如我们之前是使用AFNetworking，现在想换成其它第三方或者nsurlconnection来实现上传跟下载：</p>
 <ul>
 <li>上传方式变更，导致DataTransfer变更</li>
@@ -373,7 +374,7 @@
 <h3 id="里氏替代原则：Liskov-Substitution-Principle"><a href="#里氏替代原则：Liskov-Substitution-Principle" class="headerlink" title="里氏替代原则：Liskov Substitution Principle"></a>里氏替代原则：Liskov Substitution Principle</h3><p>  该原则的定义：所有引用基类的地方必须能透明地使用其子类的对象。简单来说，所有使用基类代码的地方，如果换成子类对象的时候还能够正常运行，则满足这个原则，否则就是继承关系有问题，应该废除两者的继承关系，这个原则可以用来判断我们的对象继承关系是否合理。<br>比如有一个鲸鱼的类，我们让鲸鱼继承于鱼类，然后鱼类有个呼吸的功能：</p>
 <center><br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/%E9%B2%B8%E9%B1%BC%E7%BB%A7%E6%89%BF%E8%87%AA%E9%B1%BC%E7%B1%BB.png" alt="鲸鱼继承自鱼类"><br></center>
 
-<p>然后在水里的时候，鱼能够进行呼吸：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">if(isInwater)&#123;&#10;    //&#22312;&#27700;&#20013;&#20102;&#65292;&#24320;&#22987;&#21628;&#21560;&#10;    fish.breath();&#10;&#125;</span><br></pre></td></tr></table></figure></p>
+<p>然后在水里的时候，鱼能够进行呼吸：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">if(isInwater)&#123;</span><br><span class="line">    //在水中了，开始呼吸</span><br><span class="line">    fish.breath();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <p>  当我们把鲸鱼这个子对象替换原来的基类鱼对象，鲸鱼在水里开始呼吸，这时问题就出现了，鲸鱼是哺乳动物，在水里呼吸是没法呼吸的，一直在水里就GG思密达了，所以这违反了该原则，我们就可以判断鲸鱼继承于鱼类不合理，需要去重新设计。<br>  通常在设计的时候，我们都会优先采用组合而不是继承，因为继承虽然减少了代码，提高了代码的重用性，但是父类跟子类会有很强的耦合性，破坏了封装。</p>
 <h3 id="接口隔离原则：Interface-Segregation-Principle"><a href="#接口隔离原则：Interface-Segregation-Principle" class="headerlink" title="接口隔离原则：Interface Segregation Principle"></a>接口隔离原则：Interface Segregation Principle</h3><p>  该原则的定义：不能强迫用户去依赖那些他们不使用的接口。简单来说就是客户端需要什么接口，就提供给它什么样的接口，其它多余的接口就不要提供，不要让接口变得臃肿，否则当对象一个没有使用的方法被改变了，这个对象也将会受到影响。接口的设计应该遵循最小接口原则，其实这也是高内聚的一种表现，换句话说，使用多个功能单一、高内聚的接口总比使用一个庞大的接口要好。<br>  举个简单的例子：比如我们有个自行车接口，这个接口包含了很多方法，包括GPS定位，以及换挡的方法</p>
 <center><br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/%E4%B8%8D%E6%BB%A1%E8%B6%B3ISP%E5%8E%9F%E5%88%99.png" alt="不满足ISP原则"><br></center>
@@ -382,11 +383,11 @@
 <center><br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/%E6%BB%A1%E8%B6%B3ISP%E5%8E%9F%E5%88%99.png" alt="满足ISP原则"><br></center>
 
 <p>  这样一来每个接口的功能相对单一，使用多个专门的接口比使用一个总的接口要好，假如我们的山地车没有没有GPS定位的功能，我们不去继承实现对应的接口即可，在iOS开发中有很多这样的例子，比如UITalbleView的代理有两个不同的接口，UITableViewDataSource专门负责需要显示的内容，UITableViewDelegate专门负责一些view的自定义显示，然后我们会继承多个接口，这就满足了ISP原则。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">@interface ViewController () &#60;UITableViewDataSource,UITableViewDelegate,OtherProtocol&#62;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">@interface ViewController () &lt;UITableViewDataSource,UITableViewDelegate,OtherProtocol&gt;</span><br></pre></td></tr></table></figure>
 <h3 id="依赖倒置原则：Dependence-Inversion-Principle"><a href="#依赖倒置原则：Dependence-Inversion-Principle" class="headerlink" title="依赖倒置原则：Dependence Inversion Principle"></a>依赖倒置原则：Dependence Inversion Principle</h3><p>  该原则的定义：高层模块不应该依赖低层模块，两者都应该依赖其抽象；抽象不应该依赖细节；细节应该依赖抽象。其实这就是我们经常说的“针对接口编程”，这里的接口就是抽象，我们应该依赖接口，而不是依赖具体的实现来编程。<br>  如你在Sqlite数据库的基础上开发一套新的数据库系统AWEDatabase，这时候Sqlite相当于底层模块，而你的AWEDatabase就属于高层模块；而从AWEDatabase开发使用者来看，他的业务层就相当于高层模块，而AWEDatabase就变成底层模块了，所以模块的高低应该是从开发者当前的角度来看的，不过DIP原则从不同角度来看它都适合且需要被遵守。假如我们高层模块直接依赖于底层模块，带来的后果是每次底层模块改动，高层模块就会受到影响，整个系统就变得不稳定，这也违反了开放关闭原则。<br>  通常我们会通过引入中间层的方式来解决这个问题，这个中间层相当于一个抽象接口层，高层模块和底层模块都依赖于这个中间层来交互，这样只要中间抽象层保持不变，底层模块改变不会影响到高层模块，这就满足了开放关闭原则；而且假如高层模块跟底层模块同时处于开发阶段，这样有了中间抽象层之后，每个模块都可以针对这个抽象层的接口同时开发，高层模块就不需要等到底层模块开发完毕才能继续了。<br>  比如在我们项目中有涉及IM的功能，现在这个IM模块采用的是XMPP协议来实现，客户端通过这个模块来实现消息的收发，但是假如后面我们想要换成其它协议，比如MQTT等，针对接口编程的话就可以让我们很轻松的实现模块替换：</p>
 <center><br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/%E9%92%88%E5%AF%B9%E6%8E%A5%E5%8F%A3%E7%BC%96%E7%A8%8B.png" alt="针对接口编程"><br></center>
 
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">@protocol MessageDelegate &#60;NSObject&#62;&#10;@required&#10;-(void)goOnline;&#10;-(void)sendMessage:(NSString*)content;&#10;@end&#10;&#10;//xmpp&#23454;&#29616;&#10;@interface XMPPMessageCenter &#60;MessageDelegate&#62;&#10;@end&#10;&#10;//MQTT&#23454;&#29616;&#10;@interface MQTTMessageCenter &#60;MessageDelegate&#62;&#10;@end&#10;&#10;//&#19994;&#21153;&#23618;&#10;@interface BussinessLayer&#10;//&#20351;&#29992;&#36981;&#24490;MessageDelegate&#21327;&#35758;&#30340;&#23545;&#35937;&#65292;&#38024;&#23545;&#25509;&#21475;&#32534;&#31243;&#65292;&#20197;&#21518;&#26367;&#25442;&#20063;&#24456;&#26041;&#20415;&#10;@property(nonatomic,strong)id&#60;MessageDelegate&#62; messageCenter;&#10;@end</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">@protocol MessageDelegate &lt;NSObject&gt;</span><br><span class="line">@required</span><br><span class="line">-(void)goOnline;</span><br><span class="line">-(void)sendMessage:(NSString*)content;</span><br><span class="line">@end</span><br><span class="line"></span><br><span class="line">//xmpp实现</span><br><span class="line">@interface XMPPMessageCenter &lt;MessageDelegate&gt;</span><br><span class="line">@end</span><br><span class="line"></span><br><span class="line">//MQTT实现</span><br><span class="line">@interface MQTTMessageCenter &lt;MessageDelegate&gt;</span><br><span class="line">@end</span><br><span class="line"></span><br><span class="line">//业务层</span><br><span class="line">@interface BussinessLayer</span><br><span class="line">//使用遵循MessageDelegate协议的对象，针对接口编程，以后替换也很方便</span><br><span class="line">@property(nonatomic,strong)id&lt;MessageDelegate&gt; messageCenter;</span><br><span class="line">@end</span><br></pre></td></tr></table></figure>
 <p>  当我们在进行面向对象设计的时候应该充分考虑上面这几个原则，一开始可能设计并不完美，不过可以在重构的过程中不断完善。但其实很多人都跳过了设计这个环节，拿到一个模块直接动手编写代码，更不用说去思考设计了，项目中也有很多这样的例子。当然对于简单的模块或许不用什么设计，不过假如模块相对复杂的话，能够在动手写代码之前好好设计思考一下，养成这个习惯，肯定会对编写出可读性、稳定性以及可扩展性较高的代码有帮助。</p>
 <blockquote>
 <p>最关键的软件开发工具是受过良好设计原则训练的思维。</p>
@@ -490,7 +491,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">26</span>
+              <span class="site-state-item-count">27</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

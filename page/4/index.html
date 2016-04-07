@@ -209,11 +209,132 @@
 
     
     
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2015/05/19/iOS持续集成：命令行创建工程/" itemprop="url">
+                  iOS持续集成：命令行创建工程
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2015-05-19T21:39:42+08:00" content="2015-05-19">
+              2015-05-19
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/tech/" itemprop="url" rel="index">
+                    <span itemprop="name">tech</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2015/05/19/iOS持续集成：命令行创建工程/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2015/05/19/iOS持续集成：命令行创建工程/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2015/05/19/iOS持续集成：命令行创建工程/" class="leancloud_visitors" data-flag-title="iOS持续集成：命令行创建工程">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
       
       
 
       
-    
+        
+          <p>  在开发iOS应用的时候，大部分都是直接采用Xcode进行开发，但有时候需要用命令行来创建工程，比如最近在做ci的持续集成，就只能通过命令行的方式，这时候就需要了解一下工程文件的构成。我们知道工程文件的相关信息保存在project.pbxproj，因此可以通过脚本创建出pbxproj文件，完成基础工程的创建。</p>
+<h2 id="pbxproj"><a href="#pbxproj" class="headerlink" title="pbxproj"></a>pbxproj</h2><p>  下面介绍一下pbxproj文件，可以拖动.xcodeproj文件到文本编辑器，如sublime，查看pbxproj文件的组成方式，主要包括：</p>
+<ul>
+<li>PBXBuildFile PBXFileReference<br>这两个section保存中工程文件相关的信息:包含文件的类型，路径，名称等</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">/* Begin PBXBuildFile section */</span><br><span class="line">    F60CC2A114D4EA0500A005E4 /* SocketOperation.m in Sources */ = &#123;isa = PBXBuildFile; fileRef = F60CC2A014D4EA0500A005E4 /* SocketOperation.m */; &#125;;</span><br><span class="line">/* End PBXBuildFile section */</span><br><span class="line"></span><br><span class="line">/* Begin PBXFileReference section *</span><br><span class="line">	F60CC2A014D4EA0500A005E4 /* SocketOperation.m */ = &#123;isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SocketOperation.m; sourceTree = &quot;&lt;group&gt;&quot;; &#125;;</span><br><span class="line">/* End PBXFileReference section */</span><br></pre></td></tr></table></figure>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2015/05/19/iOS持续集成：命令行创建工程/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
 
     
       
@@ -314,7 +435,7 @@
       
         
           <p>SDWebImageCache管理着SDWebImage的缓存，其中内存缓存采用NSCache，同时会创建一个ioQueue负责对硬盘的读写，并且会添加观察者，在收到内存警告、关闭或进入后台时完成对应的处理:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- (id)init &#123;&#10;     _memCache = [[NSCache alloc] init];&#10;     _ioQueue = dispatch_queue_create(&#34;com.hackemist.SDWebImageCache&#34;, DISPATCH_QUEUE_SERIAL);&#10;     //&#25910;&#21040;&#20869;&#23384;&#35686;&#21578;&#26102;&#65292;&#28165;&#38500;NSCache&#65306;[self.memCache removeAllObjects];&#10;     [[NSNotificationCenter defaultCenter] addObserver:self&#10;                                                 selector:@selector(clearMemory)&#10;                                              name:UIApplicationDidReceiveMemoryWarningNotification&#10;                                                   object:nil];&#10;      //&#31243;&#24207;&#20851;&#38381;&#26102;&#65292;&#20250;&#23545;&#30828;&#30424;&#25991;&#20214;&#20570;&#19968;&#20123;&#22788;&#29702;&#10;      [[NSNotificationCenter defaultCenter] addObserver:self&#10;                                                 selector:@selector(cleanDisk)&#10;                                                     name:UIApplicationWillTerminateNotification&#10;                                                   object:nil];&#10;      //&#31243;&#24207;&#36827;&#20837;&#21518;&#21488;&#26102;&#65292;&#20063;&#20250;&#36827;&#34892;&#30828;&#30424;&#25991;&#20214;&#22788;&#29702;&#10;      [[NSNotificationCenter defaultCenter] addObserver:self&#10;                                                 selector:@selector(backgroundCleanDisk)&#10;                                                     name:UIApplicationDidEnterBackgroundNotification&#10;                                                   object:nil];&#10;&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">- (id)init &#123;</span><br><span class="line">     _memCache = [[NSCache alloc] init];</span><br><span class="line">     _ioQueue = dispatch_queue_create(&quot;com.hackemist.SDWebImageCache&quot;, DISPATCH_QUEUE_SERIAL);</span><br><span class="line">     //收到内存警告时，清除NSCache：[self.memCache removeAllObjects];</span><br><span class="line">     [[NSNotificationCenter defaultCenter] addObserver:self</span><br><span class="line">                                                 selector:@selector(clearMemory)</span><br><span class="line">                                              name:UIApplicationDidReceiveMemoryWarningNotification</span><br><span class="line">                                                   object:nil];</span><br><span class="line">      //程序关闭时，会对硬盘文件做一些处理</span><br><span class="line">      [[NSNotificationCenter defaultCenter] addObserver:self</span><br><span class="line">                                                 selector:@selector(cleanDisk)</span><br><span class="line">                                                     name:UIApplicationWillTerminateNotification</span><br><span class="line">                                                   object:nil];</span><br><span class="line">      //程序进入后台时，也会进行硬盘文件处理</span><br><span class="line">      [[NSNotificationCenter defaultCenter] addObserver:self</span><br><span class="line">                                                 selector:@selector(backgroundCleanDisk)</span><br><span class="line">                                                     name:UIApplicationDidEnterBackgroundNotification</span><br><span class="line">                                                   object:nil];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
           <div class="post-more-link text-center">
             <a class="btn" href="/2015/05/10/SDWebImage源码剖析（二）/#more" rel="contents">
               阅读全文 &raquo;
@@ -505,7 +626,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">26</span>
+              <span class="site-state-item-count">27</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

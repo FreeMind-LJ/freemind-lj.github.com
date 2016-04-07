@@ -209,11 +209,134 @@
 
     
     
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2015/11/02/NSOperation和NSOperationQueue的一些事儿/" itemprop="url">
+                  NSOperation和NSOperationQueue的一些事儿
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2015-11-02T16:06:56+08:00" content="2015-11-02">
+              2015-11-02
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/tech/" itemprop="url" rel="index">
+                    <span itemprop="name">tech</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2015/11/02/NSOperation和NSOperationQueue的一些事儿/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2015/11/02/NSOperation和NSOperationQueue的一些事儿/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2015/11/02/NSOperation和NSOperationQueue的一些事儿/" class="leancloud_visitors" data-flag-title="NSOperation和NSOperationQueue的一些事儿">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
       
       
 
       
-    
+        
+          <p>在面对多线程的时候，大多数会选择NSOperation或者GCD来实现，GCD由于使用起来非常方便，应该是很多开发者的首选，不过你会发现其实很多开源代码都是使用NSOpertaion来执行异步任务,所以这次我们来说说NSOperation跟NSOperationQueue，以及它的强大之处。</p>
+<h3 id="NSOPerationQueue"><a href="#NSOPerationQueue" class="headerlink" title="NSOPerationQueue"></a>NSOPerationQueue</h3><p>NSOperation可以通过调用start方法同步地执行相应的任务，不过通常NSOprtaion都是配合NSOPerationQueue来使用的，NSOperationQueue可以看作是一种高级的dispatch queue，将NSOperation加入到queue中，queue会自动异步的执行该NSOperation</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">//创建队列</span><br><span class="line">NSOperationQueue *queue = [[NSOperationQueue alloc] init];  </span><br><span class="line"></span><br><span class="line">//将NSOperation加入队列之后，queue会自动执行该operation</span><br><span class="line">[queue addOperation:operation];</span><br></pre></td></tr></table></figure>
+<p>在gcd编程的时候，我们无法取消block对应的任务，不过NSOPerationQueue之所以称为高级的dispatch queue除了能异步的执行任务之外，还能够:</p>
+<ul>
+<li>取消操作<br>当NSOperation加入到NSOperationQueue之后，可以通过调用cancel方法取消单个任务，如果想取消所有的任务可以调用cancelAllOperations方法;</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">// 取消一个任务 </span><br><span class="line">[operation cancel];  </span><br><span class="line">  </span><br><span class="line">// 取消queue中所有的任务  </span><br><span class="line">[queue cancelAllOperations];</span><br></pre></td></tr></table></figure>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2015/11/02/NSOperation和NSOperationQueue的一些事儿/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
 
     
       
@@ -1088,132 +1211,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2015/06/18/iOS开发之－－-DNS解析-网络切换的问题解决/" itemprop="url">
-                  iOS开发之－－ DNS解析(网络切换的问题解决)
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2015-06-18T16:28:20+08:00" content="2015-06-18">
-              2015-06-18
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/tech/" itemprop="url" rel="index">
-                    <span itemprop="name">tech</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2015/06/18/iOS开发之－－-DNS解析-网络切换的问题解决/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2015/06/18/iOS开发之－－-DNS解析-网络切换的问题解决/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-             <span id="/2015/06/18/iOS开发之－－-DNS解析-网络切换的问题解决/" class="leancloud_visitors" data-flag-title="iOS开发之－－ DNS解析(网络切换的问题解决)">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>  上次提到过由于电信的问题需要自己手动去解析dns，<a href="http://www.jianshu.com/p/7c89b8c5482a">这里</a>介绍的是如何拦截<br>每一个请求做解析，但是没有说具体的解析方法，下面简单的记录一下：</p>
-<ul>
-<li>res_query方法</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">int res_query(char *domain_name, int class, int type, char *answer_buffer, int answer_buffer_length)</span><br></pre></td></tr></table></figure>
-<p>这是比较常见的系统调用，使用该方法的时候需要在Xcode中添加libresolv.dylib，然后包含resolv.h头文件即可，具体代码如下：</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2015/06/18/iOS开发之－－-DNS解析-网络切换的问题解决/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
 
   </section>
 
@@ -1260,7 +1257,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">26</span>
+              <span class="site-state-item-count">27</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

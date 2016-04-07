@@ -58,18 +58,18 @@
 
 
 <meta name="description" content="废话不多说，直接进入正题。这次碰到的问题主要是在项目里涉及到的一些内存问题，先说说这个项目的整体结构，由于要实现跨平台的缘故，所以在最顶层是由lua来编写相关的业务代码的，实现安卓和iOS端业务的快速开发，中间是一层统一的c++接口，然后iOS跟安卓根据这份统一的c++接口实现各自平台的底层逻辑代码，比如对于一个View，c++的统一接口为： 
-1void *createView(const ch">
+1void *createView(const">
 <meta property="og:type" content="article">
 <meta property="og:title" content="method Swizzling实践--alloc hooker">
 <meta property="og:url" content="http://freemind-lj.github.io/2015/08/06/method-Swizzling实践-alloc-hooker/index.html">
 <meta property="og:site_name" content="树下的老男孩">
 <meta property="og:description" content="废话不多说，直接进入正题。这次碰到的问题主要是在项目里涉及到的一些内存问题，先说说这个项目的整体结构，由于要实现跨平台的缘故，所以在最顶层是由lua来编写相关的业务代码的，实现安卓和iOS端业务的快速开发，中间是一层统一的c++接口，然后iOS跟安卓根据这份统一的c++接口实现各自平台的底层逻辑代码，比如对于一个View，c++的统一接口为： 
-1void *createView(const ch">
+1void *createView(const">
 <meta property="og:updated_time" content="2016-02-15T04:07:15.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="method Swizzling实践--alloc hooker">
 <meta name="twitter:description" content="废话不多说，直接进入正题。这次碰到的问题主要是在项目里涉及到的一些内存问题，先说说这个项目的整体结构，由于要实现跨平台的缘故，所以在最顶层是由lua来编写相关的业务代码的，实现安卓和iOS端业务的快速开发，中间是一层统一的c++接口，然后iOS跟安卓根据这份统一的c++接口实现各自平台的底层逻辑代码，比如对于一个View，c++的统一接口为： 
-1void *createView(const ch">
+1void *createView(const">
 
 
 
@@ -307,7 +307,7 @@
 <p>  对于这个问题，我采取的策略是在每个对象创建的时候做一个记录，然后在对象被清理的时候从记录中删除，最后看看记录中还有没有多余的对象，以此来判断对象是否都被释放完毕(或者有啥新的思路也可以提出来哈～)，实现这个需要借助两个东西：<a href="http://www.jianshu.com/p/b87fa689055f" target="_blank" rel="external">method Swizzling</a> 和 <a href="http://www.cocoachina.com/industry/20140605/8683.html]" target="_blank" rel="external">NSHashTable</a>,method Swizzling可以参考之前的博客，NSHashTable主要利用它可以持有weak类型的成员变量，NSHashTableWeakMemory表示添加到该hash table时并不会增加对象的引用技术，当添加的对象在外部被释放时，该table会自动删除相应的对象。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">NSHashTable *hashTable = [NSHashTable hashTableWithOptions: NSHashTableWeakMemory];</span><br></pre></td></tr></table></figure>
 <p>因此可以看出具体的实现方式了：利用method Swizzling去hook nsobject的init方法，并将其添加到NSHashTableWeakMemory型的NSHashTable，最后看看该table中还有哪些对象，证明这些对象还没有被释放掉，可以通过这来检测整个对象的创建跟释放逻辑是否正确。<br>  下面给出示例代码，比如要记录UIView对象创建跟释放：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">static NSHashTable *hashTable;//&#23384;&#20648;&#21019;&#24314;&#30340;&#23545;&#35937;&#10;@implementation UIView (AllocHook)&#10;&#10;//method Swizzling&#30340;&#26041;&#27861;&#65292;&#25105;&#20204;hook&#35813;&#26041;&#27861;&#65292;&#24182;&#39069;&#22806;&#23558;&#35813;&#23545;&#35937;&#28155;&#21152;&#21040;NSHashTable&#20013;&#10;-(instancetype)customInit&#10;&#123;&#10;    if (!hashTable) &#123;&#10;        hashTable = [NSHashTable hashTableWithOptions:NSHashTableWeakMemory];&#10;    &#125;&#10;    [hashTable addObject:self];&#10;    return [self customInit];&#10;&#125;&#10;@end&#10;&#10;//&#19968;&#20010;hook&#23545;&#35937;&#65292;&#29992;&#20110;&#24320;&#21551;method Swizzling&#10;@implementation ViewAllocHooker&#10;&#10;-(void)startRecord&#10;&#123;&#10;    Class class = [UIView class];&#10;    &#10;    SEL originalSelector = @selector(init);&#10;    SEL swizzledSelector = @selector(customInit);&#10;    &#10;    Method originalMethod = class_getInstanceMethod(class, originalSelector);&#10;    Method swizzledMethod = class_getInstanceMethod(class, swizzledSelector);&#10;    //&#20132;&#25442;&#21407;&#26469;&#30340;init&#26041;&#27861;&#36319;&#26032;&#30340;customInit&#26041;&#27861;&#10;    method_exchangeImplementations(originalMethod, swizzledMethod);&#10;&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">static NSHashTable *hashTable;//存储创建的对象</span><br><span class="line">@implementation UIView (AllocHook)</span><br><span class="line"></span><br><span class="line">//method Swizzling的方法，我们hook该方法，并额外将该对象添加到NSHashTable中</span><br><span class="line">-(instancetype)customInit</span><br><span class="line">&#123;</span><br><span class="line">    if (!hashTable) &#123;</span><br><span class="line">        hashTable = [NSHashTable hashTableWithOptions:NSHashTableWeakMemory];</span><br><span class="line">    &#125;</span><br><span class="line">    [hashTable addObject:self];</span><br><span class="line">    return [self customInit];</span><br><span class="line">&#125;</span><br><span class="line">@end</span><br><span class="line"></span><br><span class="line">//一个hook对象，用于开启method Swizzling</span><br><span class="line">@implementation ViewAllocHooker</span><br><span class="line"></span><br><span class="line">-(void)startRecord</span><br><span class="line">&#123;</span><br><span class="line">    Class class = [UIView class];</span><br><span class="line">    </span><br><span class="line">    SEL originalSelector = @selector(init);</span><br><span class="line">    SEL swizzledSelector = @selector(customInit);</span><br><span class="line">    </span><br><span class="line">    Method originalMethod = class_getInstanceMethod(class, originalSelector);</span><br><span class="line">    Method swizzledMethod = class_getInstanceMethod(class, swizzledSelector);</span><br><span class="line">    //交换原来的init方法跟新的customInit方法</span><br><span class="line">    method_exchangeImplementations(originalMethod, swizzledMethod);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>这样每个调用init方法创建的UIView或其子类都将被记录到NSHashTable中，同时由于该table只是持有添加对象的弱引用，因此可以在后面查看该table还有哪些对象就可以确定这些对象还没被释放，以验证该框架是否正确。详细的例子代码可以查看<a href="https://github.com/FreeMind-LJ/AllocHooker" target="_blank" rel="external">github</a>，其中的ViewAllocHooker可以采用单例，由于是示例代码就不更改了，有啥改进的地方欢迎提出～～</p>
 
       
@@ -408,7 +408,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">26</span>
+              <span class="site-state-item-count">27</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

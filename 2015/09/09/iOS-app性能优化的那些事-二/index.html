@@ -57,12 +57,12 @@
 
 
 
-<meta name="description" content="这次我们来说说iOS app中滑动的那些事。iOS为了提高滑动的流畅感，特意在滑动的时候将runloop模式切换到UITrackingRunLoopMode，在这个过程中专心做跟滑动相关的工作，这也就是在滑动过程中为什么nstimer无法工作的原因，因为两个没在同一mode下面。但我们可能经常会遇到滑动不怎么流畅的情况，比如在项目中碰到在滑动tableview的时候不怎么顺畅，感觉有点不爽，即便是">
+<meta name="description" content="这次我们来说说iOS app中滑动的那些事。iOS为了提高滑动的流畅感，特意在滑动的时候将runloop模式切换到UITrackingRunLoopMode，在这个过程中专心做跟滑动相关的工作，这也就是在滑动过程中为什么nstimer无法工作的原因，因为两个没在同一mode下面。但我们可能经常会遇到滑动不怎么流畅的情况，比如在项目中碰到在滑动tableview的时候不怎么顺畅，感觉有点不爽，即">
 <meta property="og:type" content="article">
 <meta property="og:title" content="iOS app性能优化的那些事(二)">
 <meta property="og:url" content="http://freemind-lj.github.io/2015/09/09/iOS-app性能优化的那些事-二/index.html">
 <meta property="og:site_name" content="树下的老男孩">
-<meta property="og:description" content="这次我们来说说iOS app中滑动的那些事。iOS为了提高滑动的流畅感，特意在滑动的时候将runloop模式切换到UITrackingRunLoopMode，在这个过程中专心做跟滑动相关的工作，这也就是在滑动过程中为什么nstimer无法工作的原因，因为两个没在同一mode下面。但我们可能经常会遇到滑动不怎么流畅的情况，比如在项目中碰到在滑动tableview的时候不怎么顺畅，感觉有点不爽，即便是">
+<meta property="og:description" content="这次我们来说说iOS app中滑动的那些事。iOS为了提高滑动的流畅感，特意在滑动的时候将runloop模式切换到UITrackingRunLoopMode，在这个过程中专心做跟滑动相关的工作，这也就是在滑动过程中为什么nstimer无法工作的原因，因为两个没在同一mode下面。但我们可能经常会遇到滑动不怎么流畅的情况，比如在项目中碰到在滑动tableview的时候不怎么顺畅，感觉有点不爽，即">
 <meta property="og:image" content="http://7xpjm0.com1.z0.glb.clouddn.com/tableview%20%E6%BB%91%E5%8A%A8%E4%B8%8D%E6%B5%81%E7%95%85.png">
 <meta property="og:image" content="http://7xpjm0.com1.z0.glb.clouddn.com/performance%20investigation%20mindset.png">
 <meta property="og:image" content="http://7xpjm0.com1.z0.glb.clouddn.com/%E6%B8%B2%E6%9F%93%E6%B5%81%E7%A8%8B.png">
@@ -75,7 +75,8 @@
 <meta property="og:updated_time" content="2016-02-15T03:22:15.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="iOS app性能优化的那些事(二)">
-<meta name="twitter:description" content="这次我们来说说iOS app中滑动的那些事。iOS为了提高滑动的流畅感，特意在滑动的时候将runloop模式切换到UITrackingRunLoopMode，在这个过程中专心做跟滑动相关的工作，这也就是在滑动过程中为什么nstimer无法工作的原因，因为两个没在同一mode下面。但我们可能经常会遇到滑动不怎么流畅的情况，比如在项目中碰到在滑动tableview的时候不怎么顺畅，感觉有点不爽，即便是">
+<meta name="twitter:description" content="这次我们来说说iOS app中滑动的那些事。iOS为了提高滑动的流畅感，特意在滑动的时候将runloop模式切换到UITrackingRunLoopMode，在这个过程中专心做跟滑动相关的工作，这也就是在滑动过程中为什么nstimer无法工作的原因，因为两个没在同一mode下面。但我们可能经常会遇到滑动不怎么流畅的情况，比如在项目中碰到在滑动tableview的时候不怎么顺畅，感觉有点不爽，即">
+<meta name="twitter:image" content="http://7xpjm0.com1.z0.glb.clouddn.com/tableview%20%E6%BB%91%E5%8A%A8%E4%B8%8D%E6%B5%81%E7%95%85.png">
 
 
 
@@ -322,7 +323,7 @@
 <p>简单介绍完Core Animation的一些东西之后我们回过头来看看哪些问题会影响到图形的性能，下面这张图摘自WWDC2014(<a href="https://developer.apple.com/videos/wwdc/2014/" target="_blank" rel="external">Advanced Graphics and Animations for iOS Apps</a>，这上面的一些分享非常有技术性)</p>
 <center><br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/performance%20investigation%20mindset.png" alt="performance investigation mindset.png"><br></center>
 
-<p>当你碰到性能问题的时候，你可以思考一下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#26159;&#21542;&#21463;&#21040;CPU&#25110;&#32773;GPU&#30340;&#38480;&#21046;&#65311;&#10;&#26159;&#21542;&#26377;&#19981;&#24517;&#35201;&#30340;CPU&#28210;&#26579;&#65311;&#10;&#26159;&#21542;&#26377;&#22826;&#22810;&#30340;&#31163;&#23631;&#28210;&#26579;&#25805;&#20316;&#65311;&#10;&#26159;&#21542;&#26377;&#22826;&#22810;&#30340;&#22270;&#23618;&#28151;&#21512;&#25805;&#20316;&#65311;&#10;&#26159;&#21542;&#26377;&#22855;&#24618;&#30340;&#22270;&#29255;&#26684;&#24335;&#25110;&#32773;&#23610;&#23544;&#65311;&#10;&#26159;&#21542;&#28041;&#21450;&#21040;&#26114;&#36149;&#30340;view&#25110;&#32773;&#25928;&#26524;&#65311;&#10;view&#30340;&#23618;&#27425;&#32467;&#26500;&#26159;&#21542;&#21512;&#29702;&#65311;</span><br></pre></td></tr></table></figure></p>
+<p>当你碰到性能问题的时候，你可以思考一下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">是否受到CPU或者GPU的限制？</span><br><span class="line">是否有不必要的CPU渲染？</span><br><span class="line">是否有太多的离屏渲染操作？</span><br><span class="line">是否有太多的图层混合操作？</span><br><span class="line">是否有奇怪的图片格式或者尺寸？</span><br><span class="line">是否涉及到昂贵的view或者效果？</span><br><span class="line">view的层次结构是否合理？</span><br></pre></td></tr></table></figure></p>
 <p>那么哪些是你最该开始考虑的方向呢？通常发生图形性能问题的时候，比如列表滑动不顺畅、动画卡顿等，大部分都是由于Offscreen Rendering(离屏渲染)或者blending导致的，因为这在动画的每一帧都会涉及到。</p>
 <h3 id="offscreen-render"><a href="#offscreen-render" class="headerlink" title="offscreen-render"></a>offscreen-render</h3><p>什么是offscreen-render？offscreen-render涉及的内容比较多，有offscreen-render那就有onscreen render，onscreen render指的是GPU在当前用于显示的屏幕缓冲区进行渲染，相反offscreen-render就是不在当前的屏幕缓存区，而在另外的缓冲区进行渲染，offscreen-render有两种形式：</p>
 <h5 id="CPU的offscreen-render"><a href="#CPU的offscreen-render" class="headerlink" title="CPU的offscreen-render"></a>CPU的offscreen-render</h5><p>使用CPU来完成渲染操纵，通常在你使用：</p>
@@ -343,12 +344,12 @@
 <center><br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/Color%20Offscreen-Rendered%20Yellow.png" alt="Color Offscreen-Rendered Yellow"><br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/28FPS.png" alt="28FPS.png"><br></center>
 
 <p>其中黄色的区域就是离屏渲染的地方，也就是含有圆角跟阴影的layer。</p>
-<h5 id="shadowPath"><a href="#shadowPath" class="headerlink" title="shadowPath"></a>shadowPath</h5><p>设置label的阴影效果可以通过：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cell.sign.layer.shadowOffset = CGSizeMake(0, 2);&#10;&#160; &#160; cell.sign.layer.shadowOpacity = 0.5;&#10;&#160; &#160; cell.sign.layer.shadowColor = [UIColor blackColor].CGColor;</span><br></pre></td></tr></table></figure></p>
+<h5 id="shadowPath"><a href="#shadowPath" class="headerlink" title="shadowPath"></a>shadowPath</h5><p>设置label的阴影效果可以通过：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cell.sign.layer.shadowOffset = CGSizeMake(0, 2);</span><br><span class="line">    cell.sign.layer.shadowOpacity = 0.5;</span><br><span class="line">    cell.sign.layer.shadowColor = [UIColor blackColor].CGColor;</span><br></pre></td></tr></table></figure></p>
 <p>但是你可以发现这会导致离屏渲染，一个简单的不需要离屏渲染的方法就是制定阴影的路径，也就是设置layer的shadowPath属性，通过instruments发现阴影的地方没有黄色了，帧率也提高到了40FPS：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cell.sign.layer.shadowPath = [UIBezierPath&#160; bezierPathWithRect:cell.sign.bounds].CGPath;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cell.sign.layer.shadowPath = [UIBezierPath  bezierPathWithRect:cell.sign.bounds].CGPath;</span><br></pre></td></tr></table></figure>
 <center><br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/%E8%AE%BE%E7%BD%AEshadowPath%E6%B6%88%E9%99%A4%E7%A6%BB%E5%B1%8F%E6%B8%B2%E6%9F%93.png" alt="设置shadowPath消除离屏渲染.png"><br></center>
 
-<h5 id="rasterize"><a href="#rasterize" class="headerlink" title="rasterize"></a>rasterize</h5><p>对于圆角这种类似导致的性能问题，最简单的就是在列表中不要使用圆角，假如要使用圆角的话，一种最快提升性能的方式就是设置layer的shouldRasterize为YES：<br> <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#160; &#160; cell.layer.shouldRasterize = YES;&#10;&#160; &#160; cell.layer.rasterizationScale = [UIScreen mainScreen].scale;</span><br></pre></td></tr></table></figure></p>
+<h5 id="rasterize"><a href="#rasterize" class="headerlink" title="rasterize"></a>rasterize</h5><p>对于圆角这种类似导致的性能问题，最简单的就是在列表中不要使用圆角，假如要使用圆角的话，一种最快提升性能的方式就是设置layer的shouldRasterize为YES：<br> <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">    cell.layer.shouldRasterize = YES;</span><br><span class="line">    cell.layer.rasterizationScale = [UIScreen mainScreen].scale;</span><br></pre></td></tr></table></figure></p>
 <p>虽然被Rasterize的图层也会引起离屏渲染，如下图所示，整个cell都被标示为黄色：</p>
 <center><br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/shouldRasterize.png" alt="shouldRasterize.png"><br></center>
 
@@ -369,7 +370,7 @@
 <li>对于圆角可以使用一张中间圆形透明的图覆盖在上面，虽然这会引入blending操作，但是大部分情况下性能会比离屏渲染好。</li>
 <li>让你的view层次结构平坦一些，因为OpenGL在渲染layer的时候，在碰到有子层级layer的时候可能需要停下来把两者合成到一个buffer里再接着渲染。（When the OpenGL renderer goes to draw each layer, it may have to stop for some subhierarchies and composite them into a single buffer）.</li>
 <li><p>延迟加载图片<br>有时候在边滚动边设置图片的时候可能会有一定的影响，因此可以在滚动的时候imageview不执行setimage的操作，滚动停止的时候才加载图片，由于滚动的时候NSRunloop是处于UITrackingRunLoopMode模式下，可以采用如下的方式，将设置图片放到NSDefaultRunLoopMode模式下才进行：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">UIImage *downloadedImage = ...;&#10;&#160; &#160; [self.avatarImageView performSelector:@selector(setImage:)&#10;&#160;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; withObject:downloadedImage&#10;&#160;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; afterDelay:0&#10;&#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; &#160; inModes:@[NSDefaultRunLoopMode]];</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">UIImage *downloadedImage = ...;</span><br><span class="line">    [self.avatarImageView performSelector:@selector(setImage:)</span><br><span class="line">                               withObject:downloadedImage</span><br><span class="line">                               afterDelay:0</span><br><span class="line">                                  inModes:@[NSDefaultRunLoopMode]];</span><br></pre></td></tr></table></figure>
 </li>
 <li><p>图片加载的极限优化方式：<a href="https://github.com/path/FastImageCache" target="_blank" rel="external">FastImageCache</a></p>
 </li>
@@ -482,7 +483,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">26</span>
+              <span class="site-state-item-count">27</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

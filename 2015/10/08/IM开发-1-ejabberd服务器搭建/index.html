@@ -41,7 +41,7 @@
 <link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="IM,XMPP,iOS开发," />
+  <meta name="keywords" content="iOS开发,IM,XMPP," />
 
 
 
@@ -80,6 +80,7 @@
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="IM开发(1)-ejabberd服务器搭建">
 <meta name="twitter:description" content="最近项目中需要集成IM功能，市面上有很多的第三方提供im服务，比如环信、融云等，但都有使用限制的地方，如果不使用第三方可以自己去实现一套IM系统，不过一个IM系统涉及到的东西比较多，开发难度较高。另一种选择是使用xmpp，xmpp的优点是有很多的开源实现，比如服务端的ejabberd、Openfire，iOS以及安卓端都很优秀的开源库可以使用，而且传输安全以及扩展性强等(环信也是基于xmpp)；同">
+<meta name="twitter:image" content="http://7xpjm0.com1.z0.glb.clouddn.com/ejabbered%E5%AE%89%E8%A3%85%E5%8C%85.png">
 
 
 
@@ -326,7 +327,7 @@
 <p>安装完之后可以在Applications目录先找到：</p>
 <center><br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84.png" alt="目录结构.png"><br></center>
 
-<p>由于我们的服务器只是测试用的，比较重要的是bin目录下的start和stop命令，这两个分别用于开启和关闭xmpp服务，设置这两个命令为可执行：<br> <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chmod 755 stop&#10;chmod 755 start</span><br></pre></td></tr></table></figure></p>
+<p>由于我们的服务器只是测试用的，比较重要的是bin目录下的start和stop命令，这两个分别用于开启和关闭xmpp服务，设置这两个命令为可执行：<br> <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">chmod 755 stop</span><br><span class="line">chmod 755 start</span><br></pre></td></tr></table></figure></p>
 <p>现在输入命令 ./start可以看到如下的页面</p>
 <center><br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/%E5%90%AF%E5%8A%A8%E9%A1%B5%E9%9D%A2.png" alt="启动页面.png"><br></center>
 
@@ -372,11 +373,11 @@
       
         <div class="post-tags">
           
+            <a href="/tags/iOS开发/" rel="tag">#iOS开发</a>
+          
             <a href="/tags/IM/" rel="tag">#IM</a>
           
             <a href="/tags/XMPP/" rel="tag">#XMPP</a>
-          
-            <a href="/tags/iOS开发/" rel="tag">#iOS开发</a>
           
         </div>
       
@@ -467,7 +468,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">26</span>
+              <span class="site-state-item-count">27</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

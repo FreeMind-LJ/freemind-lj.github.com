@@ -209,11 +209,132 @@
 
     
     
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2015/06/18/iOS开发之－－-DNS解析-网络切换的问题解决/" itemprop="url">
+                  iOS开发之－－ DNS解析(网络切换的问题解决)
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2015-06-18T16:28:20+08:00" content="2015-06-18">
+              2015-06-18
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/tech/" itemprop="url" rel="index">
+                    <span itemprop="name">tech</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2015/06/18/iOS开发之－－-DNS解析-网络切换的问题解决/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2015/06/18/iOS开发之－－-DNS解析-网络切换的问题解决/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2015/06/18/iOS开发之－－-DNS解析-网络切换的问题解决/" class="leancloud_visitors" data-flag-title="iOS开发之－－ DNS解析(网络切换的问题解决)">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
       
       
 
       
-    
+        
+          <p>  上次提到过由于电信的问题需要自己手动去解析dns，<a href="http://www.jianshu.com/p/7c89b8c5482a">这里</a>介绍的是如何拦截<br>每一个请求做解析，但是没有说具体的解析方法，下面简单的记录一下：</p>
+<ul>
+<li>res_query方法</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">int res_query(char *domain_name, int class, int type, char *answer_buffer, int answer_buffer_length)</span><br></pre></td></tr></table></figure>
+<p>这是比较常见的系统调用，使用该方法的时候需要在Xcode中添加libresolv.dylib，然后包含resolv.h头文件即可，具体代码如下：</p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2015/06/18/iOS开发之－－-DNS解析-网络切换的问题解决/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
 
     
       
@@ -443,7 +564,7 @@
       
         
           <p>  最近在项目里需要在单元测试时统计一下<a href="http://www.cnblogs.com/coderzh/archive/2009/03/29/1424344.html">代码覆盖率</a>，其实就是被用来作为测量单元测试的指标，看看测试的代码覆盖到多广的范围，下面介绍一下如何统计单元测试的代码覆盖率：</p>
-<h4 id="下载工具"><a href="#下载工具" class="headerlink" title="下载工具"></a>下载工具</h4><p>  主要采用<a href="https://github.com/jonreid/XcodeCoverage">XcodeCoverage</a>工具，它可以将代码覆盖的结果以html的形式展现，方便我们查看，可以采用pod的方式安装:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pod &#39;XcodeCoverage&#39;, &#39;~&#62;1.0&#39;</span><br></pre></td></tr></table></figure></p>
+<h4 id="下载工具"><a href="#下载工具" class="headerlink" title="下载工具"></a>下载工具</h4><p>  主要采用<a href="https://github.com/jonreid/XcodeCoverage">XcodeCoverage</a>工具，它可以将代码覆盖的结果以html的形式展现，方便我们查看，可以采用pod的方式安装:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pod &apos;XcodeCoverage&apos;, &apos;~&gt;1.0&apos;</span><br></pre></td></tr></table></figure></p>
 <h4 id="工程配置"><a href="#工程配置" class="headerlink" title="工程配置"></a>工程配置</h4><p>pod安装后需要配置工程：</p>
 <ul>
 <li>设置 Build Settings<br>需要设置两个地方，找到 “Generate Test Coverage Files”和“Instrument Program Flow”两个选项，分别设置Debug下为YES：</li>
@@ -694,7 +815,7 @@
 <li>确定消息该往哪发</li>
 <li>同时发送对应的原始参数<br>消息可以通过invokeWithTarget:方法发送：</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- (void)forwardInvocation:(NSInvocation *)anInvocation&#10;&#123;&#10;    if ([someOtherObject respondsToSelector:[anInvocation selector]])&#10;        [anInvocation invokeWithTarget:someOtherObject];&#10;    else&#10;       [super forwardInvocation:anInvocation];&#10;&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">- (void)forwardInvocation:(NSInvocation *)anInvocation</span><br><span class="line">&#123;</span><br><span class="line">    if ([someOtherObject respondsToSelector:[anInvocation selector]])</span><br><span class="line">        [anInvocation invokeWithTarget:someOtherObject];</span><br><span class="line">    else</span><br><span class="line">       [super forwardInvocation:anInvocation];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>forwardInvocation:方法可以作为无法认识的消息的分发中心，将它们打包发给不同的接受者，或者作为一个中转站将所有消息发往同一个目的地。它可以将一个消息转换成另外的一个消息，或者只是单纯的把消息“吞下”，不对外响应和抛出错误，forwardInvocation:做什么取决于实现者。</p>
           <div class="post-more-link text-center">
             <a class="btn" href="/2015/06/02/ios-runtime浅析-二-：消息转发/#more" rel="contents">
@@ -948,7 +1069,7 @@
       
         
           <p>  在object-c中，消息直到运行的时候才会绑定对应的实现，编译器将消息表达式：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[receiver message]</span><br></pre></td></tr></table></figure></p>
-<p>   转换成对objc_msgSend消息传递函数的调用:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">objc_msgSend(receiver, selector&#65289;//or objc_msgSend(receiver, selector, arg1, arg2, ...)</span><br></pre></td></tr></table></figure></p>
+<p>   转换成对objc_msgSend消息传递函数的调用:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">objc_msgSend(receiver, selector）//or objc_msgSend(receiver, selector, arg1, arg2, ...)</span><br></pre></td></tr></table></figure></p>
 <p>该函数包含消息的接受者、函数的名称以及对应的参数。该消息传递函数首先去receiver类寻找selector所对应的实现，接着调用该实现并传递对应的参数，最后返回函数的返回值。objc_msgSend函数由编译器生成的，自己在代码中不能直接调用该函数。</p>
 <p>消息传递的关键在于每个类结构都有两个重要的元素：</p>
 <ul>
@@ -1080,139 +1201,13 @@
 <ul>
 <li>NSGlobalBlock：在block内部没有引用任何外部变量</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">void (^globalBlock) () = ^ () &#123;&#10;      NSLog(@&#34;global block&#34;);&#10;&#125;;&#10;NSLog(@&#34;%@&#34;, globalBlock);//&#60;__NSGlobalBlock__: 0x1096e20c0&#62;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">void (^globalBlock) () = ^ () &#123;</span><br><span class="line">      NSLog(@&quot;global block&quot;);</span><br><span class="line">&#125;;</span><br><span class="line">NSLog(@&quot;%@&quot;, globalBlock);//&lt;__NSGlobalBlock__: 0x1096e20c0&gt;</span><br></pre></td></tr></table></figure>
 <p>对NSGlobalBlock的retain、copy、release操作都无效。</p>
 <ul>
 <li>NSStackBlock：在block内部引用外部变量<br>先讨论下MRC模式：</li>
 </ul>
           <div class="post-more-link text-center">
             <a class="btn" href="/2015/05/21/iOS-block浅析/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2015/05/19/iOS持续集成：命令行创建工程/" itemprop="url">
-                  iOS持续集成：命令行创建工程
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2015-05-19T21:39:42+08:00" content="2015-05-19">
-              2015-05-19
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/tech/" itemprop="url" rel="index">
-                    <span itemprop="name">tech</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2015/05/19/iOS持续集成：命令行创建工程/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2015/05/19/iOS持续集成：命令行创建工程/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-             <span id="/2015/05/19/iOS持续集成：命令行创建工程/" class="leancloud_visitors" data-flag-title="iOS持续集成：命令行创建工程">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>  在开发iOS应用的时候，大部分都是直接采用Xcode进行开发，但有时候需要用命令行来创建工程，比如最近在做ci的持续集成，就只能通过命令行的方式，这时候就需要了解一下工程文件的构成。我们知道工程文件的相关信息保存在project.pbxproj，因此可以通过脚本创建出pbxproj文件，完成基础工程的创建。</p>
-<h2 id="pbxproj"><a href="#pbxproj" class="headerlink" title="pbxproj"></a>pbxproj</h2><p>  下面介绍一下pbxproj文件，可以拖动.xcodeproj文件到文本编辑器，如sublime，查看pbxproj文件的组成方式，主要包括：</p>
-<ul>
-<li>PBXBuildFile PBXFileReference<br>这两个section保存中工程文件相关的信息:包含文件的类型，路径，名称等</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/* Begin PBXBuildFile section */&#10;    F60CC2A114D4EA0500A005E4 /* SocketOperation.m in Sources */ = &#123;isa = PBXBuildFile; fileRef = F60CC2A014D4EA0500A005E4 /* SocketOperation.m */; &#125;;&#10;/* End PBXBuildFile section */&#10;&#10;/* Begin PBXFileReference section *&#10;&#9;F60CC2A014D4EA0500A005E4 /* SocketOperation.m */ = &#123;isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SocketOperation.m; sourceTree = &#34;&#60;group&#62;&#34;; &#125;;&#10;/* End PBXFileReference section */</span><br></pre></td></tr></table></figure>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2015/05/19/iOS持续集成：命令行创建工程/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1280,7 +1275,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">26</span>
+              <span class="site-state-item-count">27</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

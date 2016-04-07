@@ -59,14 +59,14 @@
 
 <meta name="description" content="本文主要介绍如何在Mac平台下编译一份可以在iOS上运行的ogre3d引擎的sdk，OGRE简单来说就是一个图形引擎，并且也只是一个图形引擎，不像cocos2dx之类的游戏引擎，包括网络，声音和物理碰撞等组件，OGRE只专注于图形渲染这块，不过可以方便的结合其它组件来组成一个游戏引擎，具体可以自己去了解。
 
-编译OGRE3d首先创建一个文件夹用于放置OGRE3D项目，这个可以随便指定，比如放置在桌">
+编译OGRE3d首先创建一个文件夹用于放置OGRE3D项目，这个可以随便指定，比如放置">
 <meta property="og:type" content="article">
 <meta property="og:title" content="ogre3D在Mac平台的编译">
 <meta property="og:url" content="http://freemind-lj.github.io/2015/08/26/ogre3D在Mac平台的编译/index.html">
 <meta property="og:site_name" content="树下的老男孩">
 <meta property="og:description" content="本文主要介绍如何在Mac平台下编译一份可以在iOS上运行的ogre3d引擎的sdk，OGRE简单来说就是一个图形引擎，并且也只是一个图形引擎，不像cocos2dx之类的游戏引擎，包括网络，声音和物理碰撞等组件，OGRE只专注于图形渲染这块，不过可以方便的结合其它组件来组成一个游戏引擎，具体可以自己去了解。
 
-编译OGRE3d首先创建一个文件夹用于放置OGRE3D项目，这个可以随便指定，比如放置在桌">
+编译OGRE3d首先创建一个文件夹用于放置OGRE3D项目，这个可以随便指定，比如放置">
 <meta property="og:image" content="http://7xpjm0.com1.z0.glb.clouddn.com/sdk%E7%9B%AE%E5%BD%95.png">
 <meta property="og:image" content="http://7xpjm0.com1.z0.glb.clouddn.com/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202015-08-26%20%E4%B8%8B%E5%8D%887.32.51.p.png">
 <meta property="og:image" content="http://7xpjm0.com1.z0.glb.clouddn.com/OGRE_SDK_ROOT%E8%B7%AF%E5%BE%84.png">
@@ -78,7 +78,8 @@
 <meta name="twitter:title" content="ogre3D在Mac平台的编译">
 <meta name="twitter:description" content="本文主要介绍如何在Mac平台下编译一份可以在iOS上运行的ogre3d引擎的sdk，OGRE简单来说就是一个图形引擎，并且也只是一个图形引擎，不像cocos2dx之类的游戏引擎，包括网络，声音和物理碰撞等组件，OGRE只专注于图形渲染这块，不过可以方便的结合其它组件来组成一个游戏引擎，具体可以自己去了解。
 
-编译OGRE3d首先创建一个文件夹用于放置OGRE3D项目，这个可以随便指定，比如放置在桌">
+编译OGRE3d首先创建一个文件夹用于放置OGRE3D项目，这个可以随便指定，比如放置">
+<meta name="twitter:image" content="http://7xpjm0.com1.z0.glb.clouddn.com/sdk%E7%9B%AE%E5%BD%95.png">
 
 
 
@@ -322,7 +323,7 @@
 <li>CMake安装<br>首先要先安装cmake，安装方法可以参考网上的信息，打开控制台，在ogre3d里面创建一个build文件夹，然后运行cmake命令：</li>
 </ul>
 <a id="more"></a>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lujbdeAir:ogre LJ$ mkdir build&#10;lujbdeAir:ogre LJ$ cd build&#10;lujbdeAir:build LJ$&#160;cmake -DCMAKE_CXX_FLAGS=&#34;$&#123;CMAKE_CXX_FLAGS&#125; -v -stdlib=libc++ -std=c++11&#34;&#10; -D BOOST_ROOT=/Users/LJ/Desktop/OGREBuild/iOSDependencies/include/boost &#10; -D BOOST_INCLUDEDIR=/Users/LJ/Desktop/OGREBuild/iOSDependencies/include/boost &#10; -D BOOST_LIBRARYDIR=/Users/LJ/Desktop/OGREBuild/iOSDependencies/lib&#10; -D OGRE_DEPENDENCIES_DIR=/Users/LJ/Desktop/OGREBuild/iOSDependencies -D OGRE_STATIC=1&#10; -D OGRE_BUILD_SAMPLES=0 -D OGRE_BUILD_PLATFORM_APPLE_IOS=1 -G Xcode ..</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">lujbdeAir:ogre LJ$ mkdir build</span><br><span class="line">lujbdeAir:ogre LJ$ cd build</span><br><span class="line">lujbdeAir:build LJ$ cmake -DCMAKE_CXX_FLAGS=&quot;$&#123;CMAKE_CXX_FLAGS&#125; -v -stdlib=libc++ -std=c++11&quot;</span><br><span class="line"> -D BOOST_ROOT=/Users/LJ/Desktop/OGREBuild/iOSDependencies/include/boost </span><br><span class="line"> -D BOOST_INCLUDEDIR=/Users/LJ/Desktop/OGREBuild/iOSDependencies/include/boost </span><br><span class="line"> -D BOOST_LIBRARYDIR=/Users/LJ/Desktop/OGREBuild/iOSDependencies/lib</span><br><span class="line"> -D OGRE_DEPENDENCIES_DIR=/Users/LJ/Desktop/OGREBuild/iOSDependencies -D OGRE_STATIC=1</span><br><span class="line"> -D OGRE_BUILD_SAMPLES=0 -D OGRE_BUILD_PLATFORM_APPLE_IOS=1 -G Xcode ..</span><br></pre></td></tr></table></figure>
 <p>简单介绍一下cmake里面的参数：<br>DCMAKE_CXX_FLAGS的值表示支持c++11；BOOST_ROOT，BOOST_INCLUDEDIR，BOOST_LIBRARYDIR，OGRE_DEPENDENCIES_DIR分别对应boost库和依赖库的路径；OGRE_STATIC=1表示我们构建的是静态库，OGRE_BUILD_SAMPLES表示是否需要构建sample工程，由于我们只想要build对应的sdk，所以将该值设为0表示不构建sample；同时我们的目标是构建iOS版本的sdk，所以需要设置OGRE_BUILD_PLATFORM_APPLE_IOS＝1。<br>  运行完之后能看到在build文件夹下有个OGRE工程，点击OGRE.xcodeproj就可以开始编译我们的sdk了。</p>
 <ul>
 <li>编译sdk<br>  在运行ogre工程之前，需要配置一些选项，点击Product → Scheme → Edit Scheme，分别设置ALL_BUILD和install target的Build Configuration选项为release，然后设置选择的target为ALL_BUILD。接下来就command+B开始编译，这个过程可能也需要花点时间；build成功之后，在选择install target，同样command＋B编译，完成之后你应该能发现有一个sdk目录，别忘了还需要把build目下的lib文件夹内容拷贝到sdk的lib文件夹下，这里面包含的是iOS运行时需要用到的一些静态库:</li>
@@ -435,7 +436,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">26</span>
+              <span class="site-state-item-count">27</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>

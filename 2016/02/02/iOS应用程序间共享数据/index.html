@@ -71,6 +71,7 @@
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="iOS应用程序间共享数据">
 <meta name="twitter:description" content="我们知道iOS由于沙盒的存在，应用程序不能越过自己的区域去访问别的存储空间的内容，不过可能有许多场景我们需要在应用程序之间共享数据，比如多个应用共用用户名密码进行登录等。虽然我们不能直接通过文件系统来分享数据，不过还是有些方法可以实现，为了方便说明，这里同时创建了两个工程Example1和Example2，实现这两个app之间的信息共享，Example1负责写数据，Example2负责读数据，具体">
+<meta name="twitter:image" content="http://7xpjm0.com1.z0.glb.clouddn.com/16-2-15%2F13214719.jpg">
 
 
 
@@ -305,10 +306,10 @@
 <h4 id="UIPasteboard"><a href="#UIPasteboard" class="headerlink" title="UIPasteboard"></a>UIPasteboard</h4><p>剪贴板是应用程序之间传递数据的简单方式，建议不要使用全局的粘贴板，而是自己根据名字创建一个新的粘贴板，防止其它地方全局拷贝的影响。然后把需要共享的内容复制到粘贴板，粘贴板的内容可以是文本、URL、图片和UIColor等，另一个app就可以根据粘贴板的名字去读取相关的信息。</p>
 <a id="more"></a>
 <p>Example1设置粘贴板的内容:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">UIPasteboard *pasteboard = [UIPasteboard pasteboardWithName:@&#34;myPasteboard&#34; create:YES];&#10;pasteboard.string = @&#34;myShareData&#34;;</span><br></pre></td></tr></table></figure>
-<p>Example2读取粘贴板的内容:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">UIPasteboard *pasteboard = [UIPasteboard pasteboardWithName:@&#34;myPasteboard&#34; create:NO];&#10;NSString *content = pasteboard.string;</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">UIPasteboard *pasteboard = [UIPasteboard pasteboardWithName:@&quot;myPasteboard&quot; create:YES];</span><br><span class="line">pasteboard.string = @&quot;myShareData&quot;;</span><br></pre></td></tr></table></figure>
+<p>Example2读取粘贴板的内容:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">UIPasteboard *pasteboard = [UIPasteboard pasteboardWithName:@&quot;myPasteboard&quot; create:NO];</span><br><span class="line">NSString *content = pasteboard.string;</span><br></pre></td></tr></table></figure></p>
 <h4 id="Custom-URL-Scheme"><a href="#Custom-URL-Scheme" class="headerlink" title="Custom URL Scheme"></a>Custom URL Scheme</h4><p>URL Scheme能够让我们通过自定义的协议在应用程序间传递信息，当你想要发送数据给一个实现了自定义URL Scheme的应用时，只需要创建好合适格式的URL，然后调用openURL:方法，系统就会载入注册了该scheme的应用然后将你的URL传递给他，比如如下的代码,todolist是一个其它应用注册的scheme，通过openURL便可以将服务请求发送到该应用（自定义的URL Scheme要能够唯一标示该APP，如果你的URL Scheme跟别人冲突了，那么你的app就不一定会被调起，iOS并不保证调用哪个应用）。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">NSURL *myURL = [NSURL URLWithString:@&#34;todolist://newid=20&#34;];&#10;[[UIApplication sharedApplication] openURL:myURL];</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">NSURL *myURL = [NSURL URLWithString:@&quot;todolist://newid=20&quot;];</span><br><span class="line">[[UIApplication sharedApplication] openURL:myURL];</span><br></pre></td></tr></table></figure>
 <ul>
 <li>注册URL Scheme<br>为了能够处理URL请求，我们需要先注册自定义的URL Scheme，只需要在Info tab下的URL Types添加即可，比如我们这里注册Example2的URL Scheme。</li>
 </ul>
@@ -319,22 +320,22 @@
 <li>处理URL请求</li>
 </ul>
 <p>当有URL请求到来时，所有的URL都会传递给你的app delegate，我们需要实现application:openURL:sourceApplication:annotation:方法来接收处理对应的URL，所以假如你想通过URL方式来传递数据，只需要将数据添加到URL中即可，另外的通过解析该URL来获取对应的数据。</p>
-<p>Eaxmple1发送携带参数的URL到Example2:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">NSString *string = @&#34;Example2://name=jiangbin#age=1&#34;;&#10;NSURL *url = [NSURL URLWithString:string];&#10;[[UIApplication sharedApplication] openURL:url];</span><br></pre></td></tr></table></figure></p>
-<p>Example2处理URL请求并解析:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-(BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation&#10;&#123;&#10;&#160; &#160; if ([[url scheme] isEqualToString:@&#34;Example2&#34;]) &#123;&#10;&#160; &#160; &#160; &#160; NSString *content = [url resourceSpecifier];&#10;        //&#35299;&#26512;content&#33719;&#21462;&#25968;&#25454;&#10;        //...&#10;&#160; &#160; &#160; &#160; return YES;&#10;&#160; &#160; &#125;&#10;&#160; &#160; return NO;&#10;&#125;</span><br></pre></td></tr></table></figure></p>
+<p>Eaxmple1发送携带参数的URL到Example2:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">NSString *string = @&quot;Example2://name=jiangbin#age=1&quot;;</span><br><span class="line">NSURL *url = [NSURL URLWithString:string];</span><br><span class="line">[[UIApplication sharedApplication] openURL:url];</span><br></pre></td></tr></table></figure></p>
+<p>Example2处理URL请求并解析:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">-(BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation</span><br><span class="line">&#123;</span><br><span class="line">    if ([[url scheme] isEqualToString:@&quot;Example2&quot;]) &#123;</span><br><span class="line">        NSString *content = [url resourceSpecifier];</span><br><span class="line">        //解析content获取数据</span><br><span class="line">        //...</span><br><span class="line">        return YES;</span><br><span class="line">    &#125;</span><br><span class="line">    return NO;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <h4 id="Shared-Keychain-Access"><a href="#Shared-Keychain-Access" class="headerlink" title="Shared Keychain Access"></a>Shared Keychain Access</h4><p>iOS的keychain提供一种安全保存信息的方式，可以保存密码等数据，而且keychain中的数据不会因为你删除app而丢失，你可以在重新安装后继续读取keychain中的数据。通常每个应用程序只允许访问自己在keychain中保存的数据，不过假如你使用同一个证书的话，不同的app也可以通过keychain来实现应用间的数据共享。</p>
 <p>为了实现keychain共享数据，我们需要开启Keychain Sharing，开启方法如下，然后添加设置相同的Keychain Group，不过别忘记了添加Security.framework。</p>
 <center><br><br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/458529-00ce1a0c8ccf752c.png" alt="Example1"><br><br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/2.png" alt="Example2"><br></center>
 
 <p>Example1保存数据到keychain(为了简单使用<a href="https://github.com/soffes/sskeychain" target="_blank" rel="external">SSKeychian</a>)</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- (void)setKeyChain&#10;&#123;&#10;    [SSKeychain setPassword:@&#34;shareData&#34; forService:@&#34;myservice&#34; account:@&#34;jiangbin&#34;];&#10;&#125;</span><br></pre></td></tr></table></figure>
-<p>Example2读取数据<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- (IBAction)getByKeychain:(id)sender&#10;&#123;&#10;    NSString *myData = [SSKeychain passwordForService:@&#34;myservice&#34; account:@&#34;jiangbin&#34;];&#10;&#125;</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">- (void)setKeyChain</span><br><span class="line">&#123;</span><br><span class="line">    [SSKeychain setPassword:@&quot;shareData&quot; forService:@&quot;myservice&quot; account:@&quot;jiangbin&quot;];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Example2读取数据<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">- (IBAction)getByKeychain:(id)sender</span><br><span class="line">&#123;</span><br><span class="line">    NSString *myData = [SSKeychain passwordForService:@&quot;myservice&quot; account:@&quot;jiangbin&quot;];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <h4 id="App-Groups"><a href="#App-Groups" class="headerlink" title="App Groups"></a>App Groups</h4><p>iOS8之后苹果加入了App Groups功能，应用程序之间可以通过同一个group来共享资源，app group可以通过NSUserDefaults进行小量数据的共享，如果需要共享较大的文件可以通过NSFileCoordinator、NSFilePresenter等方式。<br>开启app groups，需要添加一个group name，app之间通过这个group共享数据：</p>
 <center><br><img src="http://7xpjm0.com1.z0.glb.clouddn.com/16-2-15%2F66665066.jpg" alt="App Groups"><br><br></center>
 
 <p>Example1根据group name设置内容：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- (void)setAppGroup&#10;&#123;&#10;    NSUserDefaults *myDefaults = [[NSUserDefaults alloc]&#10;                                  initWithSuiteName:@&#34;group.com.jiangbin.SharedData&#34;];&#10;    [myDefaults setObject:@&#34;shared data&#34; forKey:@&#34;mykey&#34;];&#10;&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">- (void)setAppGroup</span><br><span class="line">&#123;</span><br><span class="line">    NSUserDefaults *myDefaults = [[NSUserDefaults alloc]</span><br><span class="line">                                  initWithSuiteName:@&quot;group.com.jiangbin.SharedData&quot;];</span><br><span class="line">    [myDefaults setObject:@&quot;shared data&quot; forKey:@&quot;mykey&quot;];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>Example2根据group name读取数据</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- (void)getByAppGroup&#10; &#123;&#10;    NSUserDefaults *myDefaults = [[NSUserDefaults alloc]&#10;                                  initWithSuiteName:@&#34;group.com.jiangbin.SharedData&#34;];&#10;    NSString *content = [myDefaults objectForKey:@&#34;mykey&#34;];&#10;&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">- (void)getByAppGroup</span><br><span class="line"> &#123;</span><br><span class="line">    NSUserDefaults *myDefaults = [[NSUserDefaults alloc]</span><br><span class="line">                                  initWithSuiteName:@&quot;group.com.jiangbin.SharedData&quot;];</span><br><span class="line">    NSString *content = [myDefaults objectForKey:@&quot;mykey&quot;];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
       
     </div>
 
@@ -358,6 +359,10 @@
           </div>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/03/01/说说JavaScriptCore/" rel="prev" title="说说JavaScriptCore">
+                说说JavaScriptCore <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -429,7 +434,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">26</span>
+              <span class="site-state-item-count">27</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
